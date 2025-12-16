@@ -90,7 +90,7 @@ class PyLine(CLIProgram):
             if self.args.stdin:  # --stdin
                 self.print_matches_in_files(sys.stdin)
             elif standard_input := sys.stdin.readlines():
-                self.args.no_file_header = self.args.no_file_header or not self.args.files  # --no-file-header (disable if no files)
+                self.args.no_file_header = self.args.no_file_header or not self.args.files  # --no-file-header (always True if no files)
                 self.print_matches_in_lines(standard_input, origin_file="")
 
             if self.args.files:  # Process any additional files.
@@ -98,7 +98,7 @@ class PyLine(CLIProgram):
         elif self.args.files:
             self.print_matches_in_files(self.args.files)
         else:
-            self.args.no_file_header = True  # --no-file-header (disable for input)
+            self.args.no_file_header = True  # --no-file-header (always True for input)
             self.print_matches_in_input()
 
     def print_matches_in_files(self, files: TextIO | list[str]) -> None:
