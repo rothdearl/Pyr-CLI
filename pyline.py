@@ -53,7 +53,7 @@ class PyLine(CLIProgram):
         parser.add_argument("files", help="files to search", metavar="FILES", nargs="*")
         parser.add_argument("-c", "--count", action="store_true",
                             help="print only a count of matching lines per input file")
-        parser.add_argument("-e", "--regexp", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
+        parser.add_argument("-g", "--grep", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
                             required=True, nargs=1)
         parser.add_argument("-H", "--no-file-header", action="store_true",
                             help="suppress the file name header on output")
@@ -65,7 +65,7 @@ class PyLine(CLIProgram):
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="display the matched strings, file names and line numbers in color")
         parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
-        parser.add_argument("--stdin", action="store_true", help="read FILES from standard input")
+        parser.add_argument("--xargs", action="store_true", help="read FILES from standard output")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
 
         return parser
@@ -87,7 +87,7 @@ class PyLine(CLIProgram):
         :return: None
         """
         if CLIProgram.input_is_redirected():
-            if self.args.stdin:  # --stdin
+            if self.args.xargs:  # --xargs
                 self.print_matches_in_files(sys.stdin)
             elif standard_input := sys.stdin.readlines():
                 self.args.no_file_header = self.args.no_file_header or not self.args.files  # --no-file-header (True if no files)
@@ -147,7 +147,7 @@ class PyLine(CLIProgram):
 
         # Find matches.
         for index, line in enumerate(lines):
-            if PatternFinder.text_has_all_patterns(self, line, self.args.regexp,
+            if PatternFinder.text_has_all_patterns(self, line, self.args.grep,
                                                    ignore_case=self.args.ignore_case) != self.args.invert_match:  # --invert-match
                 self.at_least_one_match = True
 
@@ -156,8 +156,8 @@ class PyLine(CLIProgram):
                     raise SystemExit(0)
 
                 if self.print_color and not self.args.invert_match:  # --invert-match
-                    line = PatternFinder.color_patterns_in_text(self.args.regexp, line,
-                                                                ignore_case=self.args.ignore_case, color=Colors.MATCH)
+                    line = PatternFinder.color_patterns_in_text(self.args.grep, line, ignore_case=self.args.ignore_case,
+                                                                color=Colors.MATCH)
 
                 if self.args.line_number:  # --line-number
                     width = 7

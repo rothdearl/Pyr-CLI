@@ -59,7 +59,7 @@ class PyTail(CLIProgram):
         parser.add_argument("-N", "--line-number", action="store_true", help="print line number with output lines")
         parser.add_argument("--color", choices=("on", "off"), default="on", help="display the file headers in color")
         parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
-        parser.add_argument("--stdin", action="store_true", help="read FILES from standard input")
+        parser.add_argument("--xargs", action="store_true", help="read FILES from standard output")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
 
         return parser
@@ -133,12 +133,12 @@ class PyTail(CLIProgram):
         # Ensure --line-number is only True if --follow=False.
         self.args.line_number = self.args.line_number and not self.args.follow
 
-        # Set --no-file-header to True if there are no files and --stdin=False.
-        if not self.args.files and not self.args.stdin:
+        # Set --no-file-header to True if there are no files and --xargs=False.
+        if not self.args.files and not self.args.xargs:
             self.args.no_file_header = True
 
         if CLIProgram.input_is_redirected():
-            if self.args.stdin:  # --stdin
+            if self.args.xargs:  # --xargs
                 files_printed.extend(self.print_lines_from_files(sys.stdin))
             else:
                 if standard_input := sys.stdin.readlines():
