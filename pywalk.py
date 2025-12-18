@@ -148,15 +148,15 @@ class PyWalk(CLIProgram):
 
         return matches_filters
 
-    def file_matches_patterns(self, file: str, patterns: list[str]) -> bool:
+    def file_has_patterns(self, file: str, patterns: list[str]) -> bool:
         """
-        Returns whether the file matches any of the patterns.
+        Returns whether the file has all the patterns.
         :param file: The file.
         :param patterns: The patterns.
         :return: True or False.
         """
-        return not patterns or PatternFinder.text_has_all_patterns(self, file, patterns,
-                                                                   ignore_case=self.args.ignore_case) != self.args.invert_match  # --invert-match
+        return not patterns or PatternFinder.text_has_patterns(self, file, patterns,
+                                                               ignore_case=self.args.ignore_case) != self.args.invert_match  # --invert-match
 
     def main(self) -> None:
         """
@@ -182,12 +182,11 @@ class PyWalk(CLIProgram):
         :param file: The file.
         :return: None
         """
-        if self.file_matches_filters(file):
-            file_name = file.name if file.name else os.path.curdir  # The dot file does not have a file name.
-            file_path = str(file.parent)
+        file_name = file.name if file.name else os.path.curdir  # The dot file does not have a file name.
+        file_path = str(file.parent)
 
-            if self.file_matches_patterns(file_name, self.args.name) and self.file_matches_patterns(file_path,
-                                                                                                    self.args.path):
+        if self.file_has_patterns(file_name, self.args.name) and self.file_has_patterns(file_path, self.args.path):
+            if self.file_matches_filters(file):
                 self.at_least_one_match = True
 
                 # If --quiet, exit on first match for performance.

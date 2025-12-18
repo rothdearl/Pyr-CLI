@@ -147,8 +147,8 @@ class PyLine(CLIProgram):
 
         # Find matches.
         for index, line in enumerate(lines):
-            if PatternFinder.text_has_all_patterns(self, line, self.args.grep,
-                                                   ignore_case=self.args.ignore_case) != self.args.invert_match:  # --invert-match
+            if PatternFinder.text_has_patterns(self, line, self.args.grep,
+                                               ignore_case=self.args.ignore_case) != self.args.invert_match:  # --invert-match
                 self.at_least_one_match = True
 
                 # If --quiet, exit on first match for performance.
