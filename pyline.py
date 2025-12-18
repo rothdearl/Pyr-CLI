@@ -156,7 +156,7 @@ class PyLine(CLIProgram):
                     raise SystemExit(0)
 
                 if self.print_color and not self.args.invert_match:  # --invert-match
-                    line = PatternFinder.color_patterns_in_text(self.args.grep, line, ignore_case=self.args.ignore_case,
+                    line = PatternFinder.color_patterns_in_text(line, self.args.grep, ignore_case=self.args.ignore_case,
                                                                 color=Colors.MATCH)
 
                 if self.args.line_number:  # --line-number

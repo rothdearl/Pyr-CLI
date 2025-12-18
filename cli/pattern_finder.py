@@ -34,11 +34,11 @@ class PatternFinder(ABC):
             yield token
 
     @staticmethod
-    def color_patterns_in_text(patterns: list[str], text: str, *, ignore_case: bool, color: str) -> str:
+    def color_patterns_in_text(text: str, patterns: list[str], *, ignore_case: bool, color: str) -> str:
         """
         Colors all patterns in the text.
-        :param patterns: The patterns.
         :param text: The text.
+        :param patterns: The patterns.
         :param ignore_case: Whether to ignore case.
         :param color: The color.
         :return: The text with all the patterns colored.

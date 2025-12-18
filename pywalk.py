@@ -55,6 +55,8 @@ class PyWalk(CLIProgram):
         parser.add_argument("-I", "--invert-match", action="store_true", help="print non-matching files")
         parser.add_argument("-n", "--name", action="extend", help="print files that match PATTERN", metavar="PATTERN",
                             nargs=1)
+        parser.add_argument("-p", "--path", action="extend", help="print paths that match PATTERN", metavar="PATTERN",
+                            nargs=1)
         parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress all normal output")
         parser.add_argument("-s", "--no-messages", action="store_true", help="suppress error messages about files")
         parser.add_argument("--abs", action="store_true", help="print absolute file paths")
@@ -82,6 +84,23 @@ class PyWalk(CLIProgram):
 
         if not self.at_least_one_match:
             raise SystemExit(1)
+
+    def color_patterns_in_path(self, path: str, text: str, patterns: list[str]) -> str:
+        """
+        Colors all patterns in the path.
+        :param path: The path.
+        :param text: The text to color.
+        :param patterns: The patterns.
+        :return: The path with all the patterns colored.
+        """
+        if patterns:
+            colored_text = PatternFinder.color_patterns_in_text(text, patterns, ignore_case=self.args.ignore_case,
+                                                                color=Colors.MATCH)
+
+            # Ensure only the text gets colored and nothing else.
+            path = colored_text.join(path.rsplit(text, maxsplit=1))
+
+        return path
 
     def file_matches_filters(self, file: pathlib.Path) -> bool:
         """
@@ -129,17 +148,15 @@ class PyWalk(CLIProgram):
 
         return matches_filters
 
-    def file_name_matches_patterns(self, file_name: str) -> bool:
+    def file_matches_patterns(self, file: str, patterns: list[str]) -> bool:
         """
-        Returns whether the file name matches any of the patterns.
-        :param file_name: The file name.
+        Returns whether the file matches any of the patterns.
+        :param file: The file.
+        :param patterns: The patterns.
         :return: True or False.
         """
-        if not self.args.name:  # --name
-            return True
-
-        return PatternFinder.text_has_all_patterns(self, file_name, self.args.name,
-                                                   ignore_case=self.args.ignore_case) != self.args.invert_match  # --invert-match
+        return not patterns or PatternFinder.text_has_all_patterns(self, file, patterns,
+                                                                   ignore_case=self.args.ignore_case) != self.args.invert_match  # --invert-match
 
     def main(self) -> None:
         """
@@ -167,8 +184,10 @@ class PyWalk(CLIProgram):
         """
         if self.file_matches_filters(file):
             file_name = file.name if file.name else os.path.curdir  # The dot file does not have a file name.
+            file_path = str(file.parent)
 
-            if self.file_name_matches_patterns(file_name):
+            if self.file_matches_patterns(file_name, self.args.name) and self.file_matches_patterns(file_path,
+                                                                                                    self.args.path):
                 self.at_least_one_match = True
 
                 # If --quiet, exit on first match for performance.
@@ -177,16 +196,12 @@ class PyWalk(CLIProgram):
 
                 path = str(file.absolute() if self.args.abs else file)  # --abs
 
+                if self.print_color and not self.args.invert_match:  # --invert-match
+                    path = self.color_patterns_in_path(path, file_name, self.args.name)
+                    path = self.color_patterns_in_path(path, file_path, self.args.path)
+
                 if self.args.quote:  # --quote
                     path = f"\"{path}\""
-
-                if self.print_color and self.args.name and not self.args.invert_match:  # --name and not --invert-match
-                    highlight = PatternFinder.color_patterns_in_text(self.args.name, file_name,
-                                                                     ignore_case=self.args.ignore_case,
-                                                                     color=Colors.MATCH)
-
-                    # Ensure only the file name gets highlighted and nothing else in the path.
-                    path = highlight.join(path.rsplit(file_name, maxsplit=1))
 
                 print(path)
 
