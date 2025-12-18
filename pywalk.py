@@ -171,7 +171,7 @@ class PyWalk(CLIProgram):
                 for directory in self.args.dirs:
                     self.print_files(directory)
         else:
-            dirs = os.curdir if not self.args.dirs else self.args.dirs
+            dirs = [os.curdir] if not self.args.dirs else self.args.dirs
 
             for directory in dirs:
                 self.print_files(directory)
