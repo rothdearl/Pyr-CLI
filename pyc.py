@@ -188,7 +188,7 @@ class PyCount(CLIProgram):
                 self.add_stats_to_totals(stats)
                 self.print_stats(stats, stat_origin=file)
             except UnicodeDecodeError:
-                self.log_file_error(f"{file}: unable to read with {self.encoding}")
+                self.log_error(f"{file}: unable to read with {self.encoding}")
 
     def print_stats_from_input(self) -> None:
         """

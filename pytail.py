@@ -102,9 +102,9 @@ class PyTail(CLIProgram):
 
                 time.sleep(polling_interval)
         except FileNotFoundError:
-            self.log_file_error(f"{file_name} has been deleted")
+            self.log_error(f"{file_name} has been deleted")
         except (OSError, UnicodeDecodeError):
-            self.log_file_error(f"{file_name} is no longer accessible")
+            self.log_error(f"{file_name} is no longer accessible")
 
     def follow_files(self, files: list[str]) -> list[Thread]:
         """
@@ -215,7 +215,7 @@ class PyTail(CLIProgram):
                 self.print_lines(text.readlines())
                 files_printed.append(file)
             except UnicodeDecodeError:
-                self.log_file_error(f"{file}: unable to read with {self.encoding}")
+                self.log_error(f"{file}: unable to read with {self.encoding}")
 
         return files_printed
 

@@ -162,7 +162,7 @@ class PyCat(CLIProgram):
                 if self.args.group and index < last_file_index:  # --group
                     print()
             except UnicodeDecodeError:
-                self.log_file_error(f"{file}: unable to read with {self.encoding}")
+                self.log_error(f"{file}: unable to read with {self.encoding}")
 
     def print_lines_from_input(self) -> None:
         """

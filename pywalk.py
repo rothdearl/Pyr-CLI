@@ -57,8 +57,6 @@ class PyWalk(CLIProgram):
                             nargs=1)
         parser.add_argument("-p", "--path", action="extend", help="print paths that match PATTERN", metavar="PATTERN",
                             nargs=1)
-        parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress all normal output")
-        parser.add_argument("-s", "--no-messages", action="store_true", help="suppress error messages about files")
         parser.add_argument("--abs", action="store_true", help="print absolute file paths")
         parser.add_argument("--color", choices=("on", "off"), default="on", help="display the matched strings in color")
         parser.add_argument("--empty", choices=("y", "n"), help="print files that are empty")
@@ -144,7 +142,7 @@ class PyWalk(CLIProgram):
                 else:
                     matches_filters = difference > last_modified
         except PermissionError:
-            self.log_file_error(f"{file}: permission denied")
+            self.log_error(f"{file}: permission denied")
 
         return matches_filters
 
@@ -190,10 +188,6 @@ class PyWalk(CLIProgram):
             if self.file_matches_filters(file):
                 self.at_least_one_match = True
 
-                # If --quiet, exit on first match for performance.
-                if self.args.quiet:
-                    raise SystemExit(0)
-
                 path = str(file.absolute() if self.args.abs else file)  # --abs
 
                 if self.print_color and not self.args.invert_match:  # --invert-match
@@ -220,9 +214,9 @@ class PyWalk(CLIProgram):
                 for file in directory_hierarchy.rglob("*"):
                     self.print_file(file)
             except PermissionError as error:
-                self.log_file_error(f"{error.filename}: permission denied")
+                self.log_error(f"{error.filename}: permission denied")
         else:
-            self.log_file_error(f"{directory if directory else "\"\""}: no such file or directory")
+            self.log_error(f"{directory if directory else "\"\""}: no such file or directory")
 
 
 if __name__ == "__main__":

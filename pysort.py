@@ -224,7 +224,7 @@ class PySort(CLIProgram):
                 self.print_file_header(file)
                 self.sort_lines(text.readlines())
             except UnicodeDecodeError:
-                self.log_file_error(f"{file}: unable to read with {self.encoding}")
+                self.log_error(f"{file}: unable to read with {self.encoding}")
 
     def sort_lines_from_input(self) -> None:
         """

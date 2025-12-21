@@ -30,13 +30,13 @@ class FileReader(ABC):
 
             try:
                 if os.path.isdir(file):
-                    program.log_file_error(f"{file}: is a directory")
+                    program.log_error(f"{file}: is a directory")
                 else:
                     with open(file, "r", encoding=encoding) as text:
                         yield index, file, text
             except FileNotFoundError:
-                program.log_file_error(f"{file if file else "\"\""}: no such file or directory")
+                program.log_error(f"{file if file else "\"\""}: no such file or directory")
             except PermissionError:
-                program.log_file_error(f"{file}: permission denied")
+                program.log_error(f"{file}: permission denied")
             except OSError:
-                program.log_file_error(f"{file}: unable to read file")
+                program.log_error(f"{file}: unable to read file")

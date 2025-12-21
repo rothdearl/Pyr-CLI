@@ -150,7 +150,7 @@ class PyUnique(CLIProgram):
             try:
                 self.filter_matching_lines(text, origin_file=file)
             except UnicodeDecodeError:
-                self.log_file_error(f"{file}: unable to read with {self.encoding}")
+                self.log_error(f"{file}: unable to read with {self.encoding}")
 
     def filter_matching_lines_from_input(self) -> None:
         """

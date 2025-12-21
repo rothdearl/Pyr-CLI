@@ -65,18 +65,6 @@ class CLIProgram(ABC):
         if raise_system_exit:
             raise SystemExit(self.ERROR_EXIT_CODE)
 
-    @final
-    def log_file_error(self, error_message: str) -> None:
-        """
-        Sets the error flag to True and prints the error message to standard error.
-        :param error_message: The error message to print.
-        :return: None
-        """
-        self.has_errors = True
-
-        if not getattr(self.args, "no_messages", False):
-            print(f"{self.NAME}: {error_message}", file=sys.stderr)
-
     @abstractmethod
     def main(self) -> None:
         """

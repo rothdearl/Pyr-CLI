@@ -220,7 +220,7 @@ class PySplit(CLIProgram):
                 self.print_file_header(file)
                 self.split_lines(text)
             except UnicodeDecodeError:
-                self.log_file_error(f"{file}: unable to read with {self.encoding}")
+                self.log_error(f"{file}: unable to read with {self.encoding}")
 
     def split_lines_from_input(self) -> None:
         """
