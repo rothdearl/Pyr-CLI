@@ -85,7 +85,7 @@ class PyCount(CLIProgram):
         parser.add_argument("-l", "--lines", action="store_true", help="print the line counts")
         parser.add_argument("-L", "--max-line-length", action="store_true", help="print the maximum line length")
         parser.add_argument("-t", "--tab-width", help="count tabs as N+ spaces instead of 8 for line length",
-                            metavar="N+", nargs=1, type=int)
+                            metavar="N+", type=int)
         parser.add_argument("-w", "--words", action="store_true", help="print the word counts")
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="display the counts and file names in color")
@@ -216,12 +216,12 @@ class PyCount(CLIProgram):
         :return: None
         """
         if self.args.tab_width:  # --tab-width
-            self.tab_width = self.args.tab_width[0]
+            self.tab_width = self.args.tab_width
 
         if self.tab_width < 1:
             self.log_error(f"tab width ({self.tab_width}) cannot be less than 1", raise_system_exit=True)
 
-        # -1 one for the actual tab character.
+        # -1 one for the tab character.
         self.tab_width -= 1
 
         # Check which stat options were provided: --lines, --words, --chars, or --max-line-length

@@ -40,7 +40,6 @@ class PyWalk(CLIProgram):
         super().__init__(name="pywalk", version="1.2.2", error_exit_code=2)
 
         self.at_least_one_match: bool = False
-        self.max_depth: int = 0
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
@@ -53,7 +52,7 @@ class PyWalk(CLIProgram):
 
         parser.add_argument("dirs", help="directory starting-points", metavar="DIRECTORIES", nargs="*")
         parser.add_argument("-d", "--depth", help="descend at most N+ levels of directories below the starting-points",
-                            metavar="N+", nargs=1, type=int)
+                            metavar="N+", type=int)
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case in patterns and input data")
         parser.add_argument("-I", "--invert-match", action="store_true", help="print non-matching files")
         parser.add_argument("-n", "--name", action="extend", help="print files that match PATTERN", metavar="PATTERN",
@@ -66,11 +65,11 @@ class PyWalk(CLIProgram):
         parser.add_argument("--color", choices=("on", "off"), default="on", help="display the matched strings in color")
         parser.add_argument("--empty", choices=("y", "n"), help="print files that are empty")
         modified_group.add_argument("--m-days", help="print files modified < than or > than n days", metavar="±n",
-                                    nargs=1, type=int)
+                                    type=int)
         modified_group.add_argument("--m-hours", help="print files modified < than or > than n hours", metavar="±n",
-                                    nargs=1, type=int)
+                                    type=int)
         modified_group.add_argument("--m-mins", help="print files modified < than or > than n minutes", metavar="±n",
-                                    nargs=1, type=int)
+                                    type=int)
         parser.add_argument("--quote", action="store_true", help="print paths in quotation marks")
         parser.add_argument("--type", choices=("d", "f"), help="print files by type")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
@@ -134,11 +133,11 @@ class PyWalk(CLIProgram):
             # --m-days, --m-hours, or --m-mins
             if matches_filters and any((self.args.m_days, self.args.m_hours, self.args.m_mins)):
                 if self.args.m_days:
-                    last_modified = self.args.m_days[0] * 86400  # Convert seconds to days.
+                    last_modified = self.args.m_days * 86400  # Convert seconds to days.
                 elif self.args.m_hours:
-                    last_modified = self.args.m_hours[0] * 3600  # Convert seconds to hours.
+                    last_modified = self.args.m_hours * 3600  # Convert seconds to hours.
                 else:
-                    last_modified = self.args.m_mins[0] * 60  # Convert seconds to minutes.
+                    last_modified = self.args.m_mins * 60  # Convert seconds to minutes.
 
                 difference = time.time() - file.lstat().st_mtime
 
@@ -167,12 +166,6 @@ class PyWalk(CLIProgram):
         The main function of the program.
         :return: None
         """
-        if self.args.depth:  # --depth
-            self.max_depth = self.args.depth[0]
-
-            if self.max_depth < 1:
-                self.log_error(f"depth ({self.max_depth}) cannot be less than 1", raise_system_exit=True)
-
         if CLIProgram.input_is_redirected():
             for directory in sys.stdin:
                 self.print_files(directory.rstrip("\n"))
@@ -196,13 +189,13 @@ class PyWalk(CLIProgram):
         file_path = str(file.parent)
 
         # Check --depth then --name then --path then filters.
-        if self.max_depth and self.max_depth < len(file.parents):
+        if self.args.depth and self.args.depth < len(file.parents):
             return
 
-        if not self.file_has_patterns(file_name, self.args.name):
+        if self.args.name and not self.file_has_patterns(file_name, self.args.name):
             return
 
-        if not self.file_has_patterns(file_path, self.args.path):
+        if self.args.path and not self.file_has_patterns(file_path, self.args.path):
             return
 
         if not self.file_matches_filters(file):

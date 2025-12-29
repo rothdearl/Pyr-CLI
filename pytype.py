@@ -53,10 +53,9 @@ class PyType(CLIProgram):
         parser.add_argument("files", help="files to print", metavar="FILES", nargs="*")
         parser.add_argument("-H", "--no-file-header", action="store_true",
                             help="suppress the file name header on output")
-        parser.add_argument("-l", "--lines", help="print only N+ lines", metavar="N+", nargs=1, type=int)
+        parser.add_argument("-l", "--lines", help="print only N+ lines", metavar="N+", type=int)
         parser.add_argument("-n", "--line-number", action="store_true", help="print line number with output lines")
-        parser.add_argument("-s", "--line-start", help="print at line n from the head or tail", metavar="±n", nargs=1,
-                            type=int)
+        parser.add_argument("-s", "--line-start", help="print at line n from the head or tail", metavar="±n", type=int)
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="display the file names and line numbers in color")
         parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
@@ -165,8 +164,8 @@ class PyType(CLIProgram):
         Sets the values to use for printing lines.
         :return: None
         """
-        self.line_start = 1 if not self.args.line_start else self.args.line_start[0]  # --line-start
-        self.lines = sys.maxsize if not self.args.lines else self.args.lines[0]  # --lines
+        self.line_start = 1 if not self.args.line_start else self.args.line_start  # --line-start
+        self.lines = sys.maxsize if not self.args.lines else self.args.lines  # --lines
 
         # Validate the line values.
         if self.line_start == 0:

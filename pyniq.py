@@ -64,16 +64,13 @@ class PyUnique(CLIProgram):
         print_group.add_argument("-g", "--group", action="store_true",
                                  help="show all items, separating groups with an empty line")
         print_group.add_argument("-u", "--unique", action="store_true", help="only print unique lines")
-        parser.add_argument("-f", "--skip-fields", help="avoid comparing the first N fields", metavar="N", nargs=1,
-                            type=int)
+        parser.add_argument("-f", "--skip-fields", help="avoid comparing the first N fields", metavar="N", type=int)
         parser.add_argument("-H", "--no-file-header", action="store_true",
                             help="suppress the file name header on output")
         parser.add_argument("-i", "--ignore-case", action="store_true",
                             help="ignore differences in case when comparing")
-        parser.add_argument("-m", "--max-chars", help="compare no more than N+ characters", metavar="N+", nargs=1,
-                            type=int)
-        parser.add_argument("-s", "--skip-chars", help="avoid comparing the first N characters", metavar="N", nargs=1,
-                            type=int)
+        parser.add_argument("-m", "--max-chars", help="compare no more than N+ characters", metavar="N+", type=int)
+        parser.add_argument("-s", "--skip-chars", help="avoid comparing the first N characters", metavar="N", type=int)
         parser.add_argument("-w", "--skip-whitespace", action="store_true",
                             help="avoid comparing leading and trailing whitespace")
         parser.add_argument("--color", choices=("on", "off"), default="on",
@@ -288,9 +285,9 @@ class PyUnique(CLIProgram):
         Sets the values to use for matching lines.
         :return: None
         """
-        self.max_chars = 1 if not self.args.max_chars else self.args.max_chars[0]  # --max-chars
-        self.skip_chars = 0 if not self.args.skip_chars else self.args.skip_chars[0]  # --skip-chars
-        self.skip_fields = 0 if not self.args.skip_fields else self.args.skip_fields[0]  # --skip-fields
+        self.max_chars = 1 if not self.args.max_chars else self.args.max_chars  # --max-chars
+        self.skip_chars = 0 if not self.args.skip_chars else self.args.skip_chars  # --skip-chars
+        self.skip_fields = 0 if not self.args.skip_fields else self.args.skip_fields  # --skip-fields
 
         # Validate the match values.
         if self.skip_fields < 0:
