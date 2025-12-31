@@ -62,8 +62,8 @@ class PyWalk(CLIProgram):
         parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress all normal output")
         parser.add_argument("-s", "--no-messages", action="store_true", help="suppress error messages about files")
         parser.add_argument("--color", choices=("on", "off"), default="on", help="display the matched strings in color")
-        parser.add_argument("--cur", action="store_true", help="print the current directory")
         parser.add_argument("--cwd", action="store_true", help="print the current working directory")
+        parser.add_argument("--dot", action="store_true", help="print the dot (.) file")
         parser.add_argument("--empty", choices=("y", "n"), help="print files that are empty")
         modified_group.add_argument("--m-days", help="print files modified < than or > than n days", metavar="±n",
                                     type=int)
@@ -185,7 +185,7 @@ class PyWalk(CLIProgram):
         file_name = file.name if file.name else os.curdir  # The dot file does not have a file name.
         file_path = str(file.parent) if len(file.parts) > 1 else ""  # Do not use the dot file in the path.
 
-        if not file.name and not self.args.cur:  # Skip the dot file if not --cur.
+        if not file.name and not self.args.dot:  # Skip the dot file if not --dot.
             return
 
         if self.args.depth and self.args.depth < len(file.parents):  # --depth
@@ -215,7 +215,7 @@ class PyWalk(CLIProgram):
                 path = os.path.join(pathlib.Path.cwd(), file_path, file_name)
             else:
                 path = os.path.join(pathlib.Path.cwd(), file_path)
-        elif self.args.cur and file.name:  # Do not join the current directory with the dot file.
+        elif self.args.dot and file.name:  # Do not join the current directory with the dot file.
             path = os.path.join(os.curdir, file_path, file_name)
         else:
             path = os.path.join(file_path, file_name)
