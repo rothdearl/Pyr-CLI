@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-Filename: files.py
+Filename: search.py
 Author: Roth Earl
-Version: 1.2.2
-Description: A program to print files in a directory hierarchy.
+Version: 1.3.0
+Description: A program to search for files in a directory hierarchy.
 License: GNU GPLv3
 """
 
@@ -28,16 +28,16 @@ class Colors:
 
 
 @final
-class Files(CLIProgram):
+class Main(CLIProgram):
     """
-    A program to print files in a directory hierarchy.
+    A program to search for files in a directory hierarchy.
     """
 
     def __init__(self) -> None:
         """
         Initializes a new instance.
         """
-        super().__init__(name="files", version="1.2.2", error_exit_code=2)
+        super().__init__(name="search", version="1.3.0", error_exit_code=2)
 
         self.at_least_one_match: bool = False
 
@@ -46,7 +46,7 @@ class Files(CLIProgram):
         Builds an argument parser.
         :return: An argument parser.
         """
-        parser = argparse.ArgumentParser(allow_abbrev=False, description="print files in a directory hierarchy",
+        parser = argparse.ArgumentParser(allow_abbrev=False, description="search for files in a directory hierarchy",
                                          epilog="default starting-point is the current directory", prog=self.NAME)
         modified_group = parser.add_mutually_exclusive_group()
 
@@ -55,24 +55,24 @@ class Files(CLIProgram):
                             metavar="N+", type=int)
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case in patterns and input data")
         parser.add_argument("-I", "--invert-match", action="store_true", help="print non-matching files")
-        parser.add_argument("-n", "--name", action="extend", help="print files that match PATTERN", metavar="PATTERN",
-                            nargs=1)
-        parser.add_argument("-p", "--path", action="extend", help="print paths that match PATTERN", metavar="PATTERN",
-                            nargs=1)
+        parser.add_argument("-n", "--name", action="extend", help="print files whose names match PATTERN",
+                            metavar="PATTERN", nargs=1)
+        parser.add_argument("-p", "--path", action="extend", help="print files whose paths match PATTERN",
+                            metavar="PATTERN", nargs=1)
         parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress all normal output")
         parser.add_argument("-s", "--no-messages", action="store_true", help="suppress error messages about files")
         parser.add_argument("--abs", action="store_true", help="print absolute file paths")
         parser.add_argument("--color", choices=("on", "off"), default="on", help="display the matched strings in color")
-        parser.add_argument("--dot", action="store_true", help="print the dot (.) file")
-        parser.add_argument("--empty", choices=("y", "n"), help="print files that are empty")
-        modified_group.add_argument("--m-days", help="print files modified < than or > than n days", metavar="±n",
-                                    type=int)
-        modified_group.add_argument("--m-hours", help="print files modified < than or > than n hours", metavar="±n",
-                                    type=int)
-        modified_group.add_argument("--m-mins", help="print files modified < than or > than n minutes", metavar="±n",
-                                    type=int)
-        parser.add_argument("--quotes", action="store_true", help="print files in double quotes")
-        parser.add_argument("--type", choices=("d", "f"), help="print files by type")
+        parser.add_argument("--dot", action="store_true", help="include dot (.) files in output")
+        parser.add_argument("--empty", choices=("y", "n"), help="print only empty files")
+        modified_group.add_argument("--m-days", help="print files modified less than or more than n days ago",
+                                    metavar="±n", type=int)
+        modified_group.add_argument("--m-hours", help="print files modified less than or more than n hours ago",
+                                    metavar="±n", type=int)
+        modified_group.add_argument("--m-mins", help="print files modified less than or more than n minutes ago",
+                                    metavar="±n", type=int)
+        parser.add_argument("--quotes", action="store_true", help="print file paths in double quotes")
+        parser.add_argument("--type", choices=("d", "f"), help="print only directories (d) or regular files (f)")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
 
         return parser
@@ -246,4 +246,4 @@ class Files(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Files())
+    CLIProgram.run(Main())

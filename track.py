@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-Filename: pytail.py
+Filename: track.py
 Author: Roth Earl
-Version: 1.2.1
+Version: 1.3.0
 Description: A program to print the last part of files.
 License: GNU GPLv3
 """
@@ -31,7 +31,7 @@ class Colors:
 
 
 @final
-class PyTail(CLIProgram):
+class Main(CLIProgram):
     """
     A program to print the last part of files.
     """
@@ -40,7 +40,7 @@ class PyTail(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="pytail", version="1.2.1")
+        super().__init__(name="track", version="1.3.0")
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
@@ -58,7 +58,7 @@ class PyTail(CLIProgram):
         parser.add_argument("-N", "--line-number", action="store_true", help="print line number with output lines")
         parser.add_argument("--color", choices=("on", "off"), default="on", help="display the file headers in color")
         parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
-        parser.add_argument("--pipe", action="store_true", help="read FILES from standard output")
+        parser.add_argument("--pipe", action="store_true", help="read input from standard output")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
 
         return parser
@@ -239,4 +239,4 @@ class PyTail(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(PyTail())
+    CLIProgram.run(Main())

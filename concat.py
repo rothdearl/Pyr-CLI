@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-Filename: pycat.py
+Filename: concat.py
 Author: Roth Earl
-Version: 1.2.1
+Version: 1.3.0
 Description: A program to concatenate files to standard output.
 License: GNU GPLv3
 """
@@ -27,7 +27,7 @@ class Colors:
 
 
 @final
-class PyCat(CLIProgram):
+class Main(CLIProgram):
     """
     A program to concatenate files to standard output.
     """
@@ -36,7 +36,7 @@ class PyCat(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="pycat", version="1.2.1")
+        super().__init__(name="concat", version="1.3.0")
 
         self.number: int = 0
         self.repeated_blank_lines: int = 0
@@ -64,7 +64,7 @@ class PyCat(CLIProgram):
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="display the spaces, tabs, end of line and numbers in color")
         parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
-        parser.add_argument("--pipe", action="store_true", help="read FILES from standard output")
+        parser.add_argument("--pipe", action="store_true", help="read input from standard output")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
 
         return parser
@@ -189,4 +189,4 @@ class Whitespace:
 
 
 if __name__ == "__main__":
-    CLIProgram.run(PyCat())
+    CLIProgram.run(Main())

@@ -4,7 +4,7 @@
 """
 Filename: match.py
 Author: Roth Earl
-Version: 1.2.2
+Version: 1.3.0
 Description: A program to print lines that match patterns.
 License: GNU GPLv3
 """
@@ -29,7 +29,7 @@ class Colors:
 
 
 @final
-class Match(CLIProgram):
+class Main(CLIProgram):
     """
     A program to print lines that match patterns.
     """
@@ -38,7 +38,7 @@ class Match(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="match", version="1.2.2", error_exit_code=2)
+        super().__init__(name="match", version="1.3.0", error_exit_code=2)
 
         self.at_least_one_match: bool = False
 
@@ -52,8 +52,8 @@ class Match(CLIProgram):
 
         parser.add_argument("files", help="files to search", metavar="FILES", nargs="*")
         parser.add_argument("-c", "--count", action="store_true",
-                            help="print only a count of matching lines per input file")
-        parser.add_argument("-e", "--grep", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
+                            help="print only the count of matching lines per input file")
+        parser.add_argument("-f", "--find", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
                             nargs=1)
         parser.add_argument("-H", "--no-file-header", action="store_true",
                             help="suppress the file name header on output")
@@ -65,7 +65,7 @@ class Match(CLIProgram):
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="display the matched strings, file names and line numbers in color")
         parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
-        parser.add_argument("--piped", action="store_true", help="read FILES from standard output")
+        parser.add_argument("--pipe", action="store_true", help="read input from standard output")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
 
         return parser
@@ -86,12 +86,12 @@ class Match(CLIProgram):
         The main function of the program.
         :return: None
         """
-        # Set --grep to [] if not provided.
-        if not self.args.grep:
-            self.args.grep = []
+        # Set --find to [] if not provided.
+        if not self.args.find:
+            self.args.find = []
 
         if CLIProgram.input_is_redirected():
-            if self.args.piped:  # --piped
+            if self.args.pipe:  # --pipe
                 self.print_matches_in_files(sys.stdin)
             elif standard_input := sys.stdin.readlines():
                 self.args.no_file_header = self.args.no_file_header or not self.args.files  # --no-file-header (True if no files)
@@ -151,7 +151,7 @@ class Match(CLIProgram):
 
         # Find matches.
         for index, line in enumerate(lines):
-            if PatternFinder.text_has_patterns(self, line, self.args.grep,
+            if PatternFinder.text_has_patterns(self, line, self.args.find,
                                                ignore_case=self.args.ignore_case) != self.args.invert_match:  # --invert-match
                 self.at_least_one_match = True
 
@@ -160,7 +160,7 @@ class Match(CLIProgram):
                     raise SystemExit(0)
 
                 if self.print_color and not self.args.invert_match:  # --invert-match
-                    line = PatternFinder.color_patterns_in_text(line, self.args.grep, ignore_case=self.args.ignore_case,
+                    line = PatternFinder.color_patterns_in_text(line, self.args.find, ignore_case=self.args.ignore_case,
                                                                 color=Colors.MATCH)
 
                 if self.args.line_number:  # --line-number
@@ -195,4 +195,4 @@ class Match(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Match())
+    CLIProgram.run(Main())

@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-Filename: pyhead.py
+Filename: slice.py
 Author: Roth Earl
-Version: 1.2.1
-Description: A program to print the first part of files.
+Version: 1.3.0
+Description: A program to print files to standard output.
 License: GNU GPLv3
 """
 
@@ -28,33 +28,38 @@ class Colors:
 
 
 @final
-class PyHead(CLIProgram):
+class Main(CLIProgram):
     """
-    A program to print the first part of files.
+    A program to print files to standard output.
     """
 
     def __init__(self) -> None:
         """
         Initializes a new instance.
         """
-        super().__init__(name="pyhead", version="1.2.1")
+        super().__init__(name="slice", version="1.3.0")
+
+        self.line_start: int = 0
+        self.lines: int = 0
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
-        Builds and returns an argument parser.
+        Builds an argument parser.
         :return: An argument parser.
         """
-        parser = argparse.ArgumentParser(allow_abbrev=False, description="print the first part of FILES",
+        parser = argparse.ArgumentParser(allow_abbrev=False, description="print FILES to standard output",
                                          epilog="with no FILES, read standard input", prog=self.NAME)
 
         parser.add_argument("files", help="files to print", metavar="FILES", nargs="*")
         parser.add_argument("-H", "--no-file-header", action="store_true",
                             help="suppress the file name header on output")
-        parser.add_argument("-n", "--lines", help="print the first or all but the last n lines", metavar="±n", type=int)
-        parser.add_argument("-N", "--line-number", action="store_true", help="print line number with output lines")
-        parser.add_argument("--color", choices=("on", "off"), default="on", help="display the file headers in color")
+        parser.add_argument("-l", "--lines", help="print only N+ lines", metavar="N+", type=int)
+        parser.add_argument("-n", "--line-number", action="store_true", help="print line number with output lines")
+        parser.add_argument("-s", "--line-start", help="print at line n from the head or tail", metavar="±n", type=int)
+        parser.add_argument("--color", choices=("on", "off"), default="on",
+                            help="display the file names and line numbers in color")
         parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
-        parser.add_argument("--pipe", action="store_true", help="read FILES from standard output")
+        parser.add_argument("--pipe", action="store_true", help="read input from standard output")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
 
         return parser
@@ -64,6 +69,8 @@ class PyHead(CLIProgram):
         The main function of the program.
         :return: None
         """
+        self.set_line_info_values()
+
         # Set --no-file-header to True if there are no files and --pipe=False.
         if not self.args.files and not self.args.pipe:
             self.args.no_file_header = True
@@ -106,16 +113,13 @@ class PyHead(CLIProgram):
         :return: None
         """
         line_number = 0
-        lines_to_print = 10 if not self.args.lines else self.args.lines  # --lines
-
-        # Print all but the last 'n' lines.
-        if lines_to_print < 0:
-            lines_to_print = len(lines) + lines_to_print
+        line_start = len(lines) + self.line_start + 1 if self.line_start < 0 else self.line_start
+        line_end = line_start + self.lines - 1
 
         for line in lines:
             line_number += 1
 
-            if line_number <= lines_to_print:
+            if line_start <= line_number <= line_end:
                 if self.args.line_number:  # --line-number
                     width = 7
 
@@ -125,8 +129,6 @@ class PyHead(CLIProgram):
                         line = f"{line_number:>{width}}:{line}"
 
                 CLIProgram.print_line(line)
-            else:
-                break
 
     def print_lines_from_files(self, files: TextIO | list[str]) -> None:
         """
@@ -136,7 +138,7 @@ class PyHead(CLIProgram):
         """
         for _, file, text in FileReader.read_files(self, files, self.encoding):
             try:
-                self.print_file_header(file=file)
+                self.print_file_header(file)
                 self.print_lines(text.readlines())
             except UnicodeDecodeError:
                 self.log_file_error(f"{file}: unable to read with {self.encoding}")
@@ -157,6 +159,21 @@ class PyHead(CLIProgram):
 
         self.print_lines(lines)
 
+    def set_line_info_values(self) -> None:
+        """
+        Sets the values to use for printing lines.
+        :return: None
+        """
+        self.line_start = 1 if not self.args.line_start else self.args.line_start  # --line-start
+        self.lines = sys.maxsize if not self.args.lines else self.args.lines  # --lines
+
+        # Validate the line values.
+        if self.line_start == 0:
+            self.log_error(f"line start ({self.line_start}) cannot be 0", raise_system_exit=True)
+
+        if self.lines < 1:
+            self.log_error(f"lines ({self.lines}) cannot be less than 1", raise_system_exit=True)
+
 
 if __name__ == "__main__":
-    CLIProgram.run(PyHead())
+    CLIProgram.run(Main())
