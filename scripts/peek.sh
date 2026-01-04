@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Run Python script with options.
-"${HOME}/GitHub/PyTools/pytail.py" "$@"
+"${HOME}/GitHub/PyTools/peek.py" "$@"

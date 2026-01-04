@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Run Python script with options.
-"${HOME}/GitHub/PyTools/pyniq.py" "$@"
+"${HOME}/GitHub/PyTools/concat.py" "$@"

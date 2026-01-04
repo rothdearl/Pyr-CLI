@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Run Python script with options.
-"${HOME}/GitHub/PyTools/pyspl.py" "$@"
+"${HOME}/GitHub/PyTools/split.py" "$@"
