@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Filename: search.py
+Filename: seek.py
 Author: Roth Earl
 Version: 1.3.0
 Description: A program to search for files in a directory hierarchy.
@@ -28,7 +28,7 @@ class Colors:
 
 
 @final
-class Main(CLIProgram):
+class Seek(CLIProgram):
     """
     A program to search for files in a directory hierarchy.
     """
@@ -37,7 +37,7 @@ class Main(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="search", version="1.3.0", error_exit_code=2)
+        super().__init__(name="seek", version="1.3.0", error_exit_code=2)
 
         self.at_least_one_match: bool = False
 
@@ -246,4 +246,4 @@ class Main(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Main())
+    CLIProgram.run(Seek())

@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Run Python script with options.
-"${HOME}/GitHub/PyTools/slice.py" "$@"
+"${HOME}/GitHub/PyTools/seek.py" "$@"

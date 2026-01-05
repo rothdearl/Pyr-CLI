@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Run Python script with options.
-"${HOME}/GitHub/PyTools/distinct.py" "$@"
+"${HOME}/GitHub/PyTools/dupe.py" "$@"

@@ -31,7 +31,7 @@ class Colors:
 
 
 @final
-class Main(CLIProgram):
+class Track(CLIProgram):
     """
     A program to print the last part of files.
     """
@@ -239,4 +239,4 @@ class Main(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Main())
+    CLIProgram.run(Track())

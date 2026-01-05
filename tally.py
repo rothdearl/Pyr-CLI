@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Filename: count.py
+Filename: tally.py
 Author: Roth Earl
 Version: 1.3.0
 Description: A program to print line, word and character counts in files.
@@ -42,7 +42,7 @@ class Indexes:
 
 
 @final
-class Main(CLIProgram):
+class Tally(CLIProgram):
     """
     A program to print line, word and character counts in files.
     """
@@ -51,7 +51,7 @@ class Main(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="count", version="1.3.0")
+        super().__init__(name="tally", version="1.3.0")
 
         self.OPTIONS: Final[list[bool]] = [False, False, False, False]
         self.TOTALS: Final[list[int]] = [0, 0, 0, 0]
@@ -239,4 +239,4 @@ class Main(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Main())
+    CLIProgram.run(Tally())

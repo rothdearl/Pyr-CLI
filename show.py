@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Filename: slice.py
+Filename: show.py
 Author: Roth Earl
 Version: 1.3.0
 Description: A program to print files to standard output.
@@ -28,7 +28,7 @@ class Colors:
 
 
 @final
-class Main(CLIProgram):
+class Show(CLIProgram):
     """
     A program to print files to standard output.
     """
@@ -37,7 +37,7 @@ class Main(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="slice", version="1.3.0")
+        super().__init__(name="show", version="1.3.0")
 
         self.line_start: int = 0
         self.lines: int = 0
@@ -176,4 +176,4 @@ class Main(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Main())
+    CLIProgram.run(Show())

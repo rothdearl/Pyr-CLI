@@ -27,7 +27,7 @@ class Colors:
 
 
 @final
-class Main(CLIProgram):
+class Concat(CLIProgram):
     """
     A program to concatenate files to standard output.
     """
@@ -189,4 +189,4 @@ class Whitespace:
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Main())
+    CLIProgram.run(Concat())

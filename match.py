@@ -29,7 +29,7 @@ class Colors:
 
 
 @final
-class Main(CLIProgram):
+class Match(CLIProgram):
     """
     A program to print lines that match patterns.
     """
@@ -54,7 +54,7 @@ class Main(CLIProgram):
         parser.add_argument("-c", "--count", action="store_true",
                             help="print only the count of matching lines per input file")
         parser.add_argument("-f", "--find", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
-                            nargs=1)
+                            nargs=1, required=True)
         parser.add_argument("-H", "--no-file-header", action="store_true",
                             help="suppress the file name header on output")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case in patterns and input data")
@@ -86,10 +86,6 @@ class Main(CLIProgram):
         The main function of the program.
         :return: None
         """
-        # Set --find to [] if not provided.
-        if not self.args.find:
-            self.args.find = []
-
         if CLIProgram.input_is_redirected():
             if self.args.pipe:  # --pipe
                 self.print_matches_in_files(sys.stdin)
@@ -195,4 +191,4 @@ class Main(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Main())
+    CLIProgram.run(Match())

@@ -28,7 +28,7 @@ class Colors:
 
 
 @final
-class Main(CLIProgram):
+class Peek(CLIProgram):
     """
     A program to print the first part of files.
     """
@@ -159,4 +159,4 @@ class Main(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Main())
+    CLIProgram.run(Peek())

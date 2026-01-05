@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Filename: distinct.py
+Filename: dupe.py
 Author: Roth Earl
 Version: 1.3.0
 Description: A program to filter matching lines in files.
@@ -29,7 +29,7 @@ class Colors:
 
 
 @final
-class Main(CLIProgram):
+class Dupe(CLIProgram):
     """
     A program to filter matching lines in files.
     """
@@ -38,7 +38,7 @@ class Main(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="distinct", version="1.3.0")
+        super().__init__(name="dupe", version="1.3.0")
 
         self.FIELD_PATTERN: Final[str] = r"\s+|\W+"
         self.max_chars: int = 0
@@ -301,4 +301,4 @@ class Main(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Main())
+    CLIProgram.run(Dupe())
