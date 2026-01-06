@@ -61,7 +61,7 @@ class Match(CLIProgram):
         parser.add_argument("-I", "--invert-match", action="store_true", help="print nonmatching lines")
         parser.add_argument("-n", "--line-number", action="store_true", help="print line number with output lines")
         parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress all normal output")
-        parser.add_argument("-s", "--no-messages", action="store_true", help="suppress error messages")
+        parser.add_argument("-s", "--no-messages", action="store_true", help="suppress error messages about files")
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="display the matched strings, file names and line numbers in color")
         parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
