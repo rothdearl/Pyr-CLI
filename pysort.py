@@ -66,7 +66,7 @@ class PySort(CLIProgram):
         sort_group.add_argument("-R", "--random-sort", action="store_true", help="randomize the result of comparisons")
         parser.add_argument("-f", "--skip-fields", help="avoid comparing the first N fields", metavar="N", type=int)
         parser.add_argument("-H", "--no-file-header", action="store_true",
-                            help="suppress the file name header on output")
+                            help="suppress the prefixing of file names on output")
         parser.add_argument("-i", "--ignore-case", action="store_true",
                             help="ignore differences in case when comparing")
         parser.add_argument("-p", "--pattern", help="split lines into fields using PATTERN", nargs=1)

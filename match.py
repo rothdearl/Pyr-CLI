@@ -56,7 +56,7 @@ class Match(CLIProgram):
         parser.add_argument("-f", "--find", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
                             nargs=1, required=True)
         parser.add_argument("-H", "--no-file-header", action="store_true",
-                            help="suppress the file name header on output")
+                            help="suppress the prefixing of file names on output")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case in patterns and input data")
         parser.add_argument("-I", "--invert-match", action="store_true", help="print nonmatching lines")
         parser.add_argument("-n", "--line-number", action="store_true", help="print line number with output lines")

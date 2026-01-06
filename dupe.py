@@ -66,7 +66,7 @@ class Dupe(CLIProgram):
         print_group.add_argument("-u", "--unique", action="store_true", help="only print unique lines")
         parser.add_argument("-f", "--skip-fields", help="avoid comparing the first N fields", metavar="N", type=int)
         parser.add_argument("-H", "--no-file-header", action="store_true",
-                            help="suppress the file name header on output")
+                            help="suppress the prefixing of file names on output")
         parser.add_argument("-i", "--ignore-case", action="store_true",
                             help="ignore differences in case when comparing")
         parser.add_argument("-m", "--max-chars", help="compare no more than N+ characters", metavar="N+", type=int)

@@ -54,7 +54,7 @@ class Show(CLIProgram):
 
         parser.add_argument("files", help="files to print", metavar="FILES", nargs="*")
         parser.add_argument("-H", "--no-file-header", action="store_true",
-                            help="suppress the file name header on output")
+                            help="suppress the prefixing of file names on output")
         parser.add_argument("-l", "--lines", help="print only N+ lines", metavar="N+", type=int)
         parser.add_argument("-n", "--line-number", action="store_true", help="print line number with output lines")
         parser.add_argument("-s", "--line-start", help="print at line n from the head or tail", metavar="±n", type=int)
