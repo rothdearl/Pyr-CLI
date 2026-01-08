@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Filename: match.py
+Filename: snif.py
 Author: Roth Earl
 Version: 1.3.1
 Description: A program to search for patterns of text in files.
@@ -38,7 +38,7 @@ class Match(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="match", version="1.3.1", error_exit_code=2)
+        super().__init__(name="snif", version="1.3.1", error_exit_code=2)
 
         self.at_least_one_match: bool = False
 
@@ -53,8 +53,8 @@ class Match(CLIProgram):
         parser.add_argument("files", help="files to search", metavar="FILES", nargs="*")
         parser.add_argument("-c", "--count", action="store_true",
                             help="print only the count of matching lines per input file")
-        parser.add_argument("-g", "--grep", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
-                            nargs=1, required=True)
+        parser.add_argument("-f", "--find", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
+                            nargs=1)
         parser.add_argument("-H", "--no-file-header", action="store_true",
                             help="suppress the prefixing of file names on output")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when matching patterns")
@@ -144,10 +144,11 @@ class Match(CLIProgram):
         :return: None
         """
         matches = []
+        patterns = self.args.find if self.args.find else []
 
         # Find matches.
         for index, line in enumerate(lines):
-            if PatternFinder.text_has_patterns(self, line, self.args.grep,
+            if PatternFinder.text_has_patterns(self, line, patterns,
                                                ignore_case=self.args.ignore_case) != self.args.invert_match:  # --invert-match
                 self.at_least_one_match = True
 
@@ -156,7 +157,7 @@ class Match(CLIProgram):
                     raise SystemExit(0)
 
                 if self.print_color and not self.args.invert_match:  # --invert-match
-                    line = PatternFinder.color_patterns_in_text(line, self.args.grep, ignore_case=self.args.ignore_case,
+                    line = PatternFinder.color_patterns_in_text(line, patterns, ignore_case=self.args.ignore_case,
                                                                 color=Colors.MATCH)
 
                 if self.args.line_number:  # --line-number
