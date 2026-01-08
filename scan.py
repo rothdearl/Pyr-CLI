@@ -5,7 +5,7 @@
 Filename: scan.py
 Author: Roth Earl
 Version: 1.3.1
-Description: A program to search for patterns of text in files.
+Description: A program to search for lines that match patterns.
 License: GNU GPLv3
 """
 
@@ -31,7 +31,7 @@ class Colors:
 @final
 class Scan(CLIProgram):
     """
-    A program to search for patterns of text in files.
+    A program to search for lines that match patterns.
     """
 
     def __init__(self) -> None:
@@ -47,7 +47,7 @@ class Scan(CLIProgram):
         Builds an argument parser.
         :return: An argument parser.
         """
-        parser = argparse.ArgumentParser(allow_abbrev=False, description="search for patterns of text in files",
+        parser = argparse.ArgumentParser(allow_abbrev=False, description="search for lines that match patterns",
                                          epilog="with no FILES, read standard input", prog=self.NAME)
 
         parser.add_argument("files", help="files to search", metavar="FILES", nargs="*")
@@ -58,7 +58,7 @@ class Scan(CLIProgram):
         parser.add_argument("-H", "--no-file-header", action="store_true",
                             help="suppress the prefixing of file names on output")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when matching patterns")
-        parser.add_argument("-I", "--invert-match", action="store_true", help="print lines that do not contain a match")
+        parser.add_argument("-I", "--invert-match", action="store_true", help="print lines that do not match")
         parser.add_argument("-n", "--line-number", action="store_true", help="print line number with output lines")
         parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress all normal output")
         parser.add_argument("-s", "--no-messages", action="store_true", help="suppress error messages about files")
