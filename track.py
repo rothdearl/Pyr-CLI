@@ -58,7 +58,7 @@ class Track(CLIProgram):
         parser.add_argument("-N", "--line-number", action="store_true", help="print line number with output lines")
         parser.add_argument("--color", choices=("on", "off"), default="on", help="display file headers in color")
         parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
-        parser.add_argument("--pipe", action="store_true", help="read FILES from standard output")
+        parser.add_argument("--pipe", action="store_true", help="read FILES from standard input as arguments")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
 
         return parser

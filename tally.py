@@ -90,7 +90,7 @@ class Tally(CLIProgram):
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="display counts and file names in color")
         parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
-        parser.add_argument("--pipe", action="store_true", help="read FILES from standard output")
+        parser.add_argument("--pipe", action="store_true", help="read FILES from standard input as arguments")
         parser.add_argument("--total", choices=("auto", "on", "off"), default="auto",
                             help="print a line with total counts")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")

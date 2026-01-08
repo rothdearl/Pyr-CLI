@@ -62,7 +62,7 @@ class Show(CLIProgram):
                             help="display file names, whitespace and line numbers in color")
         parser.add_argument("--ends", action="store_true", help=f"display {Whitespace.EOL} at end of each line")
         parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
-        parser.add_argument("--pipe", action="store_true", help="read FILES from standard output")
+        parser.add_argument("--pipe", action="store_true", help="read FILES from standard input as arguments")
         parser.add_argument("--spaces", action="store_true", help=f"display spaces as {Whitespace.SPACE}")
         parser.add_argument("--tabs", action="store_true", help=f"display tab characters as {Whitespace.TAB}")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
