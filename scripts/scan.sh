@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Run Python script with options.
-"${HOME}/GitHub/PyTools/snif.py" "$@"
+"${HOME}/GitHub/PyTools/scan.py" "$@"

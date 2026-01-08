@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Filename: snif.py
+Filename: scan.py
 Author: Roth Earl
 Version: 1.3.1
 Description: A program to search for patterns of text in files.
@@ -29,7 +29,7 @@ class Colors:
 
 
 @final
-class Match(CLIProgram):
+class Scan(CLIProgram):
     """
     A program to search for patterns of text in files.
     """
@@ -38,7 +38,7 @@ class Match(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="snif", version="1.3.1", error_exit_code=2)
+        super().__init__(name="scan", version="1.3.1", error_exit_code=2)
 
         self.at_least_one_match: bool = False
 
@@ -192,4 +192,4 @@ class Match(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Match())
+    CLIProgram.run(Scan())
