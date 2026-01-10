@@ -65,7 +65,7 @@ class Scan(CLIProgram):
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="display matched strings, file names and line numbers in color")
         parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
-        parser.add_argument("--pipe", action="store_true", help="read FILES from standard input as arguments")
+        parser.add_argument("--stdin-files", action="store_true", help="read FILES from standard input as arguments")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
 
         return parser
@@ -87,7 +87,7 @@ class Scan(CLIProgram):
         :return: None
         """
         if CLIProgram.input_is_redirected():
-            if self.args.pipe:  # --pipe
+            if self.args.stdin_files:  # --stdin-files
                 self.print_matches_in_files(sys.stdin)
             elif standard_input := sys.stdin.readlines():
                 self.args.no_file_header = self.args.no_file_header or not self.args.files  # No file header if no files

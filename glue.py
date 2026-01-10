@@ -64,7 +64,7 @@ class Glue(CLIProgram):
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="display whitespace and numbers in color")
         parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
-        parser.add_argument("--pipe", action="store_true", help="read FILES from standard input as arguments")
+        parser.add_argument("--stdin-files", action="store_true", help="read FILES from standard input as arguments")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
 
         return parser
@@ -75,7 +75,7 @@ class Glue(CLIProgram):
         :return: None
         """
         if CLIProgram.input_is_redirected():
-            if self.args.pipe:  # --pipe
+            if self.args.stdin_files:  # --stdin-files
                 self.print_lines_from_files(sys.stdin.readlines())
             else:
                 self.print_lines(sys.stdin)

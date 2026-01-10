@@ -8,7 +8,7 @@ from cli import CLIProgram
 @final
 class CLIProgramRunner(ABC):
     """
-    Utility class for running a CLI program.
+    Utility class for running a command-line program.
     """
 
     @staticmethod

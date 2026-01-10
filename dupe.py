@@ -76,7 +76,7 @@ class Dupe(CLIProgram):
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="display counts and file headers in color")
         parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
-        parser.add_argument("--pipe", action="store_true", help="read FILES from standard input as arguments")
+        parser.add_argument("--stdin-files", action="store_true", help="read FILES from standard input as arguments")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
 
         return parser
@@ -223,12 +223,12 @@ class Dupe(CLIProgram):
         """
         self.set_match_info_values()
 
-        # Set --no-file-header to True if there are no files and --pipe=False.
-        if not self.args.files and not self.args.pipe:
+        # Set --no-file-header to True if there are no files and --stdin-files=False.
+        if not self.args.files and not self.args.stdin_files:
             self.args.no_file_header = True
 
         if CLIProgram.input_is_redirected():
-            if self.args.pipe:  # --pipe
+            if self.args.stdin_files:  # --stdin-files
                 self.filter_matching_lines_from_files(sys.stdin)
             else:
                 if standard_input := sys.stdin.readlines():

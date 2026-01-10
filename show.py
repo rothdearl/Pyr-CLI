@@ -62,8 +62,8 @@ class Show(CLIProgram):
                             help="display file names, whitespace and line numbers in color")
         parser.add_argument("--ends", action="store_true", help=f"display {Whitespace.EOL} at end of each line")
         parser.add_argument("--iso", action="store_true", help="use iso-8859-1 instead of utf-8 when reading files")
-        parser.add_argument("--pipe", action="store_true", help="read FILES from standard input as arguments")
         parser.add_argument("--spaces", action="store_true", help=f"display spaces as {Whitespace.SPACE}")
+        parser.add_argument("--stdin-files", action="store_true", help="read FILES from standard input as arguments")
         parser.add_argument("--tabs", action="store_true", help=f"display tab characters as {Whitespace.TAB}")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
 
@@ -76,12 +76,12 @@ class Show(CLIProgram):
         """
         self.set_line_info_values()
 
-        # Set --no-file-header to True if there are no files and --pipe=False.
-        if not self.args.files and not self.args.pipe:
+        # Set --no-file-header to True if there are no files and --stdin-files=False.
+        if not self.args.files and not self.args.stdin_files:
             self.args.no_file_header = True
 
         if CLIProgram.input_is_redirected():
-            if self.args.pipe:  # --pipe
+            if self.args.stdin_files:  # --stdin-files
                 self.print_lines_from_files(sys.stdin)
             else:
                 if standard_input := sys.stdin.readlines():
