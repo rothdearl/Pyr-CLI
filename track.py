@@ -4,7 +4,7 @@
 """
 Filename: track.py
 Author: Roth Earl
-Version: 1.3.1
+Version: 1.3.2
 Description: A program to print the last part of files.
 License: GNU GPLv3
 """
@@ -16,7 +16,7 @@ import time
 from threading import Thread
 from typing import Final, TextIO, final
 
-from cli import CLIProgram, ConsoleColors, FileReader
+from cli import CLIProgram, CLIProgramRunner, ConsoleColors, FileReader
 
 
 @final
@@ -40,7 +40,7 @@ class Track(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="track", version="1.3.1")
+        super().__init__(name="track", version="1.3.2")
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
@@ -239,4 +239,4 @@ class Track(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Track())
+    CLIProgramRunner.run(Track())

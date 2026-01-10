@@ -4,7 +4,7 @@
 """
 Filename: show.py
 Author: Roth Earl
-Version: 1.3.1
+Version: 1.3.2
 Description: A program to print files to standard output.
 License: GNU GPLv3
 """
@@ -14,7 +14,7 @@ import os
 import sys
 from typing import Final, TextIO, final
 
-from cli import CLIProgram, ConsoleColors, FileReader
+from cli import CLIProgram, CLIProgramRunner, ConsoleColors, FileReader
 
 
 @final
@@ -39,7 +39,7 @@ class Show(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="show", version="1.3.1")
+        super().__init__(name="show", version="1.3.2")
 
         self.line_start: int = 0
         self.lines: int = 0
@@ -212,4 +212,4 @@ class Whitespace:
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Show())
+    CLIProgramRunner.run(Show())

@@ -1,5 +1,4 @@
 import argparse
-import os
 import sys
 from abc import ABC, abstractmethod
 from typing import Final, final
@@ -110,32 +109,3 @@ class CLIProgram(ABC):
         :return: None
         """
         print(line, end="" if line[-1] == "\n" else "\n")  # Avoid printing two newlines.
-
-    @staticmethod
-    def run(program: CLIProgram) -> None:
-        """
-        Runs the program.
-        :param program: The command-line program.
-        :return: None
-        """
-        keyboard_interrupt_error_code = 130
-        windows = os.name == "nt"
-
-        try:
-            if windows:  # Fix ANSI escape sequences on Windows.
-                from colorama import just_fix_windows_console
-
-                just_fix_windows_console()
-            else:  # Prevent broken pipe errors (not supported on Windows).
-                from signal import SIG_DFL, SIGPIPE, signal
-
-                signal(SIGPIPE, SIG_DFL)
-
-            program.parse_arguments()
-            program.main()
-            program.check_for_errors()
-        except KeyboardInterrupt:
-            print()  # Add a newline after Ctrl-C.
-            raise SystemExit(program.ERROR_EXIT_CODE if windows else keyboard_interrupt_error_code)
-        except OSError:
-            raise SystemExit(program.ERROR_EXIT_CODE)

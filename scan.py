@@ -4,8 +4,8 @@
 """
 Filename: scan.py
 Author: Roth Earl
-Version: 1.3.1
-Description: A program to print lines that match patterns.
+Version: 1.3.2
+Description: A program to print lines that match patterns in files.
 License: GNU GPLv3
 """
 
@@ -14,7 +14,7 @@ import os
 import sys
 from typing import Final, TextIO, final
 
-from cli import CLIProgram, ConsoleColors, FileReader, PatternFinder
+from cli import CLIProgram, CLIProgramRunner, ConsoleColors, FileReader, PatternFinder
 
 
 @final
@@ -31,14 +31,14 @@ class Colors:
 @final
 class Scan(CLIProgram):
     """
-    A program to print lines that match patterns.
+    A program to print lines that match patterns in files.
     """
 
     def __init__(self) -> None:
         """
         Initializes a new instance.
         """
-        super().__init__(name="scan", version="1.3.1", error_exit_code=2)
+        super().__init__(name="scan", version="1.3.2", error_exit_code=2)
 
         self.at_least_one_match: bool = False
 
@@ -47,7 +47,7 @@ class Scan(CLIProgram):
         Builds an argument parser.
         :return: An argument parser.
         """
-        parser = argparse.ArgumentParser(allow_abbrev=False, description="print lines that match patterns",
+        parser = argparse.ArgumentParser(allow_abbrev=False, description="print lines that match patterns in FILES",
                                          epilog="with no FILES, read standard input", prog=self.NAME)
 
         parser.add_argument("files", help="files to search", metavar="FILES", nargs="*")
@@ -192,4 +192,4 @@ class Scan(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Scan())
+    CLIProgramRunner.run(Scan())

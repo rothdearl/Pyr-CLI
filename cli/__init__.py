@@ -5,6 +5,7 @@ Initialization file for the command-line interface module.
 """
 
 from .cli_program import CLIProgram
+from .cli_program_runner import CLIProgramRunner
 from .console_colors import ConsoleColors
 from .file_reader import FileReader
 from .pattern_finder import PatternFinder

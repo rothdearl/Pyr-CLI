@@ -4,7 +4,7 @@
 """
 Filename: seek.py
 Author: Roth Earl
-Version: 1.3.1
+Version: 1.3.2
 Description: A program to search for files in a directory hierarchy.
 License: GNU GPLv3
 """
@@ -16,7 +16,7 @@ import sys
 import time
 from typing import Final, final
 
-from cli import CLIProgram, ConsoleColors, PatternFinder
+from cli import CLIProgram, CLIProgramRunner, ConsoleColors, PatternFinder
 
 
 @final
@@ -37,7 +37,7 @@ class Seek(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="seek", version="1.3.1", error_exit_code=2)
+        super().__init__(name="seek", version="1.3.2", error_exit_code=2)
 
         self.at_least_one_match: bool = False
 
@@ -247,4 +247,4 @@ class Seek(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Seek())
+    CLIProgramRunner.run(Seek())
