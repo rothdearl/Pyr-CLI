@@ -11,6 +11,7 @@ License: GNU GPLv3
 
 import argparse
 import os
+import re
 import sys
 from typing import Final, TextIO, final
 
@@ -41,6 +42,7 @@ class Scan(CLIProgram):
         super().__init__(name="scan", version="1.3.2", error_exit_code=2)
 
         self.at_least_one_match: bool = False
+        self.patterns: list[list[re.Pattern]] = []
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
@@ -86,6 +88,10 @@ class Scan(CLIProgram):
         The main function of the program.
         :return: None
         """
+        # Pre-compile patterns.
+        if self.args.find:  # --find
+            self.patterns = PatternFinder.compile_patterns(self, self.args.find, ignore_case=self.args.ignore_case)
+
         if CLIProgram.input_is_redirected():
             if self.args.stdin_files:  # --stdin-files
                 self.print_matches_in_files(sys.stdin)
@@ -144,12 +150,10 @@ class Scan(CLIProgram):
         :return: None
         """
         matches = []
-        patterns = self.args.find if self.args.find else []
 
         # Find matches.
         for index, line in enumerate(lines, start=1):
-            if PatternFinder.text_has_patterns(self, line, patterns,
-                                               ignore_case=self.args.ignore_case) != self.args.invert_match:  # --invert-match
+            if PatternFinder.text_has_patterns(line, self.patterns) != self.args.invert_match:  # --invert-match
                 self.at_least_one_match = True
 
                 # If --quiet, exit on first match for performance.
@@ -157,8 +161,8 @@ class Scan(CLIProgram):
                     raise SystemExit(0)
 
                 if self.print_color and not self.args.invert_match:  # --invert-match
-                    line = PatternFinder.color_patterns_in_text(line, patterns, ignore_case=self.args.ignore_case,
-                                                                color=Colors.MATCH)
+                    line = PatternFinder.color_patterns_in_text(line, self.patterns,
+                                                                color=Colors.MATCH) if self.patterns else line
 
                 if self.args.line_number:  # --line-number
                     width = 7

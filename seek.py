@@ -12,6 +12,7 @@ License: GNU GPLv3
 import argparse
 import os
 import pathlib
+import re
 import sys
 import time
 from typing import Final, final
@@ -40,6 +41,8 @@ class Seek(CLIProgram):
         super().__init__(name="seek", version="1.3.2", error_exit_code=2)
 
         self.at_least_one_match: bool = False
+        self.name_patterns: list[list[re.Pattern]] = []
+        self.path_patterns: list[list[re.Pattern]] = []
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
@@ -89,19 +92,6 @@ class Seek(CLIProgram):
         if not self.at_least_one_match:
             raise SystemExit(1)
 
-    def color_patterns_in_path(self, text: str, patterns: list[str]) -> str:
-        """
-        Colors all patterns in the path.
-        :param text: The text to color.
-        :param patterns: The patterns.
-        :return: The path with all the patterns colored.
-        """
-        if patterns:
-            text = PatternFinder.color_patterns_in_text(text, patterns, ignore_case=self.args.ignore_case,
-                                                        color=Colors.MATCH)
-
-        return text
-
     def file_matches_filters(self, file: pathlib.Path) -> bool:
         """
         Returns whether the file matches any of the filters.
@@ -140,7 +130,7 @@ class Seek(CLIProgram):
                 difference = time.time() - file.lstat().st_mtime
 
                 if last_modified < 0:
-                    matches_filters = difference < (last_modified * -1)
+                    matches_filters = difference < abs(last_modified)
                 else:
                     matches_filters = difference > last_modified
         except PermissionError:
@@ -149,21 +139,18 @@ class Seek(CLIProgram):
 
         return matches_filters
 
-    def file_has_patterns(self, file: str, patterns: list[str]) -> bool:
-        """
-        Returns whether the file has the patterns.
-        :param file: The file.
-        :param patterns: The patterns.
-        :return: True or False.
-        """
-        return not patterns or PatternFinder.text_has_patterns(self, file, patterns,
-                                                               ignore_case=self.args.ignore_case) != self.args.invert_match
-
     def main(self) -> None:
         """
         The main function of the program.
         :return: None
         """
+        # Pre-compile patterns.
+        if self.args.name:  # --name
+            self.name_patterns = PatternFinder.compile_patterns(self, self.args.name, ignore_case=self.args.ignore_case)
+
+        if self.args.path:  # --path
+            self.path_patterns = PatternFinder.compile_patterns(self, self.args.path, ignore_case=self.args.ignore_case)
+
         if CLIProgram.input_is_redirected():
             for directory in sys.stdin:
                 self.print_files(directory.rstrip("\n"))
@@ -192,10 +179,10 @@ class Seek(CLIProgram):
         if self.args.depth and self.args.depth < len(file.parts):  # --depth
             return
 
-        if not self.file_has_patterns(file_name, self.args.name):  # --name
+        if not PatternFinder.text_has_patterns(file_name, self.name_patterns) != self.args.invert_match:
             return
 
-        if not self.file_has_patterns(file_path, self.args.path):  # --path
+        if not PatternFinder.text_has_patterns(file_path, self.path_patterns) != self.args.invert_match:
             return
 
         if not self.file_matches_filters(file):  # --type, --empty, --m-days, --m-hours, or --m-mins
@@ -208,8 +195,10 @@ class Seek(CLIProgram):
             raise SystemExit(0)
 
         if self.print_color and not self.args.invert_match:  # --invert-match
-            file_name = self.color_patterns_in_path(file_name, self.args.name)
-            file_path = self.color_patterns_in_path(file_path, self.args.path)
+            file_name = PatternFinder.color_patterns_in_text(file_name, self.name_patterns,
+                                                             color=Colors.MATCH) if self.name_patterns else file_name
+            file_path = PatternFinder.color_patterns_in_text(file_path, self.path_patterns,
+                                                             color=Colors.MATCH) if self.path_patterns else file_path
 
         if self.args.abs:  # --abs
             if file.name:  # Do not join the current working directory with the dot file.

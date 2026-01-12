@@ -34,22 +34,20 @@ class PatternFinder(ABC):
             yield token
 
     @staticmethod
-    def color_patterns_in_text(text: str, patterns: list[str], *, ignore_case: bool, color: str) -> str:
+    def color_patterns_in_text(text: str, patterns: list[list[re.Pattern]], *, color: str) -> str:
         """
         Colors all patterns in the text.
         :param text: The text to color.
         :param patterns: The patterns.
-        :param ignore_case: Whether to ignore case.
         :param color: The color.
         :return: The text with all the patterns colored.
         """
-        flags = re.IGNORECASE if ignore_case else 0
         indices = []
 
         # Get the indices for each match.
         for pattern in patterns:
-            for sub_pattern in PatternFinder.__split_pattern_on_pipe(pattern):
-                for match in re.finditer(sub_pattern, text, flags=flags):
+            for sub_pattern in pattern:
+                for match in sub_pattern.finditer(text):
                     indices.append((match.start(), match.end()))
 
         # Merge the overlapping indices.
@@ -78,24 +76,42 @@ class PatternFinder(ABC):
         return "".join(colored_text)
 
     @staticmethod
-    def text_has_patterns(program: CLIProgram, text: str, patterns: list[str], *, ignore_case: bool) -> bool:
+    def compile_patterns(program: CLIProgram, patterns: list[str], *, ignore_case: bool) -> list[list[re.Pattern]]:
         """
-        Returns whether the text has the patterns.
+        Returns a list of OR-groups of compiled regular expression patterns implementing AND-of-OR logic.
         :param program: The program finding patterns.
-        :param text: The text.
         :param patterns: The patterns.
         :param ignore_case: Whether to ignore case.
-        :return: True or False.
+        :return: A list of compiled patterns.
         """
+        compiled = []
         flags = re.IGNORECASE if ignore_case else 0
 
         for pattern in patterns:
+            group = []
+
             for sub_pattern in PatternFinder.__split_pattern_on_pipe(pattern):
                 try:
-                    if re.search(sub_pattern, text, flags=flags):
-                        break
+                    group.append(re.compile(sub_pattern, flags=flags))
                 except re.PatternError:
                     program.print_error(f"invalid pattern: {sub_pattern}", raise_system_exit=True)
+
+            compiled.append(group)
+
+        return compiled
+
+    @staticmethod
+    def text_has_patterns(text: str, patterns: list[list[re.Pattern]]) -> bool:
+        """
+        Returns whether the text matches all pattern groups (AND), where each group requires at least one sub-pattern (OR).
+        :param text: The text.
+        :param patterns: The patterns.
+        :return: True or False.
+        """
+        for pattern in patterns:
+            for sub_pattern in pattern:
+                if sub_pattern.search(text):
+                    break
             else:
                 return False
 
