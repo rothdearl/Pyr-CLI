@@ -1,5 +1,5 @@
 """
-Module to contain an ABC base class for command-line programs.
+ABC base class for command-line programs.
 """
 
 import argparse
@@ -16,7 +16,6 @@ class CLIProgram(ABC):
     ABC base class for command-line programs.
     """
 
-    @abstractmethod
     def __init__(self, *, name: str, version: str, error_exit_code: int = 1) -> None:
         """
         Initializes a new instance.
@@ -63,7 +62,7 @@ class CLIProgram(ABC):
         """
         self.args = self.build_arguments().parse_args()
         self.encoding = "iso-8859-1" if getattr(self.args, "latin1", False) else "utf-8"  # --latin1
-        self.print_color = self.args.color == "on" and terminal.output_is_terminal()  # --color (terminal only)
+        self.print_color = getattr(self.args, "color", "off") == "on" and terminal.output_is_terminal()  # --color
 
     @final
     def print_error(self, error_message: str, *, raise_system_exit: bool = False) -> None:
@@ -117,5 +116,5 @@ class CLIProgram(ABC):
         except KeyboardInterrupt:
             print()  # Add a newline after Ctrl-C.
             raise SystemExit(self.ERROR_EXIT_CODE if windows else keyboard_interrupt_error_code)
-        except OSError:
-            raise SystemExit(self.ERROR_EXIT_CODE)
+        except OSError as e:
+            raise SystemExit(self.ERROR_EXIT_CODE) from e
