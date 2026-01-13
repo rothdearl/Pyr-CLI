@@ -4,7 +4,7 @@
 """
 Filename: scan.py
 Author: Roth Earl
-Version: 1.3.2
+Version: 1.3.3
 Description: A program to print lines that match patterns in files.
 License: GNU GPLv3
 """
@@ -15,7 +15,7 @@ import re
 import sys
 from typing import Final, TextIO, final
 
-from cli import CLIProgram, ConsoleColors, PatternFinder, read_files
+from cli import CLIProgram, colors, io, patterns, terminal
 
 
 @final
@@ -23,10 +23,10 @@ class Colors:
     """
     Class for managing colors.
     """
-    COLON: Final[str] = ConsoleColors.BRIGHT_CYAN
-    FILE_NAME: Final[str] = ConsoleColors.BRIGHT_MAGENTA
-    LINE_NUMBER: Final[str] = ConsoleColors.BRIGHT_GREEN
-    MATCH: Final[str] = ConsoleColors.BRIGHT_RED
+    COLON: Final[str] = colors.BRIGHT_CYAN
+    FILE_NAME: Final[str] = colors.BRIGHT_MAGENTA
+    LINE_NUMBER: Final[str] = colors.BRIGHT_GREEN
+    MATCH: Final[str] = colors.BRIGHT_RED
 
 
 @final
@@ -39,9 +39,9 @@ class Scan(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="scan", version="1.3.2", error_exit_code=2)
+        super().__init__(name="scan", version="1.3.3", error_exit_code=2)
 
-        self.at_least_one_match: bool = False
+        self.found_match: bool = False
         self.patterns: list[list[re.Pattern]] = []
 
     def build_arguments(self) -> argparse.ArgumentParser:
@@ -80,7 +80,7 @@ class Scan(CLIProgram):
         """
         super().check_for_errors()
 
-        if not self.at_least_one_match:
+        if not self.found_match:
             raise SystemExit(1)
 
     def main(self) -> None:
@@ -90,9 +90,9 @@ class Scan(CLIProgram):
         """
         # Pre-compile patterns.
         if self.args.find:  # --find
-            self.patterns = PatternFinder.compile_patterns(self, self.args.find, ignore_case=self.args.ignore_case)
+            self.patterns = patterns.compile_patterns(self, self.args.find, ignore_case=self.args.ignore_case)
 
-        if CLIProgram.input_is_redirected():
+        if terminal.input_is_redirected():
             if self.args.stdin_files:  # --stdin-files
                 self.print_matches_in_files(sys.stdin)
             elif standard_input := sys.stdin.readlines():
@@ -113,7 +113,7 @@ class Scan(CLIProgram):
         :param files: The files.
         :return: None
         """
-        for _, file, text in read_files(self, files, self.encoding):
+        for _, file, text in io.read_files(self, files, self.encoding):
             try:
                 self.print_matches_in_lines(text, origin_file=file)
             except UnicodeDecodeError:
@@ -153,22 +153,22 @@ class Scan(CLIProgram):
 
         # Find matches.
         for index, line in enumerate(lines, start=1):
-            if PatternFinder.text_has_patterns(line, self.patterns) != self.args.invert_match:  # --invert-match
-                self.at_least_one_match = True
+            if patterns.text_has_patterns(line, self.patterns) != self.args.invert_match:  # --invert-match
+                self.found_match = True
 
                 # If --quiet, exit on first match for performance.
                 if self.args.quiet:
                     raise SystemExit(0)
 
                 if self.print_color and not self.args.invert_match:  # --invert-match
-                    line = PatternFinder.color_patterns_in_text(line, self.patterns,
-                                                                color=Colors.MATCH) if self.patterns else line
+                    line = patterns.color_patterns_in_text(line, self.patterns,
+                                                           color=Colors.MATCH) if self.patterns else line
 
                 if self.args.line_number:  # --line-number
                     width = 7
 
                     if self.print_color:
-                        line = f"{Colors.LINE_NUMBER}{index:>{width}}{Colors.COLON}:{ConsoleColors.RESET}{line}"
+                        line = f"{Colors.LINE_NUMBER}{index:>{width}}{Colors.COLON}:{colors.RESET}{line}"
                     else:
                         line = f"{index:>{width}}:{line}"
 
@@ -181,7 +181,7 @@ class Scan(CLIProgram):
             file_name = os.path.relpath(origin_file) if origin_file else "(standard input)"
 
             if self.print_color:
-                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{ConsoleColors.RESET}"
+                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{colors.RESET}"
             else:
                 file_name = f"{file_name}:"
 
@@ -192,7 +192,7 @@ class Scan(CLIProgram):
                 print(file_name)
 
             for _ in matches:
-                CLIProgram.print_line(_)
+                io.print_line(_)
 
 
 if __name__ == "__main__":

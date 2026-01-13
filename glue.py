@@ -4,7 +4,7 @@
 """
 Filename: glue.py
 Author: Roth Earl
-Version: 1.3.2
+Version: 1.3.3
 Description: A program to concatenate files to standard output.
 License: GNU GPLv3
 """
@@ -13,7 +13,7 @@ import argparse
 import sys
 from typing import Final, TextIO, final
 
-from cli import CLIProgram, ConsoleColors, read_files
+from cli import CLIProgram, colors, io, terminal
 
 
 @final
@@ -21,9 +21,9 @@ class Colors:
     """
     Class for managing colors.
     """
-    EOL: Final[str] = ConsoleColors.BRIGHT_BLUE
-    NUMBER: Final[str] = ConsoleColors.BRIGHT_GREEN
-    TABS: Final[str] = ConsoleColors.BRIGHT_CYAN
+    EOL: Final[str] = colors.BRIGHT_BLUE
+    NUMBER: Final[str] = colors.BRIGHT_GREEN
+    TABS: Final[str] = colors.BRIGHT_CYAN
 
 
 @final
@@ -36,7 +36,7 @@ class Glue(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="glue", version="1.3.2")
+        super().__init__(name="glue", version="1.3.3")
 
         self.number: int = 0
         self.repeated_blank_lines: int = 0
@@ -74,7 +74,7 @@ class Glue(CLIProgram):
         The main function of the program.
         :return: None
         """
-        if CLIProgram.input_is_redirected():
+        if terminal.input_is_redirected():
             if self.args.stdin_files:  # --stdin-files
                 self.print_lines_from_files(sys.stdin.readlines())
             else:
@@ -118,7 +118,7 @@ class Glue(CLIProgram):
 
             if self.args.show_tabs:  # --show-tabs
                 if self.print_color:
-                    line = line.replace("\t", f"{Colors.TABS}{Whitespace.TAB}{ConsoleColors.RESET}")
+                    line = line.replace("\t", f"{Colors.TABS}{Whitespace.TAB}{colors.RESET}")
                 else:
                     line = line.replace("\t", Whitespace.TAB)
 
@@ -127,7 +127,7 @@ class Glue(CLIProgram):
                 newline = "\n" if end_index == -1 else ""
 
                 if self.print_color:
-                    line = f"{line[:end_index]}{Colors.EOL}{Whitespace.EOL}{ConsoleColors.RESET}{newline}"
+                    line = f"{line[:end_index]}{Colors.EOL}{Whitespace.EOL}{colors.RESET}{newline}"
                 else:
                     line = f"{line[:end_index]}{Whitespace.EOL}{newline}"
 
@@ -135,11 +135,11 @@ class Glue(CLIProgram):
                 width = 7
 
                 if self.print_color:
-                    line = f"{Colors.NUMBER}{self.number:>{width}}{ConsoleColors.RESET} {line}"
+                    line = f"{Colors.NUMBER}{self.number:>{width}}{colors.RESET} {line}"
                 else:
                     line = f"{self.number:>{width}} {line}"
 
-            CLIProgram.print_line(line)
+            io.print_line(line)
 
     def print_lines_from_files(self, files: list[str]) -> None:
         """
@@ -149,7 +149,7 @@ class Glue(CLIProgram):
         """
         last_file_index = len(files) - 1
 
-        for index, file, text in read_files(self, files, self.encoding):
+        for index, file, text in io.read_files(self, files, self.encoding):
             try:
                 self.print_lines(text)
 

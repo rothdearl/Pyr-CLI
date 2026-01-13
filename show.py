@@ -4,7 +4,7 @@
 """
 Filename: show.py
 Author: Roth Earl
-Version: 1.3.2
+Version: 1.3.3
 Description: A program to print files to standard output.
 License: GNU GPLv3
 """
@@ -14,7 +14,7 @@ import os
 import sys
 from typing import Final, TextIO, final
 
-from cli import CLIProgram, ConsoleColors, read_files
+from cli import CLIProgram, colors, io, terminal
 
 
 @final
@@ -22,11 +22,11 @@ class Colors:
     """
     Class for managing colors.
     """
-    COLON: Final[str] = ConsoleColors.BRIGHT_CYAN
-    EOL: Final[str] = ConsoleColors.BRIGHT_BLUE
-    FILE_NAME: Final[str] = ConsoleColors.BRIGHT_MAGENTA
-    LINE_NUMBER: Final[str] = ConsoleColors.BRIGHT_GREEN
-    WHITESPACE: Final[str] = ConsoleColors.BRIGHT_CYAN
+    COLON: Final[str] = colors.BRIGHT_CYAN
+    EOL: Final[str] = colors.BRIGHT_BLUE
+    FILE_NAME: Final[str] = colors.BRIGHT_MAGENTA
+    LINE_NUMBER: Final[str] = colors.BRIGHT_GREEN
+    WHITESPACE: Final[str] = colors.BRIGHT_CYAN
 
 
 @final
@@ -39,7 +39,7 @@ class Show(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="show", version="1.3.2")
+        super().__init__(name="show", version="1.3.3")
 
         self.line_start: int = 0
         self.lines: int = 0
@@ -80,7 +80,7 @@ class Show(CLIProgram):
         if not self.args.files and not self.args.stdin_files:
             self.args.no_file_header = True
 
-        if CLIProgram.input_is_redirected():
+        if terminal.input_is_redirected():
             if self.args.stdin_files:  # --stdin-files
                 self.print_lines_from_files(sys.stdin)
             else:
@@ -105,7 +105,7 @@ class Show(CLIProgram):
             file_name = os.path.relpath(file) if file else "(standard input)"
 
             if self.print_color:
-                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{ConsoleColors.RESET}"
+                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{colors.RESET}"
             else:
                 file_name = f"{file_name}:"
 
@@ -127,13 +127,13 @@ class Show(CLIProgram):
             if line_start <= line_number <= line_end:
                 if self.args.spaces:  # --spaces
                     if self.print_color:
-                        line = line.replace(" ", f"{Colors.WHITESPACE}{Whitespace.SPACE}{ConsoleColors.RESET}")
+                        line = line.replace(" ", f"{Colors.WHITESPACE}{Whitespace.SPACE}{colors.RESET}")
                     else:
                         line = line.replace(" ", Whitespace.SPACE)
 
                 if self.args.tabs:  # --tabs
                     if self.print_color:
-                        line = line.replace("\t", f"{Colors.WHITESPACE}{Whitespace.TAB}{ConsoleColors.RESET}")
+                        line = line.replace("\t", f"{Colors.WHITESPACE}{Whitespace.TAB}{colors.RESET}")
                     else:
                         line = line.replace("\t", Whitespace.TAB)
 
@@ -142,7 +142,7 @@ class Show(CLIProgram):
                     newline = "\n" if end_index == -1 else ""
 
                     if self.print_color:
-                        line = f"{line[:end_index]}{Colors.EOL}{Whitespace.EOL}{ConsoleColors.RESET}{newline}"
+                        line = f"{line[:end_index]}{Colors.EOL}{Whitespace.EOL}{colors.RESET}{newline}"
                     else:
                         line = f"{line[:end_index]}{Whitespace.EOL}{newline}"
 
@@ -150,11 +150,11 @@ class Show(CLIProgram):
                     width = 7
 
                     if self.print_color:
-                        line = f"{Colors.LINE_NUMBER}{line_number:>{width}}{Colors.COLON}:{ConsoleColors.RESET}{line}"
+                        line = f"{Colors.LINE_NUMBER}{line_number:>{width}}{Colors.COLON}:{colors.RESET}{line}"
                     else:
                         line = f"{line_number:>{width}}:{line}"
 
-                CLIProgram.print_line(line)
+                io.print_line(line)
 
     def print_lines_from_files(self, files: TextIO | list[str]) -> None:
         """
@@ -162,7 +162,7 @@ class Show(CLIProgram):
         :param files: The files.
         :return: None
         """
-        for _, file, text in read_files(self, files, self.encoding):
+        for _, file, text in io.read_files(self, files, self.encoding):
             try:
                 self.print_file_header(file)
                 self.print_lines(text.readlines())

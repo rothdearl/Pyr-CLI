@@ -1,10 +1,9 @@
-# __init__.py
-
 """
-Initialization file for the command-line interface module.
+Initialization file for the command-line interface package.
 """
 
 from .cli_program import CLIProgram
-from .console_colors import ConsoleColors
-from .file_reader import read_files
-from .pattern_finder import PatternFinder
+from .colors import *
+from .io import *
+from .patterns import *
+from .terminal import *

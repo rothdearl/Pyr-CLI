@@ -1,8 +1,14 @@
+"""
+Module to contain an ABC base class for command-line programs.
+"""
+
 import argparse
 import os
 import sys
 from abc import ABC, abstractmethod
 from typing import Final, final
+
+from cli import terminal
 
 
 class CLIProgram(ABC):
@@ -42,28 +48,12 @@ class CLIProgram(ABC):
         if self.has_errors:
             raise SystemExit(self.ERROR_EXIT_CODE)
 
-    @staticmethod
-    def input_is_redirected() -> bool:
-        """
-        Returns whether input is being redirected.
-        :return: True or False.
-        """
-        return not sys.stdin.isatty()
-
     @abstractmethod
     def main(self) -> None:
         """
         The main function of the program.
         :return: None
         """
-
-    @staticmethod
-    def output_is_terminal() -> bool:
-        """
-        Returns whether output is to the terminal.
-        :return: True or False.
-        """
-        return sys.stdout.isatty()
 
     @final
     def parse_arguments(self) -> None:
@@ -73,7 +63,7 @@ class CLIProgram(ABC):
         """
         self.args = self.build_arguments().parse_args()
         self.encoding = "iso-8859-1" if getattr(self.args, "latin1", False) else "utf-8"  # --latin1
-        self.print_color = self.args.color == "on" and CLIProgram.output_is_terminal()  # --color (terminal only)
+        self.print_color = self.args.color == "on" and terminal.output_is_terminal()  # --color (terminal only)
 
     @final
     def print_error(self, error_message: str, *, raise_system_exit: bool = False) -> None:
@@ -101,15 +91,6 @@ class CLIProgram(ABC):
 
         if not getattr(self.args, "no_messages", False):
             print(f"{self.NAME}: {error_message}", file=sys.stderr)
-
-    @staticmethod
-    def print_line(line: str) -> None:
-        """
-        Prints a line to the terminal.
-        :param line: The line to print.
-        :return: None
-        """
-        print(line, end="" if line[-1] == "\n" else "\n")  # Avoid printing two newlines.
 
     @final
     def run(self) -> None:

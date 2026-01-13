@@ -4,7 +4,7 @@
 """
 Filename: seek.py
 Author: Roth Earl
-Version: 1.3.2
+Version: 1.3.3
 Description: A program to search for files in a directory hierarchy.
 License: GNU GPLv3
 """
@@ -17,7 +17,7 @@ import sys
 import time
 from typing import Final, final
 
-from cli import CLIProgram, ConsoleColors, PatternFinder
+from cli import CLIProgram, colors, patterns, terminal
 
 
 @final
@@ -25,7 +25,7 @@ class Colors:
     """
     Class for managing colors.
     """
-    MATCH: Final[str] = ConsoleColors.BRIGHT_RED
+    MATCH: Final[str] = colors.BRIGHT_RED
 
 
 @final
@@ -38,7 +38,7 @@ class Seek(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="seek", version="1.3.2", error_exit_code=2)
+        super().__init__(name="seek", version="1.3.3", error_exit_code=2)
 
         self.at_least_one_match: bool = False
         self.name_patterns: list[list[re.Pattern]] = []
@@ -146,12 +146,12 @@ class Seek(CLIProgram):
         """
         # Pre-compile patterns.
         if self.args.name:  # --name
-            self.name_patterns = PatternFinder.compile_patterns(self, self.args.name, ignore_case=self.args.ignore_case)
+            self.name_patterns = patterns.compile_patterns(self, self.args.name, ignore_case=self.args.ignore_case)
 
         if self.args.path:  # --path
-            self.path_patterns = PatternFinder.compile_patterns(self, self.args.path, ignore_case=self.args.ignore_case)
+            self.path_patterns = patterns.compile_patterns(self, self.args.path, ignore_case=self.args.ignore_case)
 
-        if CLIProgram.input_is_redirected():
+        if terminal.input_is_redirected():
             for directory in sys.stdin:
                 self.print_files(directory.rstrip("\n"))
 
@@ -179,10 +179,10 @@ class Seek(CLIProgram):
         if self.args.depth and self.args.depth < len(file.parts):  # --depth
             return
 
-        if not PatternFinder.text_has_patterns(file_name, self.name_patterns) != self.args.invert_match:
+        if not patterns.text_has_patterns(file_name, self.name_patterns) != self.args.invert_match:
             return
 
-        if not PatternFinder.text_has_patterns(file_path, self.path_patterns) != self.args.invert_match:
+        if not patterns.text_has_patterns(file_path, self.path_patterns) != self.args.invert_match:
             return
 
         if not self.file_matches_filters(file):  # --type, --empty, --m-days, --m-hours, or --m-mins
@@ -195,10 +195,10 @@ class Seek(CLIProgram):
             raise SystemExit(0)
 
         if self.print_color and not self.args.invert_match:  # --invert-match
-            file_name = PatternFinder.color_patterns_in_text(file_name, self.name_patterns,
-                                                             color=Colors.MATCH) if self.name_patterns else file_name
-            file_path = PatternFinder.color_patterns_in_text(file_path, self.path_patterns,
-                                                             color=Colors.MATCH) if self.path_patterns else file_path
+            file_name = patterns.color_patterns_in_text(file_name, self.name_patterns,
+                                                        color=Colors.MATCH) if self.name_patterns else file_name
+            file_path = patterns.color_patterns_in_text(file_path, self.path_patterns,
+                                                        color=Colors.MATCH) if self.path_patterns else file_path
 
         if self.args.abs:  # --abs
             if file.name:  # Do not join the current working directory with the dot file.

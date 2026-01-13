@@ -4,7 +4,7 @@
 """
 Filename: peek.py
 Author: Roth Earl
-Version: 1.3.2
+Version: 1.3.3
 Description: A program to print the first part of files.
 License: GNU GPLv3
 """
@@ -14,7 +14,7 @@ import os
 import sys
 from typing import Final, TextIO, final
 
-from cli import CLIProgram, ConsoleColors, read_files
+from cli import CLIProgram, colors, io, terminal
 
 
 @final
@@ -22,9 +22,9 @@ class Colors:
     """
     Class for managing colors.
     """
-    COLON: Final[str] = ConsoleColors.BRIGHT_CYAN
-    FILE_NAME: Final[str] = ConsoleColors.BRIGHT_MAGENTA
-    LINE_NUMBER: Final[str] = ConsoleColors.BRIGHT_GREEN
+    COLON: Final[str] = colors.BRIGHT_CYAN
+    FILE_NAME: Final[str] = colors.BRIGHT_MAGENTA
+    LINE_NUMBER: Final[str] = colors.BRIGHT_GREEN
 
 
 @final
@@ -37,7 +37,7 @@ class Peek(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="peek", version="1.3.2")
+        super().__init__(name="peek", version="1.3.3")
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
@@ -68,7 +68,7 @@ class Peek(CLIProgram):
         if not self.args.files and not self.args.stdin_files:
             self.args.no_file_header = True
 
-        if CLIProgram.input_is_redirected():
+        if terminal.input_is_redirected():
             if self.args.stdin_files:  # --stdin-files
                 self.print_lines_from_files(sys.stdin)
             else:
@@ -93,7 +93,7 @@ class Peek(CLIProgram):
             file_name = os.path.relpath(file) if file else "(standard input)"
 
             if self.print_color:
-                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{ConsoleColors.RESET}"
+                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{colors.RESET}"
             else:
                 file_name = f"{file_name}:"
 
@@ -120,11 +120,11 @@ class Peek(CLIProgram):
                     width = 7
 
                     if self.print_color:
-                        line = f"{Colors.LINE_NUMBER}{line_number:>{width}}{Colors.COLON}:{ConsoleColors.RESET}{line}"
+                        line = f"{Colors.LINE_NUMBER}{line_number:>{width}}{Colors.COLON}:{colors.RESET}{line}"
                     else:
                         line = f"{line_number:>{width}}:{line}"
 
-                CLIProgram.print_line(line)
+                io.print_line(line)
             else:
                 break
 
@@ -134,7 +134,7 @@ class Peek(CLIProgram):
         :param files: The files.
         :return: None
         """
-        for _, file, text in read_files(self, files, self.encoding):
+        for _, file, text in io.read_files(self, files, self.encoding):
             try:
                 self.print_file_header(file=file)
                 self.print_lines(text.readlines())

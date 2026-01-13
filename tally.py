@@ -4,7 +4,7 @@
 """
 Filename: tally.py
 Author: Roth Earl
-Version: 1.3.2
+Version: 1.3.3
 Description: A program to print line, word and character counts in files.
 License: GNU GPLv3
 """
@@ -14,7 +14,7 @@ import re
 import sys
 from typing import Final, TextIO, final
 
-from cli import CLIProgram, ConsoleColors, read_files
+from cli import CLIProgram, colors, io, terminal
 
 # Define type aliases.
 Stats = tuple[int, int, int, int]
@@ -25,9 +25,9 @@ class Colors:
     """
     Class for managing colors.
     """
-    STAT: Final[str] = ConsoleColors.BRIGHT_CYAN
-    STAT_ORIGIN: Final[str] = ConsoleColors.BRIGHT_MAGENTA
-    STAT_TOTAL: Final[str] = ConsoleColors.BRIGHT_YELLOW
+    STAT: Final[str] = colors.BRIGHT_CYAN
+    STAT_ORIGIN: Final[str] = colors.BRIGHT_MAGENTA
+    STAT_TOTAL: Final[str] = colors.BRIGHT_YELLOW
 
 
 @final
@@ -51,7 +51,7 @@ class Tally(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="tally", version="1.3.2")
+        super().__init__(name="tally", version="1.3.3")
 
         self.OPTIONS: Final[list[bool]] = [False, False, False, False]
         self.TOTALS: Final[list[int]] = [0, 0, 0, 0]
@@ -126,7 +126,7 @@ class Tally(CLIProgram):
         """
         self.set_count_info_values()
 
-        if CLIProgram.input_is_redirected():
+        if terminal.input_is_redirected():
             if self.args.stdin_files:  # --stdin-files
                 self.print_stats_from_files(sys.stdin)
             else:
@@ -162,13 +162,13 @@ class Tally(CLIProgram):
                 width = 12 if self.options_count > 1 or stat_origin else 0
 
                 if self.print_color:
-                    print(f"{stat_color}{stat:>{width},}{ConsoleColors.RESET}", end="")
+                    print(f"{stat_color}{stat:>{width},}{colors.RESET}", end="")
                 else:
                     print(f"{stat:>{width},}", end="")
 
         if stat_origin:
             if self.print_color:
-                print(f"\t{stat_origin_color}{stat_origin}{ConsoleColors.RESET}")
+                print(f"\t{stat_origin_color}{stat_origin}{colors.RESET}")
             else:
                 print(f"\t{stat_origin}")
         else:
@@ -180,7 +180,7 @@ class Tally(CLIProgram):
         :param files: The files.
         :return: None
         """
-        for _, file, text in read_files(self, files, self.encoding):
+        for _, file, text in io.read_files(self, files, self.encoding):
             try:
                 stats = self.get_stats(text)
 

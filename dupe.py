@@ -4,7 +4,7 @@
 """
 Filename: dupe.py
 Author: Roth Earl
-Version: 1.3.2
+Version: 1.3.3
 Description: A program to filter matching lines in files.
 License: GNU GPLv3
 """
@@ -15,7 +15,7 @@ import re
 import sys
 from typing import Final, TextIO, final
 
-from cli import CLIProgram, ConsoleColors, read_files
+from cli import CLIProgram, colors, io, terminal
 
 
 @final
@@ -23,9 +23,9 @@ class Colors:
     """
     Class for managing colors.
     """
-    COLON: Final[str] = ConsoleColors.BRIGHT_CYAN
-    FILE_NAME: Final[str] = ConsoleColors.BRIGHT_MAGENTA
-    GROUP_COUNT: Final[str] = ConsoleColors.BRIGHT_GREEN
+    COLON: Final[str] = colors.BRIGHT_CYAN
+    FILE_NAME: Final[str] = colors.BRIGHT_MAGENTA
+    GROUP_COUNT: Final[str] = colors.BRIGHT_GREEN
 
 
 @final
@@ -38,7 +38,7 @@ class Dupe(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="dupe", version="1.3.2")
+        super().__init__(name="dupe", version="1.3.3")
 
         self.FIELD_PATTERN: Final[str] = r"\s+|\W+"
         self.max_chars: int = 0
@@ -112,7 +112,7 @@ class Dupe(CLIProgram):
                     # Only print the group count for the first line.
                     if line_index == 0:
                         if self.print_color:
-                            group_count_str = f"{Colors.GROUP_COUNT}{group_count:>{width},}{Colors.COLON}:{ConsoleColors.RESET}"
+                            group_count_str = f"{Colors.GROUP_COUNT}{group_count:>{width},}{Colors.COLON}:{colors.RESET}"
                         else:
                             group_count_str = f"{group_count:>{width},}:"
                     else:
@@ -129,7 +129,7 @@ class Dupe(CLIProgram):
                         self.print_file_header(origin_file)
                         file_header_printed = True
 
-                    CLIProgram.print_line(f"{group_count_str}{line}")
+                    io.print_line(f"{group_count_str}{line}")
 
                     if not (self.args.duplicate or self.args.group):  # --duplicate or --group
                         break
@@ -143,7 +143,7 @@ class Dupe(CLIProgram):
         :param files: The files.
         :return: None
         """
-        for _, file, text in read_files(self, files, self.encoding):
+        for _, file, text in io.read_files(self, files, self.encoding):
             try:
                 self.filter_matching_lines(text, origin_file=file)
             except UnicodeDecodeError:
@@ -227,7 +227,7 @@ class Dupe(CLIProgram):
         if not self.args.files and not self.args.stdin_files:
             self.args.no_file_header = True
 
-        if CLIProgram.input_is_redirected():
+        if terminal.input_is_redirected():
             if self.args.stdin_files:  # --stdin-files
                 self.filter_matching_lines_from_files(sys.stdin)
             else:
@@ -274,7 +274,7 @@ class Dupe(CLIProgram):
             file_name = os.path.relpath(file) if file else "(standard input)"
 
             if self.print_color:
-                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{ConsoleColors.RESET}"
+                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{colors.RESET}"
             else:
                 file_name = f"{file_name}:"
 

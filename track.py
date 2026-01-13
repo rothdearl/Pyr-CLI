@@ -4,7 +4,7 @@
 """
 Filename: track.py
 Author: Roth Earl
-Version: 1.3.2
+Version: 1.3.3
 Description: A program to print the last part of files.
 License: GNU GPLv3
 """
@@ -16,7 +16,7 @@ import time
 from threading import Thread
 from typing import Final, TextIO, final
 
-from cli import CLIProgram, ConsoleColors, read_files
+from cli import CLIProgram, colors, io, terminal
 
 
 @final
@@ -24,10 +24,10 @@ class Colors:
     """
     Class for managing colors.
     """
-    COLON: Final[str] = ConsoleColors.BRIGHT_CYAN
-    FILE_NAME: Final[str] = ConsoleColors.BRIGHT_MAGENTA
-    FOLLOWING: Final[str] = f"{ConsoleColors.DIM}{ConsoleColors.WHITE}"
-    LINE_NUMBER: Final[str] = ConsoleColors.BRIGHT_GREEN
+    COLON: Final[str] = colors.BRIGHT_CYAN
+    FILE_NAME: Final[str] = colors.BRIGHT_MAGENTA
+    FOLLOWING: Final[str] = f"{colors.DIM}{colors.WHITE}"
+    LINE_NUMBER: Final[str] = colors.BRIGHT_GREEN
 
 
 @final
@@ -40,7 +40,7 @@ class Track(CLIProgram):
         """
         Initializes a new instance.
         """
-        super().__init__(name="track", version="1.3.2")
+        super().__init__(name="track", version="1.3.3")
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
@@ -96,7 +96,7 @@ class Track(CLIProgram):
                         if print_file_name:
                             self.print_file_header(file_name)
 
-                        CLIProgram.print_line(next_content[print_index:])
+                        io.print_line(next_content[print_index:])
                         previous_content = next_content
 
                 time.sleep(polling_interval)
@@ -136,7 +136,7 @@ class Track(CLIProgram):
         if not self.args.files and not self.args.stdin_files:
             self.args.no_file_header = True
 
-        if CLIProgram.input_is_redirected():
+        if terminal.input_is_redirected():
             if self.args.stdin_files:  # --stdin-files
                 files_printed.extend(self.print_lines_from_files(sys.stdin))
             else:
@@ -166,7 +166,7 @@ class Track(CLIProgram):
             following = f" (following)" if self.args.follow and file else ""
 
             if self.print_color:
-                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{Colors.FOLLOWING}{following}{ConsoleColors.RESET}"
+                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{Colors.FOLLOWING}{following}{colors.RESET}"
             else:
                 file_name = f"{file_name}:{following}"
 
@@ -194,11 +194,11 @@ class Track(CLIProgram):
                     width = 7
 
                     if self.print_color:
-                        line = f"{Colors.LINE_NUMBER}{line_number:>{width}}{Colors.COLON}:{ConsoleColors.RESET}{line}"
+                        line = f"{Colors.LINE_NUMBER}{line_number:>{width}}{Colors.COLON}:{colors.RESET}{line}"
                     else:
                         line = f"{line_number:>{width}}:{line}"
 
-                CLIProgram.print_line(line)
+                io.print_line(line)
 
     def print_lines_from_files(self, files: TextIO | list[str]) -> list[str]:
         """
@@ -208,7 +208,7 @@ class Track(CLIProgram):
         """
         files_printed = []
 
-        for _, file, text in read_files(self, files, self.encoding):
+        for _, file, text in io.read_files(self, files, self.encoding):
             try:
                 self.print_file_header(file=file)
                 self.print_lines(text.readlines())

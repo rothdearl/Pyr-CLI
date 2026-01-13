@@ -1,13 +1,23 @@
+"""
+Module for command-line programs to access I/O.
+"""
+
 import os
 from typing import Iterator, TextIO
 
 from cli import CLIProgram
 
-# Define type aliases.
-FileInfo = tuple[int, str, TextIO]
+
+def print_line(line: str) -> None:
+    """
+    Prints a line, ensuring exactly one trailing newline (e.g., for input from files or standard input).
+    :param line: The line to print.
+    :return: None
+    """
+    print(line, end="" if line.endswith("\n") else "\n")
 
 
-def read_files(program: CLIProgram, files: TextIO | list[str], encoding: str) -> Iterator[FileInfo]:
+def read_files(program: CLIProgram, files: TextIO | list[str], encoding: str) -> Iterator[tuple[int, str, TextIO]]:
     """
     Opens the files for reading in text mode and returns a tuple with the index, file name and text.
     :param program: The program reading the files.
