@@ -131,7 +131,8 @@ class Show(CLIProgram):
         """
         line_start = len(lines) + self.line_start + 1 if self.line_start < 0 else self.line_start
         line_end = line_start + self.lines - 1
-        line_number_width = len(str(len(lines)))
+        line_max = min(self.args.lines, len(lines)) if self.args.lines else len(lines)
+        line_number_width = len(str(line_max))
 
         for index, line in enumerate(lines, start=1):
             if line_start <= index <= line_end:
