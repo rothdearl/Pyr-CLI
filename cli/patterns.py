@@ -1,5 +1,5 @@
 """
-Module for command-line programs to find patterns.
+Module for pattern finding functions.
 """
 
 import re

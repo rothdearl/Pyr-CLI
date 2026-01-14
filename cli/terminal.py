@@ -1,5 +1,5 @@
 """
-Module for command-line programs to get information about the terminal.
+Module for terminal related functions.
 """
 
 import sys

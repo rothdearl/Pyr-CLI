@@ -1,5 +1,5 @@
 """
-Module for command-line programs to use ANSI escape sequences.
+Module for ANSI escape sequences.
 """
 
 # Escape with the Control Sequence Introducer.

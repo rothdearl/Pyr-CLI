@@ -1,5 +1,5 @@
 """
-Module for command-line programs to access I/O.
+Module for I/O related functions.
 """
 
 import os
