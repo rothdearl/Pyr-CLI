@@ -57,7 +57,7 @@ class Scan(CLIProgram):
         parser.add_argument("-c", "--count", action="store_true",
                             help="print only the count of matching lines per input file")
         parser.add_argument("-f", "--find", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
-                            nargs=1)
+                            nargs=1, required=True)
         parser.add_argument("-H", "--no-file-header", action="store_true",
                             help="suppress the prefixing of file names on output")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when matching patterns")
@@ -89,9 +89,8 @@ class Scan(CLIProgram):
         The main function of the program.
         :return: None
         """
-        # Pre-compile patterns.
-        if self.args.find:  # --find
-            self.patterns = patterns.compile_patterns(self, self.args.find, ignore_case=self.args.ignore_case)
+        # Pre-compile --find patterns.
+        self.patterns = patterns.compile_patterns(self, self.args.find, ignore_case=self.args.ignore_case)
 
         if terminal.input_is_redirected():
             if self.args.stdin_files:  # --stdin-files

@@ -74,7 +74,7 @@ class CLIProgram(ABC):
         :raises SystemExit: Request to exit from the interpreter if raise_system_exit = True.
         """
         self.has_errors = True
-        print(f"{self.NAME}: {error_message}", file=sys.stderr)
+        print(f"{self.NAME}: error: {error_message}", file=sys.stderr)
 
         if raise_system_exit:
             raise SystemExit(self.ERROR_EXIT_CODE)
@@ -89,7 +89,7 @@ class CLIProgram(ABC):
         self.has_errors = True
 
         if not getattr(self.args, "no_messages", False):
-            print(f"{self.NAME}: {error_message}", file=sys.stderr)
+            print(f"{self.NAME}: error: {error_message}", file=sys.stderr)
 
     @final
     def run(self) -> None:
