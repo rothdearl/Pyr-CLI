@@ -105,7 +105,7 @@ def text_has_patterns(text: str, patterns: list[list[re.Pattern]]) -> bool:
     :return: True or False.
     """
     for pattern in patterns:
-        if not pattern:  # An empty group matches everything.
+        if not pattern:  # Empty groups match everything.
             continue
 
         for sub_pattern in pattern:
