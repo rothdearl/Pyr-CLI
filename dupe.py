@@ -64,21 +64,21 @@ class Dupe(CLIProgram):
         print_group.add_argument("-g", "--group", action="store_true",
                                  help="show all items, separating groups with an empty line")
         print_group.add_argument("-u", "--unique", action="store_true", help="only print unique lines")
-        parser.add_argument("-f", "--skip-fields", help="avoid comparing the first N fields (N ≥ 0)", metavar="N",
+        parser.add_argument("-f", "--skip-fields", help="avoid comparing the first N fields (N >= 0)", metavar="N",
                             type=int)
         parser.add_argument("-H", "--no-file-header", action="store_true",
                             help="suppress the prefixing of file names on output")
         parser.add_argument("-i", "--ignore-case", action="store_true",
                             help="ignore differences in case when comparing")
-        parser.add_argument("-m", "--max-chars", help="compare no more than N characters (N ≥ 1)", metavar="N",
+        parser.add_argument("-m", "--max-chars", help="compare no more than N characters (N >= 1)", metavar="N",
                             type=int)
-        parser.add_argument("-s", "--skip-chars", help="avoid comparing the first N characters (N ≥ 0)", metavar="N",
+        parser.add_argument("-s", "--skip-chars", help="avoid comparing the first N characters (N >= 0)", metavar="N",
                             type=int)
         parser.add_argument("-w", "--skip-whitespace", action="store_true",
                             help="avoid comparing leading and trailing whitespace")
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="display counts and file headers in color")
-        parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 instead of utf-8")
+                            help="display counts and file headers in color (default: on)")
+        parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true", help="read FILES from standard input as arguments")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
 
@@ -294,13 +294,13 @@ class Dupe(CLIProgram):
 
         # Validate the match values.
         if self.skip_fields < 0:
-            self.print_error(f"skip fields ({self.skip_fields}) cannot be less than 0", raise_system_exit=True)
+            self.print_error(f"'skip-fields' must be >= 0", raise_system_exit=True)
 
         if self.skip_chars < 0:
-            self.print_error(f"skip characters ({self.skip_chars}) cannot be less than 0", raise_system_exit=True)
+            self.print_error(f"'skip-chars' must be >= 0", raise_system_exit=True)
 
         if self.max_chars < 1:
-            self.print_error(f"max characters ({self.max_chars}) cannot be less than 1", raise_system_exit=True)
+            self.print_error(f"'max-chars' must be >= 1", raise_system_exit=True)
 
 
 if __name__ == "__main__":

@@ -71,8 +71,8 @@ class Glue(CLIProgram):
         parser.add_argument("-T", "--show-tabs", action="store_true",
                             help=f"display tab characters as {Whitespace.TAB}")
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="display whitespace and numbers in color")
-        parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 instead of utf-8")
+                            help="display whitespace and numbers in color (default: on)")
+        parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true", help="read FILES from standard input as arguments")
         parser.add_argument("-v", "--version", action="version", version=f"%(prog)s {self.VERSION}")
 

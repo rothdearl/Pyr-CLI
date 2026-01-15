@@ -85,12 +85,12 @@ class Tally(CLIProgram):
         parser.add_argument("-l", "--lines", action="store_true", help="print the line counts")
         parser.add_argument("-L", "--max-line-length", action="store_true", help="print the maximum line length")
         parser.add_argument("-t", "--tab-width",
-                            help="use N spaces for tabs when computing line length (default: 8; N ≥ 1)", metavar="N",
+                            help="use N spaces for tabs when computing line length (default: 8; N >= 1)", metavar="N",
                             type=int)
         parser.add_argument("-w", "--words", action="store_true", help="print the word counts")
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="display counts and file names in color")
-        parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 instead of utf-8")
+                            help="display counts and file names in color (default: on)")
+        parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true", help="read FILES from standard input as arguments")
         parser.add_argument("--total", choices=("auto", "on", "off"), default="auto",
                             help="print a line with total counts")
@@ -216,10 +216,10 @@ class Tally(CLIProgram):
         Sets the values to use for counting.
         :return: None
         """
-        self.tab_width = self.args.tab_width if self.args.tab_width or self.args.tab_width == 0 else 10  # --tab-width
+        self.tab_width = self.args.tab_width if self.args.tab_width or self.args.tab_width == 0 else 8  # --tab-width
 
         if self.tab_width < 1:
-            self.print_error(f"tab width ({self.tab_width}) cannot be less than 1", raise_system_exit=True)
+            self.print_error(f"'tab-width' must be >= 1", raise_system_exit=True)
 
         # -1 one for the tab character.
         self.tab_width -= 1

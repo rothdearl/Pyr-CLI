@@ -67,14 +67,14 @@ class Show(CLIProgram):
         parser.add_argument("files", help="files to print", metavar="FILES", nargs="*")
         parser.add_argument("-H", "--no-file-header", action="store_true",
                             help="suppress the prefixing of file names on output")
-        parser.add_argument("-l", "--lines", help="print only N lines (N ≥ 1)", metavar="N", type=int)
+        parser.add_argument("-l", "--lines", help="print only N lines (N >= 1)", metavar="N", type=int)
         parser.add_argument("-n", "--line-number", action="store_true", help="print line number with output lines")
-        parser.add_argument("-s", "--line-start", help="print the first or all but the last N lines (N ≠ 0)",
+        parser.add_argument("-s", "--line-start", help="print the first or all but the last N lines (N != 0)",
                             metavar="N", type=int)
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="display file names, whitespace and line numbers in color")
+                            help="display file names, whitespace and line numbers in color (default: on)")
         parser.add_argument("--ends", action="store_true", help=f"display {Whitespace.EOL} at end of each line")
-        parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 instead of utf-8")
+        parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
         parser.add_argument("--spaces", action="store_true",
                             help=f"display spaces as {Whitespace.SPACE} and trailing spaces as {Whitespace.TRAILING_SPACE}")
         parser.add_argument("--stdin-files", action="store_true", help="read FILES from standard input as arguments")
@@ -183,10 +183,10 @@ class Show(CLIProgram):
 
         # Validate the line values.
         if self.line_start == 0:
-            self.print_error(f"line start cannot be 0", raise_system_exit=True)
+            self.print_error(f"'line-start' cannot = 0", raise_system_exit=True)
 
         if self.lines < 1:
-            self.print_error(f"lines ({self.lines}) cannot be less than 1", raise_system_exit=True)
+            self.print_error(f"'lines' must be >= 1", raise_system_exit=True)
 
     def show_ends(self, line: str) -> str:
         """
