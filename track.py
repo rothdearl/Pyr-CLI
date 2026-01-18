@@ -27,7 +27,6 @@ class Colors:
     COLON: Final[str] = colors.BRIGHT_CYAN
     FILE_NAME: Final[str] = colors.BRIGHT_MAGENTA
     FOLLOWING: Final[str] = f"{colors.DIM}{colors.WHITE}"
-    LINE_NUMBER: Final[str] = colors.BRIGHT_GREEN
 
 
 @final
@@ -56,7 +55,6 @@ class Track(CLIProgram):
                             help="suppress the prefixing of file names on output")
         parser.add_argument("-n", "--lines", help="print the last or all but the first N lines", metavar="N",
                             type=int)
-        parser.add_argument("-N", "--line-number", action="store_true", help="print line number with output lines")
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="display file headers in color (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
@@ -131,9 +129,6 @@ class Track(CLIProgram):
         """
         files_printed = []
 
-        # Ensure --line-number is only True if --follow=False.
-        self.args.line_number = self.args.line_number and not self.args.follow
-
         # Set --no-file-header to True if there are no files and --stdin-files=False.
         if not self.args.files and not self.args.stdin_files:
             self.args.no_file_header = True
@@ -181,7 +176,6 @@ class Track(CLIProgram):
         :return: None
         """
         lines_to_print = self.args.lines if self.args.lines is not None else 10  # --lines
-        padding = len(str(len(lines)))
         skip_to_line = len(lines) - lines_to_print
 
         # Print all but the first 'n' lines.
@@ -190,12 +184,6 @@ class Track(CLIProgram):
 
         for index, line in enumerate(lines, start=1):
             if index > skip_to_line:
-                if self.args.line_number:  # --line-number
-                    if self.print_color:
-                        line = f"{Colors.LINE_NUMBER}{index:>{padding}}{Colors.COLON}:{colors.RESET}{line}"
-                    else:
-                        line = f"{index:>{padding}}:{line}"
-
                 io.print_line(line)
 
     def print_lines_from_files(self, files: TextIO | list[str]) -> list[str]:

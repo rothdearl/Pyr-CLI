@@ -24,7 +24,6 @@ class Colors:
     """
     COLON: Final[str] = colors.BRIGHT_CYAN
     FILE_NAME: Final[str] = colors.BRIGHT_MAGENTA
-    LINE_NUMBER: Final[str] = colors.BRIGHT_GREEN
 
 
 @final
@@ -52,7 +51,6 @@ class Peek(CLIProgram):
                             help="suppress the prefixing of file names on output")
         parser.add_argument("-n", "--lines", help="print the first or all but the last N lines (default: 10)",
                             metavar="N", type=int)
-        parser.add_argument("-N", "--line-number", action="store_true", help="print line number with output lines")
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="display file headers in color (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
@@ -113,16 +111,8 @@ class Peek(CLIProgram):
         if lines_to_print < 0:
             lines_to_print = len(lines) + lines_to_print
 
-        padding = len(str(min(lines_to_print, len(lines))))
-
         for index, line in enumerate(lines, start=1):
             if index <= lines_to_print:
-                if self.args.line_number:  # --line-number
-                    if self.print_color:
-                        line = f"{Colors.LINE_NUMBER}{index:>{padding}}{Colors.COLON}:{colors.RESET}{line}"
-                    else:
-                        line = f"{index:>{padding}}:{line}"
-
                 io.print_line(line)
             else:
                 break
