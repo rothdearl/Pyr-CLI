@@ -77,7 +77,7 @@ class Show(CLIProgram):
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
         parser.add_argument("--spaces", action="store_true",
                             help=f"display spaces as {Whitespace.SPACE} and trailing spaces as {Whitespace.TRAILING_SPACE}")
-        parser.add_argument("--stdin-files", action="store_true", help="read FILES from standard input as arguments")
+        parser.add_argument("--stdin-files", action="store_true", help="treat standard input as a list of FILES")
         parser.add_argument("--tabs", action="store_true", help=f"display tab characters as {Whitespace.TAB}")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.VERSION}")
 

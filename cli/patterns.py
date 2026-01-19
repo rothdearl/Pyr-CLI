@@ -36,7 +36,7 @@ def color_patterns_in_text(text: str, patterns: list[list[re.Pattern]], *, color
     :param text: The text to color.
     :param patterns: The patterns.
     :param color: The color.
-    :return: The text with all the patterns colored.
+    :return: The text with all patterns colored.
     """
     indices = []
 

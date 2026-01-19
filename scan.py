@@ -68,7 +68,7 @@ class Scan(CLIProgram):
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="display matched strings, file names and line numbers in color (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
-        parser.add_argument("--stdin-files", action="store_true", help="read FILES from standard input as arguments")
+        parser.add_argument("--stdin-files", action="store_true", help="treat standard input as a list of FILES")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.VERSION}")
 
         return parser
