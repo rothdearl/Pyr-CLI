@@ -73,7 +73,7 @@ def color_patterns_in_text(text: str, patterns: list[re.Pattern], *, color: str)
 
 def compile_patterns(program: CLIProgram, patterns: list[str], *, ignore_case: bool) -> list[re.Pattern]:
     """
-    Returns a list of OR-groups of compiled regular expression patterns implementing AND-of-OR logic.
+    Compiles patterns into OR-groups implementing AND-of-OR matching.
     :param program: The program finding patterns.
     :param patterns: The patterns to compile.
     :param ignore_case: Whether to ignore case.
@@ -104,9 +104,6 @@ def text_has_patterns(text: str, patterns: list[re.Pattern]) -> bool:
     :return: True or False.
     """
     for group in patterns:
-        if not group:  # Empty groups match everything.
-            continue
-
         if not group.search(text):
             return False
 
