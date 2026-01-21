@@ -7,7 +7,7 @@ import re
 from cli import CLIProgram, colors
 
 
-def color_patterns_in_text(text: str, patterns: list[re.Pattern], *, color: str) -> str:
+def color_patterns_in_text(text: str, patterns: list[re.Pattern[str]], *, color: str) -> str:
     """
     Colors all patterns in the text.
     :param text: The text to color.
@@ -48,7 +48,7 @@ def color_patterns_in_text(text: str, patterns: list[re.Pattern], *, color: str)
     return "".join(colored_text)
 
 
-def combine_patterns(patterns: list[re.Pattern], *, ignore_case: bool) -> re.Pattern:
+def combine_patterns(patterns: list[re.Pattern[str]], *, ignore_case: bool) -> re.Pattern[str]:
     """
     Combines all patterns into a single compiled OR-pattern.
     :param patterns: A list of compiled pattern groups.
@@ -61,7 +61,7 @@ def combine_patterns(patterns: list[re.Pattern], *, ignore_case: bool) -> re.Pat
     return re.compile("|".join(sources), flags=flags)
 
 
-def compile_patterns(program: CLIProgram, patterns: list[str], *, ignore_case: bool) -> list[re.Pattern]:
+def compile_patterns(program: CLIProgram, patterns: list[str], *, ignore_case: bool) -> list[re.Pattern[str]]:
     """
     Compiles patterns into OR-groups implementing AND-of-OR matching.
     :param program: The program finding patterns.
@@ -84,7 +84,7 @@ def compile_patterns(program: CLIProgram, patterns: list[str], *, ignore_case: b
     return compiled
 
 
-def text_has_patterns(text: str, patterns: list[re.Pattern]) -> bool:
+def text_has_patterns(text: str, patterns: list[re.Pattern[str]]) -> bool:
     """
     Returns whether the text matches all patterns.
     :param text: The text.

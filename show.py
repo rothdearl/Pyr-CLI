@@ -161,16 +161,7 @@ class Show(CLIProgram):
         Prints lines from standard input until EOF is entered.
         :return: None
         """
-        eof = False
-        lines = []
-
-        while not eof:
-            try:
-                lines.append(input())
-            except EOFError:
-                eof = True
-
-        self.print_lines(lines)
+        self.print_lines(sys.stdin.read().splitlines())
 
     def set_line_info_values(self) -> None:
         """

@@ -157,16 +157,7 @@ class Dupe(CLIProgram):
         Filters lines that match from standard input until EOF is entered.
         :return: None
         """
-        eof = False
-        lines = []
-
-        while not eof:
-            try:
-                lines.append(input())
-            except EOFError:
-                eof = True
-
-        self.filter_matching_lines(lines, origin_file="")
+        self.filter_matching_lines(sys.stdin.read().splitlines(), origin_file="")
 
     def get_character_compare_sequence(self, line: str) -> str:
         """

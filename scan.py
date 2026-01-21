@@ -43,7 +43,7 @@ class Scan(CLIProgram):
 
         self.found_match: bool = False
         self.line_number: int = 0
-        self.patterns: list[re.Pattern] = []
+        self.patterns: list[re.Pattern[str]] = []
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """

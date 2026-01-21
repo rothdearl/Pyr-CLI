@@ -41,8 +41,8 @@ class Seek(CLIProgram):
         super().__init__(name="seek", version="1.3.4", error_exit_code=2)
 
         self.at_least_one_match: bool = False
-        self.name_patterns: list[re.Pattern] = []
-        self.path_patterns: list[re.Pattern] = []
+        self.name_patterns: list[re.Pattern[str]] = []
+        self.path_patterns: list[re.Pattern[str]] = []
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """

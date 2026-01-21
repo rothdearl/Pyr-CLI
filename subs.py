@@ -40,7 +40,7 @@ class Subs(CLIProgram):
         super().__init__(name="subs", version="1.0.0")
 
         self.max_replacements: int = 0
-        self.pattern: re.Pattern | None = None
+        self.pattern: re.Pattern[str] | None = None
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
@@ -131,16 +131,7 @@ class Subs(CLIProgram):
         Replace matches in the lines from standard input until EOF is entered.
         :return: None
         """
-        eof = False
-        lines = []
-
-        while not eof:
-            try:
-                lines.append(input())
-            except EOFError:
-                eof = True
-
-        self.replace_matches_in_lines(lines)
+        self.replace_matches_in_lines(sys.stdin.read().splitlines())
 
     def replace_matches_in_lines(self, lines: list[str]) -> None:
         """

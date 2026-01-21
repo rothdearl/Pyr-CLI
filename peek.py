@@ -134,16 +134,7 @@ class Peek(CLIProgram):
         Prints lines from standard input until EOF is entered.
         :return: None
         """
-        eof = False
-        lines = []
-
-        while not eof:
-            try:
-                lines.append(input())
-            except EOFError:
-                eof = True
-
-        self.print_lines(lines)
+        self.print_lines(sys.stdin.read().splitlines())
 
 
 if __name__ == "__main__":
