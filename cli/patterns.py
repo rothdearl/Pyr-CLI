@@ -54,7 +54,7 @@ def compile_patterns(program: CLIProgram, patterns: list[str], *, ignore_case: b
     :param program: The program finding patterns.
     :param patterns: The patterns to compile.
     :param ignore_case: Whether to ignore case.
-    :return: A list of OR-groups of compiled regular expression patterns.
+    :return: A list of compiled regular expression patterns implementing AND-of-OR matching.
     """
     compiled = []
     flags = re.IGNORECASE if ignore_case else re.NOFLAG

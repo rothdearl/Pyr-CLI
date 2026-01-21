@@ -13,9 +13,12 @@ import argparse
 import os
 import re
 import sys
-from typing import Final, TextIO, final
+from typing import Final, TextIO, TypeAlias, final
 
 from cli import CLIProgram, colors, io, patterns, terminal
+
+# Define type aliases.
+Match: TypeAlias = tuple[int, str]
 
 
 @final
@@ -147,10 +150,10 @@ class Scan(CLIProgram):
         Prints matches found in lines.
         :param lines: The lines.
         :param origin_file: The file where the lines originated from.
-        :param reset_line_number: Whether to reset the line number; default is True.
+        :param reset_line_number: Whether to reset the internal line number; default is True.
         :return: None
         """
-        matches = []
+        matches: list[Match] = []
 
         if reset_line_number:
             self.line_number = 0

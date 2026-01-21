@@ -12,12 +12,12 @@ License: GNU GPLv3
 import argparse
 import re
 import sys
-from typing import Final, TextIO, final
+from typing import Final, TextIO, TypeAlias, final
 
 from cli import CLIProgram, colors, io, terminal
 
 # Define type aliases.
-Stats = tuple[int, int, int, int]
+Stats: TypeAlias = tuple[int, int, int, int]
 
 
 @final
