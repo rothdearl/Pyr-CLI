@@ -115,14 +115,14 @@ class Show(CLIProgram):
         :return: None
         """
         if not self.args.no_file_header:  # --no-file-header
-            file_name = os.path.relpath(file) if file else "(standard input)"
+            filename = os.path.relpath(file) if file else "(standard input)"
 
             if self.print_color:
-                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{colors.RESET}"
+                filename = f"{Colors.FILE_NAME}{filename}{Colors.COLON}:{colors.RESET}"
             else:
-                file_name = f"{file_name}:"
+                filename = f"{filename}:"
 
-            print(file_name)
+            print(filename)
 
     def print_lines(self, lines: list[str]) -> None:
         """
@@ -154,7 +154,7 @@ class Show(CLIProgram):
                 self.print_file_header(file_info.filename)
                 self.print_lines(file_info.text.readlines())
             except UnicodeDecodeError:
-                self.print_file_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_io_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
     def print_lines_from_input(self) -> None:
         """
@@ -173,10 +173,10 @@ class Show(CLIProgram):
 
         # Validate the line values.
         if self.line_start == 0:
-            self.print_error(f"'line-start' cannot = 0", raise_system_exit=True)
+            self.print_error_and_exit(f"'line-start' cannot = 0")
 
         if self.lines < 1:
-            self.print_error(f"'lines' must be >= 1", raise_system_exit=True)
+            self.print_error_and_exit(f"'lines' must be >= 1")
 
     def show_ends(self, line: str) -> str:
         """

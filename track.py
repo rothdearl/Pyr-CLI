@@ -62,24 +62,24 @@ class Track(CLIProgram):
 
         return parser
 
-    def follow_file(self, file_name: str, print_file_name: bool, polling_interval: float = .5) -> None:
+    def follow_file(self, filename: str, print_name: bool, polling_interval: float = .5) -> None:
         """
         Follows a file for new lines.
-        :param file_name: The file name.
-        :param print_file_name: Whether to print the file name with each update.
+        :param filename: The file name.
+        :param print_name: Whether to print the file name with each update.
         :param polling_interval: The duration between each check.
         :return: None
         """
         try:
             # Get the initial file content.
-            with open(file_name, "r", encoding=self.encoding) as file:
-                previous_content = file.read()
+            with open(filename, "r", encoding=self.encoding) as f:
+                previous_content = f.read()
 
             # Follow file until Ctrl-C.
             while True:
                 # Re-open the file with each iteration.
-                with open(file_name, "r", encoding=self.encoding) as file:
-                    next_content = file.read()
+                with open(filename, "r", encoding=self.encoding) as f:
+                    next_content = f.read()
 
                     # Check for changes.
                     if previous_content != next_content:
@@ -88,21 +88,21 @@ class Track(CLIProgram):
                         if next_content.startswith(previous_content):
                             print_index = len(previous_content)
                         elif len(next_content) < len(previous_content):
-                            print(f"data deleted in: {file_name}")
+                            print(f"data deleted in: {filename}")
                         else:
-                            print(f"data modified in: {file_name}")
+                            print(f"data modified in: {filename}")
 
-                        if print_file_name:
-                            self.print_file_header(file_name)
+                        if print_name:
+                            self.print_file_header(filename)
 
                         io.print_line(next_content[print_index:])
                         previous_content = next_content
 
                 time.sleep(polling_interval)
         except FileNotFoundError:
-            self.print_file_error(f"{file_name} has been deleted")
+            self.print_io_error(f"{filename} has been deleted")
         except (OSError, UnicodeDecodeError):
-            self.print_file_error(f"{file_name} is no longer accessible")
+            self.print_io_error(f"{filename} is no longer accessible")
 
     def follow_files(self, files: list[str]) -> list[Thread]:
         """
@@ -110,11 +110,11 @@ class Track(CLIProgram):
         :param files: The files.
         :return: A list of threads that are following files.
         """
-        print_file_name = len(files) > 1
+        print_filename = len(files) > 1
         threads = []
 
         for file in files:
-            thread = Thread(target=self.follow_file, args=(file, print_file_name))
+            thread = Thread(target=self.follow_file, args=(file, print_filename))
             thread.daemon = True
             thread.start()
             threads.append(thread)
@@ -158,15 +158,15 @@ class Track(CLIProgram):
         :return: None
         """
         if not self.args.no_file_header:  # --no-file-header
-            file_name = os.path.relpath(file) if file else "(standard input)"
+            filename = os.path.relpath(file) if file else "(standard input)"
             following = f" (following)" if self.args.follow and file else ""
 
             if self.print_color:
-                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{Colors.FOLLOWING}{following}{colors.RESET}"
+                filename = f"{Colors.FILE_NAME}{filename}{Colors.COLON}:{Colors.FOLLOWING}{following}{colors.RESET}"
             else:
-                file_name = f"{file_name}:{following}"
+                filename = f"{filename}:{following}"
 
-            print(file_name)
+            print(filename)
 
     def print_lines(self, lines: list[str]) -> None:
         """
@@ -199,7 +199,7 @@ class Track(CLIProgram):
                 self.print_lines(file_info.text.readlines())
                 files_printed.append(file_info.filename)
             except UnicodeDecodeError:
-                self.print_file_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_io_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
         return files_printed
 

@@ -65,22 +65,17 @@ class CLIProgram(ABC):
         self.print_color = getattr(self.args, "color", "off") == "on" and terminal.output_is_terminal()  # --color
 
     @final
-    def print_error(self, error_message: str, *, raise_system_exit: bool = False) -> None:
+    def print_error_and_exit(self, error_message: str) -> None:
         """
-        Sets the error flag to True and prints the error message to standard error.
-        :param error_message: The error message.
-        :param raise_system_exit: Whether to raise a SystemExit; default is False.
+        Prints the error message to standard error and raises a SystemExit.
+        :param error_message: The error message to print.
         :return: None
-        :raises SystemExit: Request to exit from the interpreter if raise_system_exit = True.
         """
-        self.has_errors = True
         print(f"{self.NAME}: error: {error_message}", file=sys.stderr)
-
-        if raise_system_exit:
-            raise SystemExit(self.ERROR_EXIT_CODE)
+        raise SystemExit(self.ERROR_EXIT_CODE)
 
     @final
-    def print_file_error(self, error_message: str) -> None:
+    def print_io_error(self, error_message: str) -> None:
         """
         Sets the error flag to True and prints the error message to standard error if the argument no_messages = False.
         :param error_message: The error message to print.

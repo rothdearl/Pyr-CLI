@@ -11,7 +11,7 @@ class FileInfo(NamedTuple):
     Immutable container for information about a file being read.
 
     Attributes:
-        file_index: Position of the filename in the input sequence.
+        file_index: Position of the file name in the input sequence.
         filename: The file name as provided.
         text: Open text stream for the file.
     """
@@ -20,12 +20,12 @@ class FileInfo(NamedTuple):
     text: TextIO
 
 
-class _Logger(Protocol):
+class _IOLogger(Protocol):
     """
     Protocol for printing error messages pertaining to files.
     """
 
-    def print_file_error(self, error_message: str) -> None:
+    def print_io_error(self, error_message: str) -> None:
         """
         Prints the error message to standard error.
         :param error_message: The error message to print.
@@ -43,7 +43,7 @@ def print_line(line: str) -> None:
     print(line, end="" if line.endswith("\n") else "\n")
 
 
-def read_files(files: TextIO | list[str], encoding: str, *, logger: _Logger) -> Iterator[FileInfo]:
+def read_files(files: TextIO | list[str], encoding: str, *, logger: _IOLogger) -> Iterator[FileInfo]:
     """
     Opens the files for reading in text mode and returns an iterator yielding FileInfo objects.
     :param files: A list of file names or a text stream containing file names (e.g. standard input).
@@ -56,20 +56,20 @@ def read_files(files: TextIO | list[str], encoding: str, *, logger: _Logger) -> 
 
         try:
             if os.path.isdir(filename):
-                logger.print_file_error(f"{filename}: is a directory")
+                logger.print_io_error(f"{filename}: is a directory")
             else:
                 with open(filename, "rt", encoding=encoding) as text:
                     yield FileInfo(file_index, filename, text)
         except FileNotFoundError:
             filename = filename or '""'
-            logger.print_file_error(f"{filename}: no such file or directory")
+            logger.print_io_error(f"{filename}: no such file or directory")
         except PermissionError:
-            logger.print_file_error(f"{filename}: permission denied")
+            logger.print_io_error(f"{filename}: permission denied")
         except OSError:
-            logger.print_file_error(f"{filename}: unable to read file")
+            logger.print_io_error(f"{filename}: unable to read file")
 
 
-def write_text_to_file(filename: str, text: Iterable[str], encoding: str, *, logger: _Logger) -> None:
+def write_text_to_file(filename: str, text: Iterable[str], encoding: str, *, logger: _IOLogger) -> None:
     """
     Write text lines to the file in text mode where each output line is written with exactly one trailing newline.
     :param filename: The filename.
@@ -84,8 +84,8 @@ def write_text_to_file(filename: str, text: Iterable[str], encoding: str, *, log
                 line = line.rstrip("\n")
                 f.write(f"{line}\n")
     except PermissionError:
-        logger.print_file_error(f"{filename}: permission denied")
+        logger.print_io_error(f"{filename}: permission denied")
     except OSError:
-        logger.print_file_error(f"{filename}: unable to write file")
+        logger.print_io_error(f"{filename}: unable to write file")
     except UnicodeEncodeError:
-        logger.print_file_error(f"{filename}: unable to write with {encoding}")
+        logger.print_io_error(f"{filename}: unable to write with {encoding}")

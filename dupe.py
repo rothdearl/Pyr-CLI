@@ -150,7 +150,7 @@ class Dupe(CLIProgram):
             try:
                 self.filter_matching_lines(file_info.text, origin_file=file_info.filename)
             except UnicodeDecodeError:
-                self.print_file_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_io_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
     def filter_matching_lines_from_input(self) -> None:
         """
@@ -265,14 +265,14 @@ class Dupe(CLIProgram):
         :return: None
         """
         if not self.args.no_file_header:  # --no-file-header
-            file_name = os.path.relpath(file) if file else "(standard input)"
+            filename = os.path.relpath(file) if file else "(standard input)"
 
             if self.print_color:
-                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{colors.RESET}"
+                filename = f"{Colors.FILE_NAME}{filename}{Colors.COLON}:{colors.RESET}"
             else:
-                file_name = f"{file_name}:"
+                filename = f"{filename}:"
 
-            print(file_name)
+            print(filename)
 
     def set_match_info_values(self) -> None:
         """
@@ -285,13 +285,13 @@ class Dupe(CLIProgram):
 
         # Validate the match values.
         if self.skip_fields < 0:
-            self.print_error(f"'skip-fields' must be >= 0", raise_system_exit=True)
+            self.print_error_and_exit(f"'skip-fields' must be >= 0")
 
         if self.skip_chars < 0:
-            self.print_error(f"'skip-chars' must be >= 0", raise_system_exit=True)
+            self.print_error_and_exit(f"'skip-chars' must be >= 0")
 
         if self.max_chars < 1:
-            self.print_error(f"'max-chars' must be >= 1", raise_system_exit=True)
+            self.print_error_and_exit(f"'max-chars' must be >= 1")
 
 
 if __name__ == "__main__":

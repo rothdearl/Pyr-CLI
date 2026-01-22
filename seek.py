@@ -135,7 +135,7 @@ class Seek(CLIProgram):
                     matches_filters = difference > last_modified
         except PermissionError:
             matches_filters = False
-            self.print_file_error(f"{file}: permission denied")
+            self.print_io_error(f"{file}: permission denied")
 
         return matches_filters
 
@@ -146,10 +146,12 @@ class Seek(CLIProgram):
         """
         # Pre-compile patterns.
         if self.args.name:  # --name
-            self.name_patterns = patterns.compile_patterns(self, self.args.name, ignore_case=self.args.ignore_case)
+            self.name_patterns = patterns.compile_patterns(self.args.name, ignore_case=self.args.ignore_case,
+                                                           logger=self)
 
         if self.args.path:  # --path
-            self.path_patterns = patterns.compile_patterns(self, self.args.path, ignore_case=self.args.ignore_case)
+            self.path_patterns = patterns.compile_patterns(self.args.path, ignore_case=self.args.ignore_case,
+                                                           logger=self)
 
         if terminal.input_is_redirected():
             for directory in sys.stdin:
@@ -170,7 +172,7 @@ class Seek(CLIProgram):
         :param file: The file.
         :return: None
         """
-        file_name = file.name or os.curdir  # The dot file does not have a file name.
+        filename = file.name or os.curdir  # The dot file does not have a file name.
         file_path = str(file.parent) if len(file.parts) > 1 else ""  # Do not use the dot file in the path.
 
         if not file.name and not self.args.dot:  # Skip the dot file if not --dot.
@@ -179,7 +181,7 @@ class Seek(CLIProgram):
         if self.args.depth and self.args.depth < len(file.parts):  # --depth
             return
 
-        if not patterns.text_has_patterns(file_name, self.name_patterns) != self.args.invert_match:
+        if not patterns.text_has_patterns(filename, self.name_patterns) != self.args.invert_match:
             return
 
         if not patterns.text_has_patterns(file_path, self.path_patterns) != self.args.invert_match:
@@ -195,20 +197,20 @@ class Seek(CLIProgram):
             raise SystemExit(0)
 
         if self.print_color and not self.args.invert_match:  # --invert-match
-            file_name = patterns.color_patterns_in_text(file_name, self.name_patterns,
-                                                        color=Colors.MATCH) if self.name_patterns else file_name
+            filename = patterns.color_patterns_in_text(filename, self.name_patterns,
+                                                       color=Colors.MATCH) if self.name_patterns else filename
             file_path = patterns.color_patterns_in_text(file_path, self.path_patterns,
                                                         color=Colors.MATCH) if self.path_patterns else file_path
 
         if self.args.abs:  # --abs
             if file.name:  # Do not join the current working directory with the dot file.
-                path = os.path.join(pathlib.Path.cwd(), file_path, file_name)
+                path = os.path.join(pathlib.Path.cwd(), file_path, filename)
             else:
                 path = os.path.join(pathlib.Path.cwd(), file_path)
         elif self.args.dot and file.name:  # Do not join the current directory with the dot file.
-            path = os.path.join(os.curdir, file_path, file_name)
+            path = os.path.join(os.curdir, file_path, filename)
         else:
-            path = os.path.join(file_path, file_name)
+            path = os.path.join(file_path, filename)
 
         if self.args.quotes:  # --quotes
             path = f"\"{path}\""
@@ -230,10 +232,10 @@ class Seek(CLIProgram):
                 for file in directory_hierarchy.rglob("*"):
                     self.print_file(file)
             except PermissionError as error:
-                self.print_file_error(f"{error.filename}: permission denied")
+                self.print_io_error(f"{error.filename}: permission denied")
         else:
             directory = directory or '""'
-            self.print_file_error(f"{directory}: no such file or directory")
+            self.print_io_error(f"{directory}: no such file or directory")
 
 
 if __name__ == "__main__":

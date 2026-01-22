@@ -91,7 +91,7 @@ class Subs(CLIProgram):
         self.set_max_replacements()
 
         # Pre-compile --find patterns.
-        if compiled := patterns.compile_patterns(self, self.args.find, ignore_case=self.args.ignore_case):
+        if compiled := patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case, logger=self):
             self.pattern = patterns.combine_patterns(compiled, ignore_case=self.args.ignore_case)
 
         # Set --no-file-header to True if there are no files and --stdin-files=False.
@@ -120,14 +120,14 @@ class Subs(CLIProgram):
         :return: None
         """
         if not self.args.no_file_header:  # --no-file-header
-            file_name = os.path.relpath(file) if file else "(standard input)"
+            filename = os.path.relpath(file) if file else "(standard input)"
 
             if self.print_color:
-                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{colors.RESET}"
+                filename = f"{Colors.FILE_NAME}{filename}{Colors.COLON}:{colors.RESET}"
             else:
-                file_name = f"{file_name}:"
+                filename = f"{filename}:"
 
-            print(file_name)
+            print(filename)
 
     def print_replaced_lines(self, lines: list[str]) -> None:
         """
@@ -160,7 +160,7 @@ class Subs(CLIProgram):
                     self.print_file_header(file=file_info.filename)
                     self.print_replaced_lines(file_info.text.readlines())
                 except UnicodeDecodeError:
-                    self.print_file_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                    self.print_io_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
     def set_max_replacements(self) -> None:
         """
@@ -169,7 +169,7 @@ class Subs(CLIProgram):
         """
         if self.args.max_replacements is not None:  # --max-replacements
             if self.args.max_replacements < 1:
-                self.print_error(f"'max-replacements' must be >= 1", raise_system_exit=True)
+                self.print_error_and_exit(f"'max-replacements' must be >= 1")
 
             self.max_replacements = self.args.max_replacements
 

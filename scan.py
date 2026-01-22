@@ -90,7 +90,7 @@ class Scan(CLIProgram):
         :return: None
         """
         # Pre-compile --find patterns.
-        self.patterns = patterns.compile_patterns(self, self.args.find, ignore_case=self.args.ignore_case)
+        self.patterns = patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case, logger=self)
 
         if terminal.input_is_redirected():
             if self.args.stdin_files:  # --stdin-files
@@ -117,7 +117,7 @@ class Scan(CLIProgram):
             try:
                 self.print_matches_in_lines(file_info.text, origin_file=file_info.filename)
             except UnicodeDecodeError:
-                self.print_file_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_io_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
     def print_matches_in_input(self) -> None:
         """
@@ -173,23 +173,23 @@ class Scan(CLIProgram):
                 matches.append((self.line_number, line))
 
         # Print matches.
-        file_name = ""
+        filename = ""
 
         if not self.args.no_file_header:  # --no-file-header
-            file_name = os.path.relpath(origin_file) if origin_file else "(standard input)"
+            filename = os.path.relpath(origin_file) if origin_file else "(standard input)"
 
             if self.print_color:
-                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{colors.RESET}"
+                filename = f"{Colors.FILE_NAME}{filename}{Colors.COLON}:{colors.RESET}"
             else:
-                file_name = f"{file_name}:"
+                filename = f"{filename}:"
 
         if self.args.count:  # --count
-            print(f"{file_name}{len(matches)}")
+            print(f"{filename}{len(matches)}")
         elif matches:
             padding = len(str(matches[-1][0])) if reset_line_number else 0
 
-            if file_name:
-                print(file_name)
+            if filename:
+                print(filename)
 
             for line_number, line in matches:
                 if self.args.line_number:  # --line-number

@@ -164,7 +164,7 @@ class Glue(CLIProgram):
                 if self.args.group and file_info.file_index < last_file_index:  # --group
                     print()
             except UnicodeDecodeError:
-                self.print_file_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_io_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
     def print_lines_from_input(self) -> None:
         """

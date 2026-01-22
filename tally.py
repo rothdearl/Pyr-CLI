@@ -186,7 +186,7 @@ class Tally(CLIProgram):
                 self.add_stats_to_totals(stats)
                 self.print_stats(stats, stat_origin=file_info.filename)
             except UnicodeDecodeError:
-                self.print_file_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_io_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
     def print_stats_from_input(self) -> None:
         """
@@ -216,7 +216,7 @@ class Tally(CLIProgram):
         self.tab_width = self.args.tab_width if self.args.tab_width is not None else 8  # --tab-width
 
         if self.tab_width < 1:
-            self.print_error(f"'tab-width' must be >= 1", raise_system_exit=True)
+            self.print_error_and_exit(f"'tab-width' must be >= 1")
 
         # -1 one for the tab character.
         self.tab_width -= 1

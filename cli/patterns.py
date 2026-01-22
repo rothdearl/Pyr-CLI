@@ -4,7 +4,21 @@ Module for pattern related functions.
 
 import re
 
-from cli import CLIProgram, colors
+from cli import Protocol, colors
+
+
+class _PatternLogger(Protocol):
+    """
+    Protocol for printing error messages pertaining to patterns.
+    """
+
+    def print_error_and_exit(self, error_message: str) -> None:
+        """
+        Prints the error message to standard error.
+        :param error_message: The error message to print.
+        :return: None
+        """
+        ...
 
 
 def color_patterns_in_text(text: str, patterns: list[re.Pattern[str]], *, color: str) -> str:
@@ -61,12 +75,12 @@ def combine_patterns(patterns: list[re.Pattern[str]], *, ignore_case: bool) -> r
     return re.compile("|".join(sources), flags=flags)
 
 
-def compile_patterns(program: CLIProgram, patterns: list[str], *, ignore_case: bool) -> list[re.Pattern[str]]:
+def compile_patterns(patterns: list[str], *, ignore_case: bool, logger: _PatternLogger) -> list[re.Pattern[str]]:
     """
     Compiles patterns into OR-groups implementing AND-of-OR matching.
-    :param program: The program finding patterns.
     :param patterns: The patterns to compile.
     :param ignore_case: Whether to ignore case.
+    :param logger: The logger for printing errors.
     :return: A list of compiled regular expression patterns implementing AND-of-OR matching.
     """
     compiled = []
@@ -79,7 +93,7 @@ def compile_patterns(program: CLIProgram, patterns: list[str], *, ignore_case: b
         try:
             compiled.append(re.compile(pattern, flags=flags))
         except re.error:  # re.PatternError was introduced in Python 3.13; use re.error for Python < 3.13.
-            program.print_error(f"invalid pattern: {pattern}", raise_system_exit=True)
+            logger.print_error_and_exit(f"invalid pattern: {pattern}")
 
     return compiled
 
