@@ -122,12 +122,12 @@ class Peek(CLIProgram):
         :param files: The files.
         :return: None
         """
-        for _, file, text in io.read_files(self, files, self.encoding):
+        for file_info in io.read_files(files, self.encoding, logger=self):
             try:
-                self.print_file_header(file=file)
-                self.print_lines(text.readlines())
+                self.print_file_header(file=file_info.filename)
+                self.print_lines(file_info.text.readlines())
             except UnicodeDecodeError:
-                self.print_file_error(f"{file}: unable to read with {self.encoding}")
+                self.print_file_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
     def print_lines_from_input(self) -> None:
         """

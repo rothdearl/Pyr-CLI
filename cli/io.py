@@ -3,9 +3,35 @@ Module for I/O related functions.
 """
 
 import os
-from typing import Iterator, TextIO
+from typing import Iterable, Iterator, NamedTuple, Protocol, TextIO
 
-from cli import CLIProgram
+
+class FileInfo(NamedTuple):
+    """
+    Immutable container for information about a file being read.
+
+    Attributes:
+        file_index: Position of the filename in the input sequence.
+        filename: The file name as provided.
+        text: Open text stream for the file.
+    """
+    file_index: int
+    filename: str
+    text: TextIO
+
+
+class _Logger(Protocol):
+    """
+    Protocol for printing error messages pertaining to files.
+    """
+
+    def print_file_error(self, error_message: str) -> None:
+        """
+        Prints the error message to standard error.
+        :param error_message: The error message to print.
+        :return: None
+        """
+        ...
 
 
 def print_line(line: str) -> None:
@@ -17,26 +43,49 @@ def print_line(line: str) -> None:
     print(line, end="" if line.endswith("\n") else "\n")
 
 
-def read_files(program: CLIProgram, files: TextIO | list[str], encoding: str) -> Iterator[tuple[int, str, TextIO]]:
+def read_files(files: TextIO | list[str], encoding: str, *, logger: _Logger) -> Iterator[FileInfo]:
     """
-    Opens the files for reading in text mode and returns a tuple with the index, file name and text.
-    :param program: The program reading the files.
+    Opens the files for reading in text mode and returns an iterator yielding FileInfo objects.
     :param files: A list of file names or a text stream containing file names (e.g. standard input).
     :param encoding: The text encoding.
-    :return: A tuple with the index, file name and text.
+    :param logger: The logger for printing errors.
+    :return: An iterator of FileInfo objects.
     """
-    for index, file in enumerate(files):
-        file = file.rstrip(" \n")
+    for file_index, filename in enumerate(files):
+        filename = filename.rstrip(" \n")
 
         try:
-            if os.path.isdir(file):
-                program.print_file_error(f"{file}: is a directory")
+            if os.path.isdir(filename):
+                logger.print_file_error(f"{filename}: is a directory")
             else:
-                with open(file, "r", encoding=encoding) as text:
-                    yield index, file, text
+                with open(filename, "rt", encoding=encoding) as text:
+                    yield FileInfo(file_index, filename, text)
         except FileNotFoundError:
-            program.print_file_error(f"{file if file else "\"\""}: no such file or directory")
+            filename = filename or '""'
+            logger.print_file_error(f"{filename}: no such file or directory")
         except PermissionError:
-            program.print_file_error(f"{file}: permission denied")
+            logger.print_file_error(f"{filename}: permission denied")
         except OSError:
-            program.print_file_error(f"{file}: unable to read file")
+            logger.print_file_error(f"{filename}: unable to read file")
+
+
+def write_text_to_file(filename: str, text: Iterable[str], encoding: str, *, logger: _Logger) -> None:
+    """
+    Write text lines to the file in text mode where each output line is written with exactly one trailing newline.
+    :param filename: The filename.
+    :param text: An iterable of strings (e.g., list, generator, or text stream).
+    :param encoding: The text encoding.
+    :param logger: The logger for printing errors.
+    :return: None
+    """
+    try:
+        with open(filename, "wt", encoding=encoding) as f:
+            for line in text:
+                line = line.rstrip("\n")
+                f.write(f"{line}\n")
+    except PermissionError:
+        logger.print_file_error(f"{filename}: permission denied")
+    except OSError:
+        logger.print_file_error(f"{filename}: unable to write file")
+    except UnicodeEncodeError:
+        logger.print_file_error(f"{filename}: unable to write with {encoding}")

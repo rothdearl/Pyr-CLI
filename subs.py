@@ -69,7 +69,7 @@ class Subs(CLIProgram):
 
         return parser
 
-    def iter_replaced_lines(self, lines: list[str]) -> Iterator[str]:
+    def iterate_replaced_lines(self, lines: list[str]) -> Iterator[str]:
         """
         Yield lines with pattern matches replaced.
         :param lines: Input lines.
@@ -135,7 +135,7 @@ class Subs(CLIProgram):
         :param lines: The lines.
         :return: None
         """
-        for line in self.iter_replaced_lines(lines):
+        for line in self.iterate_replaced_lines(lines):
             io.print_line(line)
 
     def print_replaced_lines_from_input(self) -> None:
@@ -151,40 +151,23 @@ class Subs(CLIProgram):
         :param files: The files to process.
         :return: None
         """
-        for _, file, text in io.read_files(self, files, self.encoding):
-            if self.args.in_place:
-                self.replace_matches_in_file_in_place(file, text.readlines())
+        for file_info in io.read_files(files, self.encoding, logger=self):
+            if self.args.in_place:  # --in-place
+                io.write_text_to_file(file_info.filename, self.iterate_replaced_lines(file_info.text.readlines()),
+                                      self.encoding, logger=self)
             else:
                 try:
-                    self.print_file_header(file=file)
-                    self.print_replaced_lines(text.readlines())
+                    self.print_file_header(file=file_info.filename)
+                    self.print_replaced_lines(file_info.text.readlines())
                 except UnicodeDecodeError:
-                    self.print_file_error(f"{file}: unable to read with {self.encoding}")
-
-    def replace_matches_in_file_in_place(self, file: str, lines: list[str]) -> None:
-        """
-        Replace matches in the lines from the file in place.
-        :param file: The file.
-        :param lines: The lines.
-        :return: None
-        """
-        try:
-            with open(file, "w", encoding=self.encoding) as f:
-                for line in self.iter_replaced_lines(lines):
-                    f.write(f"{line}\n")
-        except PermissionError:
-            self.print_file_error(f"{file}: permission denied")
-        except OSError:
-            self.print_file_error(f"{file}: unable to write file")
-        except UnicodeEncodeError:
-            self.print_file_error(f"{file}: unable to write with {self.encoding}")
+                    self.print_file_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
     def set_max_replacements(self) -> None:
         """
         Sets the maximum replacements.
         :return: None
         """
-        if self.args.max_replacements is not None:
+        if self.args.max_replacements is not None:  # --max-replacements
             if self.args.max_replacements < 1:
                 self.print_error(f"'max-replacements' must be >= 1", raise_system_exit=True)
 

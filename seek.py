@@ -232,7 +232,8 @@ class Seek(CLIProgram):
             except PermissionError as error:
                 self.print_file_error(f"{error.filename}: permission denied")
         else:
-            self.print_file_error(f"{directory or "\"\""}: no such file or directory")
+            directory = directory or '""'
+            self.print_file_error(f"{directory}: no such file or directory")
 
 
 if __name__ == "__main__":

@@ -113,11 +113,11 @@ class Scan(CLIProgram):
         :param files: The files.
         :return: None
         """
-        for _, file, text in io.read_files(self, files, self.encoding):
+        for file_info in io.read_files(files, self.encoding, logger=self):
             try:
-                self.print_matches_in_lines(text, origin_file=file)
+                self.print_matches_in_lines(file_info.text, origin_file=file_info.filename)
             except UnicodeDecodeError:
-                self.print_file_error(f"{file}: unable to read with {self.encoding}")
+                self.print_file_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
     def print_matches_in_input(self) -> None:
         """
