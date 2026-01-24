@@ -176,7 +176,7 @@ class Tally(CLIProgram):
         :param files: The files.
         :return: None
         """
-        for file_info in io.read_files(files, self.encoding, logger=self):
+        for file_info in io.read_files(files, self.encoding, reporter=self):
             try:
                 stats = self.get_stats(file_info.text)
 
@@ -184,7 +184,7 @@ class Tally(CLIProgram):
                 self.add_stats_to_totals(stats)
                 self.print_stats(stats, stat_origin=file_info.filename)
             except UnicodeDecodeError:
-                self.print_io_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
     def print_stats_from_input(self) -> None:
         """

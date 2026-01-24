@@ -89,7 +89,7 @@ class Subs(CLIProgram):
         :return: None
         """
         # Pre-compile --find patterns.
-        if compiled := patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case, logger=self):
+        if compiled := patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case, reporter=self):
             self.pattern = patterns.combine_patterns(compiled, ignore_case=self.args.ignore_case)
 
         # Set --no-file-header to True if there are no files and --stdin-files=False.
@@ -149,16 +149,16 @@ class Subs(CLIProgram):
         :param files: The files to process.
         :return: None
         """
-        for file_info in io.read_files(files, self.encoding, logger=self):
+        for file_info in io.read_files(files, self.encoding, reporter=self):
             if self.args.in_place:  # --in-place
                 io.write_text_to_file(file_info.filename, self.iterate_replaced_lines(file_info.text.readlines()),
-                                      self.encoding, logger=self)
+                                      self.encoding, reporter=self)
             else:
                 try:
                     self.print_file_header(file=file_info.filename)
                     self.print_replaced_lines(file_info.text.readlines())
                 except UnicodeDecodeError:
-                    self.print_io_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                    self.print_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
     def validate_parsed_arguments(self) -> None:
         """

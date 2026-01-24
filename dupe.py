@@ -260,11 +260,11 @@ class Dupe(CLIProgram):
         :param files: The files.
         :return: None
         """
-        for file_info in io.read_files(files, self.encoding, logger=self):
+        for file_info in io.read_files(files, self.encoding, reporter=self):
             try:
                 self.print_matching_lines(file_info.text, origin_file=file_info.filename)
             except UnicodeDecodeError:
-                self.print_io_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
     def print_matching_lines_from_input(self) -> None:
         """

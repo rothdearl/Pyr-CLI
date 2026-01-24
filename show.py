@@ -147,12 +147,12 @@ class Show(CLIProgram):
         :param files: The files.
         :return: None
         """
-        for file_info in io.read_files(files, self.encoding, logger=self):
+        for file_info in io.read_files(files, self.encoding, reporter=self):
             try:
                 self.print_file_header(file_info.filename)
                 self.print_lines(file_info.text.readlines())
             except UnicodeDecodeError:
-                self.print_io_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
     def print_lines_from_input(self) -> None:
         """

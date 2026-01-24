@@ -1,5 +1,5 @@
 """
-Module for pattern related functions.
+Module for pattern-related functions.
 """
 
 import re
@@ -8,9 +8,9 @@ from typing import Iterable
 from cli import Protocol, colors
 
 
-class _Logger(Protocol):
+class _ErrorReporter(Protocol):
     """
-    Protocol for printing error messages pertaining to patterns.
+    Protocol for reporting pattern-related errors.
     """
 
     def print_error_and_exit(self, error_message: str) -> None:
@@ -76,12 +76,12 @@ def combine_patterns(patterns: Iterable[re.Pattern[str]], *, ignore_case: bool) 
     return re.compile("|".join(sources), flags=flags)
 
 
-def compile_patterns(patterns: Iterable[str], *, ignore_case: bool, logger: _Logger) -> list[re.Pattern[str]]:
+def compile_patterns(patterns: Iterable[str], *, ignore_case: bool, reporter: _ErrorReporter) -> list[re.Pattern[str]]:
     """
     Compiles patterns into OR-groups implementing AND-of-OR matching.
     :param patterns: The patterns to compile.
     :param ignore_case: Whether to ignore case.
-    :param logger: The logger for printing errors.
+    :param reporter: The reporter for printing pattern-related errors.
     :return: A list of compiled regular expression patterns implementing AND-of-OR matching.
     """
     compiled = []
@@ -94,7 +94,7 @@ def compile_patterns(patterns: Iterable[str], *, ignore_case: bool, logger: _Log
         try:
             compiled.append(re.compile(pattern, flags=flags))
         except re.error:  # re.PatternError was introduced in Python 3.13; use re.error for Python < 3.13.
-            logger.print_error_and_exit(f"invalid pattern: {pattern}")
+            reporter.print_error_and_exit(f"invalid pattern: {pattern}")
 
     return compiled
 

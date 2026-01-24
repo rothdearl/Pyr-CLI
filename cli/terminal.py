@@ -1,5 +1,5 @@
 """
-Module for terminal related functions.
+Module for terminal-related functions.
 """
 
 import sys

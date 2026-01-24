@@ -135,7 +135,7 @@ class Seek(CLIProgram):
                     matches_filters = difference > last_modified
         except PermissionError:
             matches_filters = False
-            self.print_io_error(f"{file}: permission denied")
+            self.print_error(f"{file}: permission denied")
 
         return matches_filters
 
@@ -147,11 +147,11 @@ class Seek(CLIProgram):
         # Pre-compile patterns.
         if self.args.name:  # --name
             self.name_patterns = patterns.compile_patterns(self.args.name, ignore_case=self.args.ignore_case,
-                                                           logger=self)
+                                                           reporter=self)
 
         if self.args.path:  # --path
             self.path_patterns = patterns.compile_patterns(self.args.path, ignore_case=self.args.ignore_case,
-                                                           logger=self)
+                                                           reporter=self)
 
         if terminal.input_is_redirected():
             for directory in sys.stdin:
@@ -232,10 +232,10 @@ class Seek(CLIProgram):
                 for file in directory_hierarchy.rglob("*"):
                     self.print_file(file)
             except PermissionError as error:
-                self.print_io_error(f"{error.filename}: permission denied")
+                self.print_error(f"{error.filename}: permission denied")
         else:
             directory = directory or '""'
-            self.print_io_error(f"{directory}: no such file or directory")
+            self.print_error(f"{directory}: no such file or directory")
 
     def validate_parsed_arguments(self) -> None:
         """

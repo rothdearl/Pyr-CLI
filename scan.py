@@ -94,7 +94,7 @@ class Scan(CLIProgram):
         :return: None
         """
         # Pre-compile --find patterns.
-        self.patterns = patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case, logger=self)
+        self.patterns = patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case, reporter=self)
 
         if terminal.input_is_redirected():
             if self.args.stdin_files:  # --stdin-files
@@ -117,11 +117,11 @@ class Scan(CLIProgram):
         :param files: The files.
         :return: None
         """
-        for file_info in io.read_files(files, self.encoding, logger=self):
+        for file_info in io.read_files(files, self.encoding, reporter=self):
             try:
                 self.print_matches_in_lines(file_info.text, origin_file=file_info.filename)
             except UnicodeDecodeError:
-                self.print_io_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
     def print_matches_in_input(self) -> None:
         """

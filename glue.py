@@ -159,14 +159,14 @@ class Glue(CLIProgram):
         """
         last_file_index = len(files) - 1
 
-        for file_info in io.read_files(files, self.encoding, logger=self):
+        for file_info in io.read_files(files, self.encoding, reporter=self):
             try:
                 self.print_lines(file_info.text)
 
                 if self.args.group and file_info.file_index < last_file_index:  # --group
                     print()
             except UnicodeDecodeError:
-                self.print_io_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
     def print_lines_from_input(self) -> None:
         """

@@ -102,9 +102,9 @@ class Track(CLIProgram):
 
                 time.sleep(polling_interval)
         except FileNotFoundError:
-            self.print_io_error(f"{filename} has been deleted")
+            self.print_error(f"{filename} has been deleted")
         except (OSError, UnicodeDecodeError):
-            self.print_io_error(f"{filename} is no longer accessible")
+            self.print_error(f"{filename} is no longer accessible")
 
     def follow_files(self, files: Collection[str]) -> list[Thread]:
         """
@@ -195,13 +195,13 @@ class Track(CLIProgram):
         """
         files_printed = []
 
-        for file_info in io.read_files(files, self.encoding, logger=self):
+        for file_info in io.read_files(files, self.encoding, reporter=self):
             try:
                 self.print_file_header(file=file_info.filename)
                 self.print_lines(file_info.text.readlines())
                 files_printed.append(file_info.filename)
             except UnicodeDecodeError:
-                self.print_io_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_error(f"{file_info.filename}: unable to read with {self.encoding}")
 
         return files_printed
 
