@@ -194,7 +194,7 @@ class Show(CLIProgram):
         :return: The line.
         """
         has_newline = line.endswith("\n")
-        trailing_count = len(line) - len(line.rstrip(" \n"))  # Count trailing spaces.
+        trailing_count = len(line) - len(line.rstrip())  # Count trailing spaces.
 
         # Truncate trailing spaces.
         line = line[:-trailing_count] if trailing_count else line

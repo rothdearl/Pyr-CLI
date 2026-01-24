@@ -170,7 +170,7 @@ class Slice(CLIProgram):
             fields = list(lexer)
         except ValueError:
             # Likely a "No closing quotation" error; strip the line and add it as a single field.
-            fields = [line.lstrip().rstrip(" \n")]
+            fields = [line.lstrip().rstrip()]
 
         # If --print, collect just the specified fields.
         if self.fields_to_print:

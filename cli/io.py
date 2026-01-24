@@ -52,7 +52,7 @@ def read_files(files: Iterable[str] | TextIO, encoding: str, *, reporter: _Error
     :return: An iterator of FileInfo objects.
     """
     for file_index, filename in enumerate(files):
-        filename = filename.rstrip(" \n")
+        filename = filename.rstrip()
 
         try:
             if os.path.isdir(filename):

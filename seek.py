@@ -155,7 +155,7 @@ class Seek(CLIProgram):
 
         if terminal.input_is_redirected():
             for directory in sys.stdin:
-                self.print_files(directory.rstrip("\n"))
+                self.print_files(directory.rstrip())
 
             if self.args.dirs:  # Process any additional directories.
                 for directory in self.args.dirs:
