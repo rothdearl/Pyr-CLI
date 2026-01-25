@@ -55,6 +55,7 @@ class Show(CLIProgram):
     def build_arguments(self) -> argparse.ArgumentParser:
         """
         Builds an argument parser.
+
         :return: An argument parser.
         """
         parser = argparse.ArgumentParser(allow_abbrev=False, description="print FILES to standard output",
@@ -84,7 +85,6 @@ class Show(CLIProgram):
     def main(self) -> None:
         """
         The main function of the program.
-        :return: None
         """
         # Set --no-file-header to True if there are no files and --stdin-files=False.
         if not self.args.files and not self.args.stdin_files:
@@ -108,8 +108,8 @@ class Show(CLIProgram):
     def print_file_header(self, file: str) -> None:
         """
         Prints the file name, or (standard input) if empty, with a colon.
-        :param file: The file.
-        :return: None
+
+        :param file: File header to print.
         """
         if not self.args.no_file_header:  # --no-file-header
             filename = os.path.relpath(file) if file else "(standard input)"
@@ -124,8 +124,8 @@ class Show(CLIProgram):
     def print_lines(self, lines: Collection[str]) -> None:
         """
         Prints the lines.
-        :param lines: The lines.
-        :return: None
+
+        :param lines: Lines to print.
         """
         line_start = len(lines) + self.args.start + 1 if self.args.start < 0 else self.args.start
         line_end = line_start + self.args.print - 1
@@ -143,8 +143,8 @@ class Show(CLIProgram):
     def print_lines_from_files(self, files: Iterable[str] | TextIO) -> None:
         """
         Prints lines from files.
-        :param files: The files.
-        :return: None
+
+        :param files: Files to print lines from.
         """
         for file_info in io.read_files(files, self.encoding, reporter=self):
             try:
@@ -156,14 +156,14 @@ class Show(CLIProgram):
     def print_lines_from_input(self) -> None:
         """
         Prints lines from standard input until EOF is entered.
-        :return: None
         """
         self.print_lines(sys.stdin.read().splitlines())
 
     def show_ends(self, line: str) -> str:
         """
         Appends the EOL character to the end of the line.
-        :param line: The line.
+
+        :param line: Line to append.
         :return: The line.
         """
         end_index = -1 if line.endswith("\n") else len(line)
@@ -177,9 +177,10 @@ class Show(CLIProgram):
     def show_line_number(self, line: str, line_number: int, padding: int) -> str:
         """
         Prepends the line with the line number.
-        :param line: The line.
-        :param line_number: The line number.
-        :param padding: The line number padding.
+
+        :param line: Line to prepend.
+        :param line_number: Line number.
+        :param padding: Line number padding.
         :return: The line.
         """
         if self.print_color:
@@ -190,7 +191,8 @@ class Show(CLIProgram):
     def show_spaces(self, line: str) -> str:
         """
         Replaces spaces with Whitespace.SPACE or Whitespace.TRAILING_SPACE in the line.
-        :param line: The line.
+
+        :param line: Line to replace spaces.
         :return: The line.
         """
         has_newline = line.endswith("\n")
@@ -214,7 +216,8 @@ class Show(CLIProgram):
     def show_tabs(self, line: str) -> str:
         """
         Replaces tabs with Whitespace.TAB in the line.
-        :param line: The line.
+
+        :param line: Line to replace tabs.
         :return: The line.
         """
         if self.print_color:
@@ -225,7 +228,6 @@ class Show(CLIProgram):
     def validate_parsed_arguments(self) -> None:
         """
         Validates the parsed command-line arguments.
-        :return: None
         """
         if self.args.print < 1:  # --print
             self.print_error_and_exit("'print' must be >= 1")

@@ -31,6 +31,8 @@ class Colors(StrEnum):
 class Subs(CLIProgram):
     """
     A program to replace text in files.
+
+    :ivar re.Pattern[str] pattern: Compiled pattern to match.
     """
 
     def __init__(self) -> None:
@@ -72,6 +74,7 @@ class Subs(CLIProgram):
     def iterate_replaced_lines(self, lines: Iterable[str]) -> Iterable[str]:
         """
         Yield lines with pattern matches replaced.
+
         :param lines: Input lines.
         :return: An iterator yielding transformed lines.
         """
@@ -114,8 +117,8 @@ class Subs(CLIProgram):
     def print_file_header(self, file: str) -> None:
         """
         Prints the file name, or (standard input) if empty, with a colon.
-        :param file: The file.
-        :return: None
+
+        :param file: File header to print.
         """
         if not self.args.no_file_header:  # --no-file-header
             filename = os.path.relpath(file) if file else "(standard input)"
@@ -130,8 +133,8 @@ class Subs(CLIProgram):
     def print_replaced_lines(self, lines: Iterable[str]) -> None:
         """
         Prints the replaced matches in the lines.
-        :param lines: The lines.
-        :return: None
+
+        :param lines: Lines to replace.
         """
         for line in self.iterate_replaced_lines(lines):
             io.print_line(line)
@@ -139,15 +142,14 @@ class Subs(CLIProgram):
     def print_replaced_lines_from_input(self) -> None:
         """
         Prints the replaced matches in the lines from standard input until EOF is entered.
-        :return: None
         """
         self.print_replaced_lines(sys.stdin.read().splitlines())
 
     def process_files(self, files: Iterable[str] | TextIO) -> None:
         """
         Process files by replacing matches and printing results or writing changes in place.
-        :param files: The files to process.
-        :return: None
+
+        :param files: Files to process.
         """
         for file_info in io.read_files(files, self.encoding, reporter=self):
             if self.args.in_place:  # --in-place
@@ -163,7 +165,6 @@ class Subs(CLIProgram):
     def validate_parsed_arguments(self) -> None:
         """
         Validates the parsed command-line arguments.
-        :return: None
         """
         if self.args.max_replacements < 1:  # --max-replacements
             self.print_error_and_exit("'max-replacements' must be >= 1")

@@ -33,6 +33,10 @@ class Colors(StrEnum):
 class Scan(CLIProgram):
     """
     A program to print lines that match patterns in files.
+
+    :ivar bool found_match: Whether a match was found in a file.
+    :ivar int line_number: Internal line number for tracking where matches were found.
+    :ivar list[re.Pattern[str]] patterns: Compiled patterns to match.
     """
 
     def __init__(self) -> None:
@@ -48,6 +52,7 @@ class Scan(CLIProgram):
     def build_arguments(self) -> argparse.ArgumentParser:
         """
         Builds an argument parser.
+
         :return: An argument parser.
         """
         parser = argparse.ArgumentParser(allow_abbrev=False, description="print lines that match patterns in FILES",
@@ -80,7 +85,7 @@ class Scan(CLIProgram):
     def check_for_errors(self) -> None:
         """
         Raises a SystemExit if there are any errors.
-        :return: None
+
         :raises SystemExit: Request to exit from the interpreter if there are any errors.
         """
         super().check_for_errors()
@@ -91,7 +96,6 @@ class Scan(CLIProgram):
     def main(self) -> None:
         """
         The main function of the program.
-        :return: None
         """
         # Pre-compile --find patterns.
         self.patterns = patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case, reporter=self)
@@ -114,8 +118,8 @@ class Scan(CLIProgram):
     def print_matches_in_files(self, files: Iterable[str] | TextIO) -> None:
         """
         Prints matches found in files.
-        :param files: The files.
-        :return: None
+
+        :param files: Files to search.
         """
         for file_info in io.read_files(files, self.encoding, reporter=self):
             try:
@@ -126,7 +130,6 @@ class Scan(CLIProgram):
     def print_matches_in_input(self) -> None:
         """
         Prints matches found in standard input until EOF is entered.
-        :return: None
         """
         eof = False
         lines = []
@@ -150,10 +153,10 @@ class Scan(CLIProgram):
                                reset_line_number=True) -> None:
         """
         Prints matches found in lines.
-        :param lines: The lines.
-        :param origin_file: The file where the lines originated from.
-        :param reset_line_number: Whether to reset the internal line number; default is True.
-        :return: None
+
+        :param lines: Lines to search.
+        :param origin_file: File where the lines originated from.
+        :param reset_line_number: Whether to reset the internal line number (default: True).
         """
         matches = []
 
@@ -211,7 +214,6 @@ class Scan(CLIProgram):
     def validate_parsed_arguments(self) -> None:
         """
         Validates the parsed command-line arguments.
-        :return: None
         """
         pass
 

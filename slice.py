@@ -38,14 +38,17 @@ class Slice(CLIProgram):
     def __init__(self) -> None:
         """
         Initializes a new instance.
+
+        :ivar list[int] fields_to_print: Fields to print.
         """
         super().__init__(name="slice", version="1.3.5")
 
-        self.fields_to_print = []
+        self.fields_to_print: list[int] = []
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
         Builds an argument parser.
+
         :return: An argument parser.
         """
         parser = argparse.ArgumentParser(allow_abbrev=False, description="slice lines in FILES into shell-style fields",
@@ -76,7 +79,6 @@ class Slice(CLIProgram):
     def main(self) -> None:
         """
         The main function of the program.
-        :return: None
         """
         # Set --no-file-header to True if there are no files and --stdin-files=False.
         if not self.args.files and not self.args.stdin_files:
@@ -100,8 +102,8 @@ class Slice(CLIProgram):
     def print_file_header(self, file: str) -> None:
         """
         Prints the file name, or (standard input) if empty, with a colon.
-        :param file: The file.
-        :return: None
+
+        :param file: File header to print.
         """
         if not self.args.no_file_header:  # --no-file-header
             filename = os.path.relpath(file) if file else "(standard input)"
@@ -116,8 +118,8 @@ class Slice(CLIProgram):
     def print_sliced_lines(self, lines: Iterable[str] | TextIO) -> None:
         """
         Prints the sliced the lines.
-        :param lines: The lines.
-        :return: None
+
+        :param lines: Lines to slice.
         """
         quote = "\"" if self.args.quotes == "d" else "'" if self.args.quotes == "s" else ""  # --quotes
         separator = self.args.separator if self.args.separator is not None else "\t"  # --separator
@@ -134,8 +136,8 @@ class Slice(CLIProgram):
     def print_sliced_lines_from_files(self, files: Iterable[str] | TextIO) -> None:
         """
         Slices lines into fields from files.
-        :param files: The files.
-        :return: None
+
+        :param files: Files to slice lines from.
         """
         for file_info in io.read_files(files, self.encoding, reporter=self):
             try:
@@ -147,14 +149,14 @@ class Slice(CLIProgram):
     def print_sliced_lines_from_input(self) -> None:
         """
         Slices lines into fields from standard input until EOF is entered.
-        :return: None
         """
         self.print_sliced_lines(sys.stdin.read().splitlines())
 
     def slice_line(self, line: str) -> list[str]:
         """
         Slices the line into fields.
-        :param line: The line.
+
+        :param line: Line to slice.
         :return: A list of fields.
         """
         lexer = shlex.shlex(line, posix=True, punctuation_chars=False)
@@ -183,7 +185,6 @@ class Slice(CLIProgram):
     def validate_parsed_arguments(self) -> None:
         """
         Validates the parsed command-line arguments.
-        :return: None
         """
         self.fields_to_print = self.args.print or []  # --print
 

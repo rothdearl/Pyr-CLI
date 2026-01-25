@@ -32,6 +32,10 @@ class Colors(StrEnum):
 class Seek(CLIProgram):
     """
     A program to search for files in a directory hierarchy.
+
+    :ivar bool found_match: Whether a match was found.
+    :ivar list[re.Pattern[str]] name_patterns: Compiled name patterns to match.
+    :ivar list[re.Pattern[str]] path_patterns: Compiled path patterns to match.
     """
 
     def __init__(self) -> None:
@@ -40,13 +44,14 @@ class Seek(CLIProgram):
         """
         super().__init__(name="seek", version="1.3.5", error_exit_code=2)
 
-        self.at_least_one_match: bool = False
+        self.found_match: bool = False
         self.name_patterns: list[re.Pattern[str]] = []
         self.path_patterns: list[re.Pattern[str]] = []
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
         Builds an argument parser.
+
         :return: An argument parser.
         """
         parser = argparse.ArgumentParser(allow_abbrev=False, description="search for files in a directory hierarchy",
@@ -84,18 +89,19 @@ class Seek(CLIProgram):
     def check_for_errors(self) -> None:
         """
         Raises a SystemExit if there are any errors.
-        :return: None
+
         :raises SystemExit: Request to exit from the interpreter if there are any errors.
         """
         super().check_for_errors()
 
-        if not self.at_least_one_match:
+        if not self.found_match:
             raise SystemExit(1)
 
     def file_matches_filters(self, file: pathlib.Path) -> bool:
         """
         Returns whether the file matches any of the filters.
-        :param file: The file.
+
+        :param file: File to check.
         :return: True or False.
         """
         matches_filters = True
@@ -142,7 +148,6 @@ class Seek(CLIProgram):
     def main(self) -> None:
         """
         The main function of the program.
-        :return: None
         """
         # Pre-compile patterns.
         if self.args.name:  # --name
@@ -169,8 +174,8 @@ class Seek(CLIProgram):
     def print_file(self, file: pathlib.Path) -> None:
         """
         Prints the file.
-        :param file: The file.
-        :return: None
+
+        :param file: File to print.
         """
         filename = file.name or os.curdir  # The dot file does not have a file name.
         file_path = str(file.parent) if len(file.parts) > 1 else ""  # Do not use the dot file in the path.
@@ -190,7 +195,7 @@ class Seek(CLIProgram):
         if not self.file_matches_filters(file):  # --type, --empty, --m-days, --m-hours, or --m-mins
             return
 
-        self.at_least_one_match = True
+        self.found_match = True
 
         # If --quiet, exit on first match for performance.
         if self.args.quiet:
@@ -220,8 +225,8 @@ class Seek(CLIProgram):
     def print_files(self, directory: str) -> None:
         """
         Prints all the files in the directory hierarchy.
-        :param directory: The directory to walk.
-        :return: None
+
+        :param directory: Directory to traverse.
         """
         if os.path.exists(directory):
             directory_hierarchy = pathlib.Path(directory)
@@ -240,7 +245,6 @@ class Seek(CLIProgram):
     def validate_parsed_arguments(self) -> None:
         """
         Validates the parsed command-line arguments.
-        :return: None
         """
         if self.args.max_depth < 1:  # --max-depth
             self.print_error_and_exit("'max-depth' must be >= 1")

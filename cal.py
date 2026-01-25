@@ -11,7 +11,7 @@ License: GNU GPLv3
 
 import calendar
 import datetime
-from typing import Final
+from typing import Final, NamedTuple
 
 from cli import colors
 
@@ -23,6 +23,17 @@ QUARTER_RANGES: dict[int, tuple[int, int]] = {
     1: (0, 20),
     2: (26, 46)
 }
+
+
+class CalendarQuarterIndex(NamedTuple):
+    """
+    Immutable container for information about a calendar quarter index.
+
+    :ivar start: Start of the quarter index.
+    :ivar end: End of the quarter index.
+    """
+    start: int
+    end: int
 
 
 def _color_day_in_week(week: str, quarter: tuple[int, int], day: str) -> str:
@@ -55,7 +66,6 @@ def _color_value(value: str) -> str:
 def main() -> None:
     """
     The main function of the program.
-    :return: None
     """
     today = datetime.date.today()
 
@@ -77,8 +87,8 @@ def main() -> None:
 def print_month(today: datetime.date) -> None:
     """
     Prints the current month.
-    :param today: The current date.
-    :return: None
+
+    :param today: Current date.
     """
     month = calendar.month(today.year, today.month).splitlines()
 
@@ -101,8 +111,8 @@ def print_month(today: datetime.date) -> None:
 def print_quarter(today: datetime.date) -> None:
     """
     Prints the current quarter.
-    :param today: The current date.
-    :return: None
+
+    :param today: Current date.
     """
     month_name = calendar.month_name[today.month]
     quarter = QUARTER_RANGES[today.month % 3]
@@ -146,8 +156,8 @@ def print_quarter(today: datetime.date) -> None:
 def print_year(today: datetime.date) -> None:
     """
     Prints the current year.
-    :param today: The current date.
-    :return: None
+
+    :param today: Current date.
     """
     month_name = calendar.month_name[today.month]
     quarter = QUARTER_RANGES[today.month % 3]
