@@ -36,22 +36,6 @@ def get_bool_option(section: str, option: str) -> bool | None:
     return None
 
 
-def get_int_option(section: str, option: str) -> int | None:
-    """
-    Gets an integer option. Fallback is 0 if section or option are not found, or the value is empty.
-
-    :param section: Section name.
-    :param option: Option name.
-    :return: An integer value or None if the value cannot be parsed.
-    """
-    value = get_str_option_with_fallback(section, option, fallback="0")
-
-    try:
-        return int(value)
-    except ValueError:
-        return None
-
-
 def get_float_option(section: str, option: str) -> float | None:
     """
     Gets a floating point decimal option. Fallback is 0.0 if section or option are not found, or the value is empty.
@@ -64,6 +48,22 @@ def get_float_option(section: str, option: str) -> float | None:
 
     try:
         return float(value)
+    except ValueError:
+        return None
+
+
+def get_int_option(section: str, option: str) -> int | None:
+    """
+    Gets an integer option. Fallback is 0 if section or option are not found, or the value is empty.
+
+    :param section: Section name.
+    :param option: Option name.
+    :return: An integer value or None if the value cannot be parsed.
+    """
+    value = get_str_option_with_fallback(section, option, fallback="0")
+
+    try:
+        return int(value)
     except ValueError:
         return None
 
