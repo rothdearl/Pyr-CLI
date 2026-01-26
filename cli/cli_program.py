@@ -8,7 +8,7 @@ import sys
 from abc import ABC, abstractmethod
 from typing import final
 
-from cli import terminal
+from .terminal import output_is_terminal
 
 
 class CLIProgram(ABC):
@@ -72,7 +72,7 @@ class CLIProgram(ABC):
         """
         self.args = self.build_arguments().parse_args()
         self.encoding = "iso-8859-1" if getattr(self.args, "latin1", False) else "utf-8"  # --latin1
-        self.print_color = getattr(self.args, "color", "off") == "on" and terminal.output_is_terminal()  # --color
+        self.print_color = getattr(self.args, "color", "off") == "on" and output_is_terminal()  # --color
 
     @final
     def print_error(self, error_message: str) -> None:
@@ -121,8 +121,8 @@ class CLIProgram(ABC):
         except KeyboardInterrupt:
             print()  # Add a newline after Ctrl-C.
             raise SystemExit(self.error_exit_code if windows else keyboard_interrupt_error_code)
-        except OSError as e:
-            raise SystemExit(self.error_exit_code) from e
+        except OSError as error:
+            raise SystemExit(self.error_exit_code) from error
 
     @abstractmethod
     def validate_parsed_arguments(self) -> None:

@@ -12,8 +12,9 @@ License: GNU GPLv3
 import argparse
 import re
 import sys
+from collections.abc import Iterable
 from enum import IntEnum, StrEnum
-from typing import Final, Iterable, TextIO, TypeAlias, final
+from typing import Final, TextIO, TypeAlias, final
 
 from cli import CLIProgram, colors, io, terminal
 
@@ -188,7 +189,7 @@ class Tally(CLIProgram):
 
         :param files: Files to count.
         """
-        for file_info in io.read_files(files, self.encoding, reporter=self):
+        for file_info in io.read_files(files, self.encoding, on_error=self.print_error):
             try:
                 counts = self.get_counts(file_info.text, has_newlines=True)
 

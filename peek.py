@@ -13,8 +13,9 @@ import argparse
 import os
 import sys
 from collections import deque
+from collections.abc import Iterable
 from enum import StrEnum
-from typing import Iterable, TextIO, final
+from typing import TextIO, final
 
 from cli import CLIProgram, colors, io, terminal
 
@@ -132,7 +133,7 @@ class Peek(CLIProgram):
 
         :param files: Files to print lines from.
         """
-        for file_info in io.read_files(files, self.encoding, reporter=self):
+        for file_info in io.read_files(files, self.encoding, on_error=self.print_error):
             try:
                 self.print_file_header(file=file_info.filename)
                 self.print_lines(file_info.text)

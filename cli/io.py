@@ -3,21 +3,10 @@ Module for file-related functions.
 """
 
 import os
-from typing import Iterable, Iterator, NamedTuple, Protocol, TextIO
+from collections.abc import Iterable, Iterator
+from typing import NamedTuple, TextIO
 
-
-class _ErrorReporter(Protocol):
-    """
-    Protocol for reporting file-related errors.
-    """
-
-    def print_error(self, error_message: str) -> None:
-        """
-        Prints the error message to standard error.
-
-        :param error_message: Error message to print.
-        """
-        ...
+from .types import Reporter
 
 
 class FileInfo(NamedTuple):
@@ -42,41 +31,41 @@ def print_line(line: str) -> None:
     print(line, end="" if line.endswith("\n") else "\n")
 
 
-def read_files(files: Iterable[str] | TextIO, encoding: str, *, reporter: _ErrorReporter) -> Iterator[FileInfo]:
+def read_files(files: Iterable[str] | TextIO, encoding: str, *, on_error: Reporter) -> Iterator[FileInfo]:
     """
     Opens the files for reading in text mode and returns an iterator yielding FileInfo objects.
 
     :param files: List of file names or a text stream containing file names (e.g. standard input).
     :param encoding: Text encoding.
-    :param reporter: Reporter for printing file-related errors.
+    :param on_error: Callback invoked with an error message for file-related errors.
     :return: Iterator of FileInfo objects.
     """
     for file_index, filename in enumerate(files):
-        filename = filename.rstrip()
+        filename = filename.strip()
 
         try:
             if os.path.isdir(filename):
-                reporter.print_error(f"{filename}: is a directory")
+                on_error(f"{filename}: is a directory")
             else:
                 with open(filename, "rt", encoding=encoding) as text:
                     yield FileInfo(file_index, filename, text)
         except FileNotFoundError:
             filename = filename or '""'
-            reporter.print_error(f"{filename}: no such file or directory")
+            on_error(f"{filename}: no such file or directory")
         except PermissionError:
-            reporter.print_error(f"{filename}: permission denied")
+            on_error(f"{filename}: permission denied")
         except OSError:
-            reporter.print_error(f"{filename}: unable to read file")
+            on_error(f"{filename}: unable to read file")
 
 
-def write_text_to_file(filename: str, text: Iterable[str], encoding: str, *, reporter: _ErrorReporter) -> None:
+def write_text_to_file(filename: str, text: Iterable[str], encoding: str, *, on_error: Reporter) -> None:
     """
     Write text lines to the file in text mode where each output line is written with exactly one trailing newline.
 
     :param filename: File name.
     :param text: Iterable of strings (e.g., list, generator, or text stream).
     :param encoding: Text encoding.
-    :param reporter: Reporter for printing file-related errors.
+    :param on_error: Callback invoked with an error message for file-related errors.
     """
     try:
         with open(filename, "wt", encoding=encoding) as f:
@@ -84,8 +73,8 @@ def write_text_to_file(filename: str, text: Iterable[str], encoding: str, *, rep
                 line = line.rstrip("\n")
                 f.write(f"{line}\n")
     except PermissionError:
-        reporter.print_error(f"{filename}: permission denied")
+        on_error(f"{filename}: permission denied")
     except OSError:
-        reporter.print_error(f"{filename}: unable to write file")
+        on_error(f"{filename}: unable to write file")
     except UnicodeEncodeError:
-        reporter.print_error(f"{filename}: unable to write with {encoding}")
+        on_error(f"{filename}: unable to write with {encoding}")

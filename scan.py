@@ -11,12 +11,12 @@ License: GNU GPLv3
 
 import argparse
 import os
-import re
 import sys
+from collections.abc import Iterable
 from enum import StrEnum
-from typing import Iterable, TextIO, final
+from typing import TextIO, final
 
-from cli import CLIProgram, colors, io, patterns, terminal
+from cli import CLIProgram, CompiledPatterns, colors, io, patterns, terminal
 
 
 class Colors(StrEnum):
@@ -36,7 +36,7 @@ class Scan(CLIProgram):
 
     :ivar bool found_match: Whether a match was found in a file.
     :ivar int line_number: Line number for tracking where matches were found.
-    :ivar list[re.Pattern[str]] patterns: Compiled patterns to match.
+    :ivar CompiledPatterns patterns: Compiled patterns to match.
     """
 
     def __init__(self) -> None:
@@ -47,7 +47,7 @@ class Scan(CLIProgram):
 
         self.found_match: bool = False
         self.line_number: int = 0
-        self.patterns: list[re.Pattern[str]] = []
+        self.patterns: CompiledPatterns = []
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
@@ -98,7 +98,8 @@ class Scan(CLIProgram):
         Runs the primary function of the program.
         """
         # Pre-compile --find patterns.
-        self.patterns = patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case, reporter=self)
+        self.patterns = patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case,
+                                                  on_error=self.print_error_and_exit)
 
         if terminal.input_is_redirected():
             if self.args.stdin_files:  # --stdin-files
@@ -121,7 +122,7 @@ class Scan(CLIProgram):
 
         :param files: Files to search.
         """
-        for file_info in io.read_files(files, self.encoding, reporter=self):
+        for file_info in io.read_files(files, self.encoding, on_error=self.print_error):
             try:
                 self.print_matches_in_lines(file_info.text, origin_file=file_info.filename)
             except UnicodeDecodeError:

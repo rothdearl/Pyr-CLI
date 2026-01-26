@@ -3,23 +3,10 @@ Module for pattern-related functions.
 """
 
 import re
-from typing import Iterable
+from collections.abc import Iterable
 
-from cli import Protocol, colors
-
-
-class _ErrorReporter(Protocol):
-    """
-    Protocol for reporting pattern-related errors.
-    """
-
-    def print_error_and_exit(self, error_message: str) -> None:
-        """
-        Prints the error message to standard error and raises a SystemExit.
-
-        :param error_message: Error message to print.
-        """
-        ...
+from .colors import RESET
+from .types import CompiledPatterns, PatternIterable, Reporter
 
 
 def color_patterns_in_text(text: str, patterns: Iterable[re.Pattern[str]], *, color: str) -> str:
@@ -55,7 +42,7 @@ def color_patterns_in_text(text: str, patterns: Iterable[re.Pattern[str]], *, co
         if prev_end < start:
             colored_text.append(text[prev_end:start])
 
-        colored_text.extend([color, text[start:end], colors.RESET])
+        colored_text.extend([color, text[start:end], RESET])
         prev_end = end
 
     if prev_end < len(text):
@@ -64,7 +51,7 @@ def color_patterns_in_text(text: str, patterns: Iterable[re.Pattern[str]], *, co
     return "".join(colored_text)
 
 
-def combine_patterns(patterns: Iterable[re.Pattern[str]], *, ignore_case: bool) -> re.Pattern[str]:
+def combine_patterns(patterns: PatternIterable, *, ignore_case: bool) -> re.Pattern[str]:
     """
     Combines all patterns into a single compiled OR-pattern.
 
@@ -78,13 +65,13 @@ def combine_patterns(patterns: Iterable[re.Pattern[str]], *, ignore_case: bool) 
     return re.compile("|".join(sources), flags=flags)
 
 
-def compile_patterns(patterns: Iterable[str], *, ignore_case: bool, reporter: _ErrorReporter) -> list[re.Pattern[str]]:
+def compile_patterns(patterns: Iterable[str], *, ignore_case: bool, on_error: Reporter) -> CompiledPatterns:
     """
     Compiles patterns into OR-groups implementing AND-of-OR matching.
 
     :param patterns: Patterns to compile.
     :param ignore_case: Whether to ignore case.
-    :param reporter: Reporter for printing pattern-related errors.
+    :param on_error: Callback invoked with an error message for pattern-related errors.
     :return: A list of compiled regular expression patterns implementing AND-of-OR matching.
     """
     compiled = []
@@ -97,12 +84,12 @@ def compile_patterns(patterns: Iterable[str], *, ignore_case: bool, reporter: _E
         try:
             compiled.append(re.compile(pattern, flags=flags))
         except re.error:  # re.PatternError was introduced in Python 3.13; use re.error for Python < 3.13.
-            reporter.print_error_and_exit(f"invalid pattern: {pattern}")
+            on_error(f"invalid pattern: {pattern}")
 
     return compiled
 
 
-def text_has_patterns(text: str, patterns: Iterable[re.Pattern[str]]) -> bool:
+def text_has_patterns(text: str, patterns: PatternIterable) -> bool:
     """
     Returns whether the text matches all patterns.
 

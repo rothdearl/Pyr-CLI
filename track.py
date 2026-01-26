@@ -13,9 +13,10 @@ import argparse
 import os
 import sys
 import time
+from collections.abc import Collection, Iterable
 from enum import StrEnum
 from threading import Thread
-from typing import Collection, Iterable, TextIO, final
+from typing import TextIO, final
 
 from cli import CLIProgram, colors, io, terminal
 
@@ -197,7 +198,7 @@ class Track(CLIProgram):
         """
         files_printed = []
 
-        for file_info in io.read_files(files, self.encoding, reporter=self):
+        for file_info in io.read_files(files, self.encoding, on_error=self.print_error):
             try:
                 self.print_file_header(file=file_info.filename)
                 self.print_lines(file_info.text.readlines())

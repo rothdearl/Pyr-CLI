@@ -13,8 +13,9 @@ import argparse
 import os
 import re
 import sys
+from collections.abc import Iterable
 from enum import StrEnum
-from typing import Final, Iterable, TextIO, final
+from typing import Final, TextIO, final
 
 from cli import CLIProgram, colors, io, terminal
 
@@ -269,7 +270,7 @@ class Dupe(CLIProgram):
 
         :param files: Files to search.
         """
-        for file_info in io.read_files(files, self.encoding, reporter=self):
+        for file_info in io.read_files(files, self.encoding, on_error=self.print_error):
             try:
                 self.print_matching_lines(file_info.text, origin_file=file_info.filename)
             except UnicodeDecodeError:

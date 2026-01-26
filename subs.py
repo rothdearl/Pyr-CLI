@@ -13,8 +13,9 @@ import argparse
 import os
 import re
 import sys
+from collections.abc import Iterable
 from enum import StrEnum
-from typing import Iterable, TextIO, final
+from typing import TextIO, final
 
 from cli import CLIProgram, colors, io, patterns, terminal
 
@@ -91,7 +92,8 @@ class Subs(CLIProgram):
         Runs the primary function of the program.
         """
         # Pre-compile --find patterns.
-        if compiled := patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case, reporter=self):
+        if compiled := patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case,
+                                                 on_error=self.print_error_and_exit):
             self.pattern = patterns.combine_patterns(compiled, ignore_case=self.args.ignore_case)
 
         # Set --no-file-header to True if there are no files and --stdin-files=False.
@@ -150,10 +152,10 @@ class Subs(CLIProgram):
 
         :param files: Files to process.
         """
-        for file_info in io.read_files(files, self.encoding, reporter=self):
+        for file_info in io.read_files(files, self.encoding, on_error=self.print_error):
             if self.args.in_place:  # --in-place
                 io.write_text_to_file(file_info.filename, self.iterate_replaced_lines(file_info.text.readlines()),
-                                      self.encoding, reporter=self)
+                                      self.encoding, on_error=self.print_error)
             else:
                 try:
                     self.print_file_header(file=file_info.filename)

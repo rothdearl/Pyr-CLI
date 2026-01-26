@@ -12,13 +12,12 @@ License: GNU GPLv3
 import argparse
 import os
 import pathlib
-import re
 import sys
 import time
 from enum import StrEnum
 from typing import final
 
-from cli import CLIProgram, colors, patterns, terminal
+from cli import CLIProgram, CompiledPatterns, colors, patterns, terminal
 
 
 class Colors(StrEnum):
@@ -34,8 +33,8 @@ class Seek(CLIProgram):
     A program to search for files in a directory hierarchy.
 
     :ivar bool found_match: Whether a match was found.
-    :ivar list[re.Pattern[str]] name_patterns: Compiled name patterns to match.
-    :ivar list[re.Pattern[str]] path_patterns: Compiled path patterns to match.
+    :ivar CompiledPatterns name_patterns: Compiled name patterns to match.
+    :ivar CompiledPatterns path_patterns: Compiled path patterns to match.
     """
 
     def __init__(self) -> None:
@@ -45,8 +44,8 @@ class Seek(CLIProgram):
         super().__init__(name="seek", version="1.3.5", error_exit_code=2)
 
         self.found_match: bool = False
-        self.name_patterns: list[re.Pattern[str]] = []
-        self.path_patterns: list[re.Pattern[str]] = []
+        self.name_patterns: CompiledPatterns = []
+        self.path_patterns: CompiledPatterns = []
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
@@ -152,11 +151,11 @@ class Seek(CLIProgram):
         # Pre-compile patterns.
         if self.args.name:  # --name
             self.name_patterns = patterns.compile_patterns(self.args.name, ignore_case=self.args.ignore_case,
-                                                           reporter=self)
+                                                           on_error=self.print_error_and_exit)
 
         if self.args.path:  # --path
             self.path_patterns = patterns.compile_patterns(self.args.path, ignore_case=self.args.ignore_case,
-                                                           reporter=self)
+                                                           on_error=self.print_error_and_exit)
 
         if terminal.input_is_redirected():
             for directory in sys.stdin:
