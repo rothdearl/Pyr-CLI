@@ -6,7 +6,7 @@ import os
 from collections.abc import Iterable, Iterator
 from typing import NamedTuple, TextIO
 
-from .types import Reporter
+from .types import ErrorReporter
 
 
 class FileInfo(NamedTuple):
@@ -31,7 +31,7 @@ def print_line(line: str) -> None:
     print(line, end="" if line.endswith("\n") else "\n")
 
 
-def read_files(files: Iterable[str] | TextIO, encoding: str, *, on_error: Reporter) -> Iterator[FileInfo]:
+def read_files(files: Iterable[str] | TextIO, encoding: str, *, on_error: ErrorReporter) -> Iterator[FileInfo]:
     """
     Opens the files for reading in text mode and returns an iterator yielding FileInfo objects.
 
@@ -58,7 +58,7 @@ def read_files(files: Iterable[str] | TextIO, encoding: str, *, on_error: Report
             on_error(f"{filename}: unable to read file")
 
 
-def write_text_to_file(filename: str, text: Iterable[str], encoding: str, *, on_error: Reporter) -> None:
+def write_text_to_file(filename: str, text: Iterable[str], encoding: str, *, on_error: ErrorReporter) -> None:
     """
     Write text lines to the file in text mode where each output line is written with exactly one trailing newline.
 

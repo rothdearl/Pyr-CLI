@@ -5,7 +5,7 @@ Module for working with INI configuration files.
 import configparser
 import json
 
-from .types import Json, Reporter
+from .types import ErrorReporter, Json
 
 # Configuration parser for an INI options file (intentional single global ConfigParser instance).
 _config: configparser.ConfigParser = configparser.ConfigParser()
@@ -121,7 +121,7 @@ def get_str_options(section: str, option: str, *, separator: str = ",") -> list[
     return [s for sub in value.split(separator) if (s := sub.strip())]
 
 
-def read_options(path: str, on_error: Reporter) -> bool:
+def read_options(path: str, on_error: ErrorReporter) -> bool:
     """
     Reads options from the configuration file, clearing previous reads, and returns whether the process was successful.
 

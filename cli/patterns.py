@@ -6,7 +6,7 @@ import re
 from collections.abc import Iterable
 
 from .colors import RESET
-from .types import CompiledPatterns, PatternIterable, Reporter
+from .types import CompiledPatterns, ErrorReporter, PatternIterable
 
 
 def color_patterns_in_text(text: str, patterns: Iterable[re.Pattern[str]], *, color: str) -> str:
@@ -65,7 +65,7 @@ def combine_patterns(patterns: PatternIterable, *, ignore_case: bool) -> re.Patt
     return re.compile("|".join(sources), flags=flags)
 
 
-def compile_patterns(patterns: Iterable[str], *, ignore_case: bool, on_error: Reporter) -> CompiledPatterns:
+def compile_patterns(patterns: Iterable[str], *, ignore_case: bool, on_error: ErrorReporter) -> CompiledPatterns:
     """
     Compiles patterns into OR-groups implementing AND-of-OR matching.
 
