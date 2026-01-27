@@ -7,7 +7,7 @@ import sys
 
 def input_is_redirected() -> bool:
     """
-    Return whether input is being redirected.
+    Check whether input is being redirected.
 
     :return: True if input is being redirected.
     """
@@ -16,7 +16,7 @@ def input_is_redirected() -> bool:
 
 def output_is_terminal() -> bool:
     """
-    Return whether output is to the terminal.
+    Check whether output is to the terminal.
 
     :return: True if output is to the terminal.
     """

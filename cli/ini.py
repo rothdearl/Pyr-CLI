@@ -19,11 +19,11 @@ _truthy_values: set[str] = {"1", "on", "true", "y", "yes"}
 
 def get_bool_option(section: str, option: str) -> bool | None:
     """
-    Get a boolean option. Fallback is False if section or option are not found, or the value is empty.
+    Return a boolean option. Fallback is False if missing or empty option.
 
     :param section: Section name.
     :param option: Option name.
-    :return: A boolean value or None if the value is neither truthy nor falsy.
+    :return: Boolean value or None if the value is neither truthy nor falsy.
     """
     value = get_str_option_with_fallback(section, option, fallback="false").lower()
 
@@ -38,11 +38,11 @@ def get_bool_option(section: str, option: str) -> bool | None:
 
 def get_float_option(section: str, option: str) -> float | None:
     """
-    Get a floating point decimal option. Fallback is 0.0 if section or option are not found, or the value is empty.
+    Return a floating point decimal option. Fallback is 0.0 if missing or empty option.
 
     :param section: Section name.
     :param option: Option name.
-    :return: A floating point decimal value or None if the value cannot be parsed.
+    :return: Floating point decimal value or None if the value cannot be parsed.
     """
     value = get_str_option_with_fallback(section, option, fallback="0.0")
 
@@ -54,11 +54,11 @@ def get_float_option(section: str, option: str) -> float | None:
 
 def get_int_option(section: str, option: str) -> int | None:
     """
-    Get an integer option. Fallback is 0 if section or option are not found, or the value is empty.
+    Return an integer option. Fallback is 0 if missing or empty option.
 
     :param section: Section name.
     :param option: Option name.
-    :return: An integer value or None if the value cannot be parsed.
+    :return: Integer value or None if the value cannot be parsed.
     """
     value = get_str_option_with_fallback(section, option, fallback="0")
 
@@ -70,11 +70,11 @@ def get_int_option(section: str, option: str) -> int | None:
 
 def get_json_option(section: str, option: str) -> Json | None:
     """
-    Get a JSON option. Fallback is {} if section or option are not found, or the value is empty.
+    Return a JSON option. Fallback is {} if missing or empty option.
 
     :param section: Section name.
     :param option: Option name.
-    :return: A JSON value or None if the value cannot be parsed.
+    :return: JSON value or None if the value cannot be parsed.
     """
     value = get_str_option_with_fallback(section, option, fallback="{}")
 
@@ -86,35 +86,35 @@ def get_json_option(section: str, option: str) -> Json | None:
 
 def get_str_option(section: str, option: str) -> str:
     """
-    Get a string option. Fallback is an empty string if section or option are not found, or the value is empty.
+    Return a string option. Fallback is an empty string if missing or empty option.
 
     :param section: Section name.
     :param option: Option name.
-    :return: A string value.
+    :return: String value.
     """
     return get_str_option_with_fallback(section, option, fallback="")
 
 
 def get_str_option_with_fallback(section: str, option: str, *, fallback: str) -> str:
     """
-    Get a string option.
+    Return a string option.
 
     :param section: Section name.
     :param option: Option name.
-    :param fallback: Fallback value if a section or option are not found, or the value is empty.
-    :return: A string value.
+    :param fallback: Fallback value if a missing or empty option.
+    :return: String value.
     """
     return _config.get(section, option, fallback=fallback) or fallback
 
 
 def get_str_options(section: str, option: str, *, separator: str = ",") -> list[str]:
     """
-    Get a string option and split it on ``separator``, ignoring empty values.
+    Return a string option and split it on ``separator``, ignoring empty values.
 
     :param section: Section name.
     :param option: Option name.
     :param separator: Value separator (default: ",").
-    :return: A list of string values.
+    :return: List of string values.
     """
     value = get_str_option_with_fallback(section, option, fallback="")
 

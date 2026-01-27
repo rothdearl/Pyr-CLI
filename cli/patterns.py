@@ -14,9 +14,9 @@ def color_patterns_in_text(text: str, patterns: Iterable[re.Pattern[str]], *, co
     Color all patterns in ``text``.
 
     :param text: Text to color.
-    :param patterns: Patterns to find.
+    :param patterns: Compiled patterns to find.
     :param color: Color to use.
-    :return: The text with all patterns colored.
+    :return: Text with all patterns colored.
     """
     slices = []
 
@@ -57,7 +57,7 @@ def combine_patterns(patterns: PatternIterable, *, ignore_case: bool) -> re.Patt
 
     :param patterns: List of compiled pattern groups.
     :param ignore_case: Whether to ignore case.
-    :return: A single compiled regular expression matching any pattern.
+    :return: Compiled regular expression matching any pattern.
     """
     flags = re.IGNORECASE if ignore_case else re.NOFLAG
     sources = [group.pattern for group in patterns]
@@ -72,7 +72,7 @@ def compile_patterns(patterns: Iterable[str], *, ignore_case: bool, on_error: Er
     :param patterns: Patterns to compile.
     :param ignore_case: Whether to ignore case.
     :param on_error: Callback invoked with an error message for pattern-related errors.
-    :return: A list of compiled regular expression patterns implementing AND-of-OR matching.
+    :return: List of compiled regular expression patterns implementing AND-of-OR matching.
     """
     compiled = []
     flags = re.IGNORECASE if ignore_case else re.NOFLAG
@@ -91,7 +91,7 @@ def compile_patterns(patterns: Iterable[str], *, ignore_case: bool, on_error: Er
 
 def text_has_patterns(text: str, patterns: PatternIterable) -> bool:
     """
-    Return whether ``text`` matches all ``patterns``.
+    Check whether ``text`` matches all ``patterns``.
 
     :param text: Text to search.
     :param patterns: Patterns to match.

@@ -14,7 +14,7 @@ import calendar
 import datetime
 from typing import Final, NamedTuple, final
 
-from cli import colors
+from cli import colors, OS_IS_WINDOWS
 
 
 class CalendarQuarterSlice(NamedTuple):
@@ -56,7 +56,7 @@ def color_day_in_week_for_slice(week: str, day: str, quarter_slice: CalendarQuar
     :param week: Current week.
     :param day: Current day.
     :param quarter_slice: Calendar quarter slice.
-    :return: The week with the current day colored.
+    :return: Week with the current day colored.
     """
     colored_text = week[quarter_slice.start:quarter_slice.end].replace(day, get_reverse_color(day))
 
@@ -68,7 +68,7 @@ def get_calendar_quarter_slice(date: datetime.date) -> CalendarQuarterSlice:
     Return information about a calendar quarter slice for the given date.
 
     :param date: Current date.
-    :return: An immutable container for information about a calendar quarter slice.
+    :return: Immutable container for information about a calendar quarter slice.
     """
     slices = {
         0: CalendarQuarterSlice(0, 20),
@@ -81,10 +81,10 @@ def get_calendar_quarter_slice(date: datetime.date) -> CalendarQuarterSlice:
 
 def get_reverse_color(value: str) -> str:
     """
-    Get a reverse color string with ``value``.
+    Return a formatted color string for ``value``.
 
-    :param value: Value to get reverse color for.
-    :return: A color string.
+    :param value: Value to format.
+    :return: Formatted color string.
     """
     return f"{colors.REVERSE}{value}{colors.RESET}"
 
@@ -195,7 +195,7 @@ class When:
     :ivar argparse.Namespace args: Parsed command-line arguments.
     """
 
-    DEFAULT_DATETIME_FORMAT: Final[str] = "%a %b %-d %-I:%M%p"
+    DEFAULT_DATETIME_FORMAT: Final[str] = "%a %b %d %I:%M%p" if OS_IS_WINDOWS else "%a %b %-d %-I:%M%p"
     NAME: Final[str] = "when"
     VERSION: Final[str] = "1.0.1"
 
