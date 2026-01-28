@@ -4,7 +4,7 @@
 """
 Filename: dupe.py
 Author: Roth Earl
-Version: 1.3.6
+Version: 1.3.7
 Description: A program to filter matching lines in files.
 License: GNU GPLv3
 """
@@ -17,16 +17,16 @@ from collections.abc import Iterable
 from enum import StrEnum
 from typing import Final, TextIO, final
 
-from cli import CLIProgram, colors, io, terminal
+from cli import CLIProgram, ansi, io, terminal
 
 
 class Colors(StrEnum):
     """
     Terminal color constants.
     """
-    COLON = colors.BRIGHT_CYAN
-    FILE_NAME = colors.BRIGHT_MAGENTA
-    GROUP_COUNT = colors.BRIGHT_GREEN
+    COLON = ansi.BRIGHT_CYAN
+    FILE_NAME = ansi.BRIGHT_MAGENTA
+    GROUP_COUNT = ansi.BRIGHT_GREEN
 
 
 @final
@@ -34,19 +34,19 @@ class Dupe(CLIProgram):
     """
     A program to filter matching lines in files.
 
-    :cvar Final[str] FIELD_PATTERN: Pattern for splitting lines into fields.
-    :ivar int max_chars: Maximum number of characters to compare.
-    :ivar int skip_chars: Number of characters to skip at the beginning of each line.
-    :ivar int skip_fields: Number of fields to skip at the beginning of each line.
+    :cvar FIELD_PATTERN: Pattern for splitting lines into fields.
+    :ivar max_chars: Maximum number of characters to compare.
+    :ivar skip_chars: Number of characters to skip at the beginning of each line.
+    :ivar skip_fields: Number of fields to skip at the beginning of each line.
     """
 
     FIELD_PATTERN: Final[str] = r"\s+|\W+"
 
     def __init__(self) -> None:
         """
-        Initialize a new instance.
+        Initialize a new ``Dupe`` instance.
         """
-        super().__init__(name="dupe", version="1.3.6")
+        super().__init__(name="dupe", version="1.3.7")
 
         self.max_chars: int = 0
         self.skip_chars: int = 0
@@ -54,7 +54,7 @@ class Dupe(CLIProgram):
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
-        Build an argument parser.
+        Build and return an argument parser.
 
         :return: An argument parser.
         """
@@ -95,7 +95,7 @@ class Dupe(CLIProgram):
 
     def get_character_compare_sequence(self, line: str) -> str:
         """
-        Return a character sequence derived from ``line`` for comparison.
+        Return a character sequence derived from the line for comparison.
 
         :param line: Line to process.
         :return: Character sequence for comparison.
@@ -122,7 +122,7 @@ class Dupe(CLIProgram):
         Group adjacent lines that match.
 
         :param lines: Lines to group.
-        :return: List of lines where the first element is the group and subsequent elements are matching lines.
+        :return: Lists of lines where the first element is the group and subsequent elements are matching lines.
         """
         group_index = 0
         group_list = []
@@ -199,14 +199,14 @@ class Dupe(CLIProgram):
         :param file: File header to print.
         """
         if not self.args.no_file_header:  # --no-file-header
-            filename = os.path.relpath(file) if file else "(standard input)"
+            file_name = os.path.relpath(file) if file else "(standard input)"
 
             if self.print_color:
-                filename = f"{Colors.FILE_NAME}{filename}{Colors.COLON}:{colors.RESET}"
+                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{ansi.RESET}"
             else:
-                filename = f"{filename}:"
+                file_name = f"{file_name}:"
 
-            print(filename)
+            print(file_name)
 
     def print_matching_lines(self, lines: Iterable[str] | TextIO, *, origin_file) -> None:
         """
@@ -239,7 +239,7 @@ class Dupe(CLIProgram):
                     # Only print the group count for the first line.
                     if line_index == 0:
                         if self.print_color:
-                            group_count_str = f"{Colors.GROUP_COUNT}{group_count:>{padding},}{Colors.COLON}:{colors.RESET}"
+                            group_count_str = f"{Colors.GROUP_COUNT}{group_count:>{padding},}{Colors.COLON}:{ansi.RESET}"
                         else:
                             group_count_str = f"{group_count:>{padding},}:"
                     else:
@@ -256,7 +256,7 @@ class Dupe(CLIProgram):
                         self.print_file_header(origin_file)
                         file_header_printed = True
 
-                    io.print_line(f"{group_count_str}{line}")
+                    io.print_normalized_line(f"{group_count_str}{line}")
 
                     if not (self.args.duplicate or self.args.group):  # --duplicate or --group
                         break
@@ -266,15 +266,15 @@ class Dupe(CLIProgram):
 
     def print_matching_lines_from_files(self, files: Iterable[str] | TextIO) -> None:
         """
-        Print lines that match from ``files``.
+        Print lines that match from the files.
 
         :param files: Files to search.
         """
         for file_info in io.read_files(files, self.encoding, on_error=self.print_error):
             try:
-                self.print_matching_lines(file_info.text, origin_file=file_info.filename)
+                self.print_matching_lines(file_info.text, origin_file=file_info.file_name)
             except UnicodeDecodeError:
-                self.print_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_error(f"{file_info.file_name}: unable to read with {self.encoding}")
 
     def print_matching_lines_from_input(self) -> None:
         """

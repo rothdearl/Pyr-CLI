@@ -4,7 +4,7 @@
 """
 Filename: seek.py
 Author: Roth Earl
-Version: 1.3.6
+Version: 1.3.7
 Description: A program to search for files in a directory hierarchy.
 License: GNU GPLv3
 """
@@ -17,14 +17,14 @@ import time
 from enum import StrEnum
 from typing import final
 
-from cli import CLIProgram, CompiledPatterns, colors, patterns, terminal
+from cli import CLIProgram, CompiledPatterns, ansi, patterns, terminal
 
 
 class Colors(StrEnum):
     """
     Terminal color constants.
     """
-    MATCH = colors.BRIGHT_RED
+    MATCH = ansi.BRIGHT_RED
 
 
 @final
@@ -32,16 +32,16 @@ class Seek(CLIProgram):
     """
     A program to search for files in a directory hierarchy.
 
-    :ivar bool found_match: Whether a match was found.
-    :ivar CompiledPatterns name_patterns: Compiled name patterns to match.
-    :ivar CompiledPatterns path_patterns: Compiled path patterns to match.
+    :ivar found_match: Whether a match was found.
+    :ivar name_patterns: Compiled name patterns to match.
+    :ivar path_patterns: Compiled path patterns to match.
     """
 
     def __init__(self) -> None:
         """
-        Initialize a new instance.
+        Initialize a new Seek instance.
         """
-        super().__init__(name="seek", version="1.3.6", error_exit_code=2)
+        super().__init__(name="seek", version="1.3.7", error_exit_code=2)
 
         self.found_match: bool = False
         self.name_patterns: CompiledPatterns = []
@@ -49,7 +49,7 @@ class Seek(CLIProgram):
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
-        Build an argument parser.
+        Build and return an argument parser.
 
         :return: An argument parser.
         """
@@ -87,9 +87,9 @@ class Seek(CLIProgram):
 
     def check_for_errors(self) -> None:
         """
-        Raise a SystemExit if there are any errors.
+        Raise SystemExit if there are any errors.
 
-        :raises SystemExit: Request to exit from the interpreter if there are any errors.
+        :raises SystemExit: If ``has_errors`` is set or ``found_match`` is ``False``.
         """
         super().check_for_errors()
 
@@ -98,10 +98,10 @@ class Seek(CLIProgram):
 
     def file_matches_filters(self, file: pathlib.Path) -> bool:
         """
-        Check whether ``file`` matches any of the filters.
+        Check whether the file matches any of the filters.
 
         :param file: File to check.
-        :return: True if any filter is matched.
+        :return: ``True`` if any filter is matched.
         """
         matches_filters = True
 
@@ -144,18 +144,18 @@ class Seek(CLIProgram):
 
         return matches_filters
 
-    def file_matches_patterns(self, filename: str, file_path: str) -> bool:
+    def file_matches_patterns(self, file_name: str, file_path: str) -> bool:
         """
-        Check whether ``filename`` and ``file_path`` match the name and path patterns.
+        Check whether the file name and file path match their patterns.
 
-        :param filename: File name to check.
+        :param file_name: File name to check.
         :param file_path: File path to check.
-        :return: True if any pattern is matched.
+        :return: ``True`` if any pattern is matched.
         """
-        if not patterns.text_has_patterns(filename, self.name_patterns):  # --name
+        if not patterns.text_matches_patterns(file_name, self.name_patterns):  # --name
             return False
 
-        if not patterns.text_has_patterns(file_path, self.path_patterns):  # --path
+        if not patterns.text_matches_patterns(file_path, self.path_patterns):  # --path
             return False
 
         return True
@@ -193,11 +193,11 @@ class Seek(CLIProgram):
 
     def print_file(self, file: pathlib.Path) -> None:
         """
-        Print ``file`` with specified formatting if it matches the search criteria or if --invert-match = True.
+        Print the file if it matches the specified search criteria.
 
         :param file: File to process.
         """
-        filename = file.name or os.curdir  # The dot file does not have a file name.
+        file_name = file.name or os.curdir  # The dot file does not have a file name.
         file_path = str(file.parent) if len(file.parts) > 1 else ""  # Do not use the dot file in the path.
 
         if not file.name and not self.args.dot:  # Skip the dot file if not --dot.
@@ -207,7 +207,7 @@ class Seek(CLIProgram):
             return
 
         # Check if the file matches the search criteria and whether to invert the result:
-        matches = self.file_matches_patterns(filename, file_path) and self.file_matches_filters(file)
+        matches = self.file_matches_patterns(file_name, file_path) and self.file_matches_filters(file)
 
         if matches == self.args.invert_match:  # --invert-match
             return
@@ -219,20 +219,20 @@ class Seek(CLIProgram):
             raise SystemExit(0)
 
         if self.print_color and not self.args.invert_match:  # --invert-match
-            filename = patterns.color_patterns_in_text(filename, self.name_patterns,
-                                                       color=Colors.MATCH) if self.name_patterns else filename
-            file_path = patterns.color_patterns_in_text(file_path, self.path_patterns,
-                                                        color=Colors.MATCH) if self.path_patterns else file_path
+            file_name = patterns.color_pattern_matches(file_name, self.name_patterns,
+                                                       color=Colors.MATCH) if self.name_patterns else file_name
+            file_path = patterns.color_pattern_matches(file_path, self.path_patterns,
+                                                       color=Colors.MATCH) if self.path_patterns else file_path
 
         if self.args.abs:  # --abs
             if file.name:  # Do not join the current working directory with the dot file.
-                path = os.path.join(pathlib.Path.cwd(), file_path, filename)
+                path = os.path.join(pathlib.Path.cwd(), file_path, file_name)
             else:
                 path = os.path.join(pathlib.Path.cwd(), file_path)
         elif self.args.dot and file.name:  # Do not join the current directory with the dot file.
-            path = os.path.join(os.curdir, file_path, filename)
+            path = os.path.join(os.curdir, file_path, file_name)
         else:
-            path = os.path.join(file_path, filename)
+            path = os.path.join(file_path, file_name)
 
         if self.args.quotes:  # --quotes
             path = f"\"{path}\""
@@ -241,7 +241,7 @@ class Seek(CLIProgram):
 
     def print_files(self, directory: str) -> None:
         """
-        Print all files in a directory hierarchy.
+        Print files that match the specified search criteria in a directory hierarchy.
 
         :param directory: Directory to traverse.
         """
@@ -254,7 +254,7 @@ class Seek(CLIProgram):
                 for file in directory_hierarchy.rglob("*"):
                     self.print_file(file)
             except PermissionError as error:
-                self.print_error(f"{error.filename}: permission denied")
+                self.print_error(f"{error.file_name}: permission denied")
         else:
             directory = directory or '""'
             self.print_error(f"{directory}: no such file or directory")

@@ -4,7 +4,7 @@
 """
 Filename: glue.py
 Author: Roth Earl
-Version: 1.3.6
+Version: 1.3.7
 Description: A program to join files and standard input to standard output.
 License: GNU GPLv3
 """
@@ -15,16 +15,16 @@ from collections.abc import Collection, Iterable
 from enum import StrEnum
 from typing import TextIO, final
 
-from cli import CLIProgram, colors, io, terminal
+from cli import CLIProgram, ansi, io, terminal
 
 
 class Colors(StrEnum):
     """
     Terminal color constants.
     """
-    EOL = colors.BRIGHT_BLUE
-    NUMBER = colors.BRIGHT_GREEN
-    TABS = colors.BRIGHT_CYAN
+    EOL = ansi.BRIGHT_BLUE
+    NUMBER = ansi.BRIGHT_GREEN
+    TABS = ansi.BRIGHT_CYAN
 
 
 class Whitespace(StrEnum):
@@ -40,20 +40,20 @@ class Glue(CLIProgram):
     """
     A program to join files and standard input to standard output.
 
-    :ivar int line_number: Line number to be printed with output lines.
+    :ivar line_number: Line number to be printed with output lines.
     """
 
     def __init__(self) -> None:
         """
-        Initialize a new instance.
+        Initialize a new ``Glue`` instance.
         """
-        super().__init__(name="glue", version="1.3.6")
+        super().__init__(name="glue", version="1.3.7")
 
         self.line_number: int = 0
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
-        Build an argument parser.
+        Build and return an argument parser.
 
         :return: An argument parser.
         """
@@ -103,7 +103,7 @@ class Glue(CLIProgram):
 
     def print_lines(self, lines: Iterable[str] | TextIO) -> None:
         """
-        Print ``lines`` with specified formatting.
+        Print the lines (formatting specified from the command-line arguments).
 
         :param lines: Lines to print.
         """
@@ -133,7 +133,7 @@ class Glue(CLIProgram):
 
             if self.args.show_tabs:  # --show-tabs
                 if self.print_color:
-                    line = line.replace("\t", f"{Colors.TABS}{Whitespace.TAB}{colors.RESET}")
+                    line = line.replace("\t", f"{Colors.TABS}{Whitespace.TAB}{ansi.RESET}")
                 else:
                     line = line.replace("\t", Whitespace.TAB)
 
@@ -142,21 +142,21 @@ class Glue(CLIProgram):
                 newline = "\n" if end_index == -1 else ""
 
                 if self.print_color:
-                    line = f"{line[:end_index]}{Colors.EOL}{Whitespace.EOL}{colors.RESET}{newline}"
+                    line = f"{line[:end_index]}{Colors.EOL}{Whitespace.EOL}{ansi.RESET}{newline}"
                 else:
                     line = f"{line[:end_index]}{Whitespace.EOL}{newline}"
 
             if print_number:
                 if self.print_color:
-                    line = f"{Colors.NUMBER}{self.line_number:>{self.args.number_width}}{colors.RESET} {line}"
+                    line = f"{Colors.NUMBER}{self.line_number:>{self.args.number_width}}{ansi.RESET} {line}"
                 else:
                     line = f"{self.line_number:>{self.args.number_width}} {line}"
 
-            io.print_line(line)
+            io.print_normalized_line(line)
 
     def print_lines_from_files(self, files: Collection[str]) -> None:
         """
-        Print lines from ``files``.
+        Print lines from the files (formatting specified from the command-line arguments).
 
         :param files: Files to print lines from.
         """
@@ -169,11 +169,11 @@ class Glue(CLIProgram):
                 if self.args.group and file_info.file_index < last_file_index:  # --group
                     print()
             except UnicodeDecodeError:
-                self.print_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_error(f"{file_info.file_name}: unable to read with {self.encoding}")
 
     def print_lines_from_input(self) -> None:
         """
-        Print lines from standard input until EOF is entered.
+        Print lines from standard input until EOF is entered (formatting specified from the command-line arguments).
         """
         eof = False
 

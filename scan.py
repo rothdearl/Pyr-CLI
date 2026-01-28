@@ -4,7 +4,7 @@
 """
 Filename: scan.py
 Author: Roth Earl
-Version: 1.3.6
+Version: 1.3.7
 Description: A program to print lines that match patterns in files.
 License: GNU GPLv3
 """
@@ -16,17 +16,17 @@ from collections.abc import Iterable
 from enum import StrEnum
 from typing import TextIO, final
 
-from cli import CLIProgram, CompiledPatterns, colors, io, patterns, terminal
+from cli import CLIProgram, CompiledPatterns, ansi, io, patterns, terminal
 
 
 class Colors(StrEnum):
     """
     Terminal color constants.
     """
-    COLON = colors.BRIGHT_CYAN
-    FILE_NAME = colors.BRIGHT_MAGENTA
-    LINE_NUMBER = colors.BRIGHT_GREEN
-    MATCH = colors.BRIGHT_RED
+    COLON = ansi.BRIGHT_CYAN
+    FILE_NAME = ansi.BRIGHT_MAGENTA
+    LINE_NUMBER = ansi.BRIGHT_GREEN
+    MATCH = ansi.BRIGHT_RED
 
 
 @final
@@ -34,16 +34,16 @@ class Scan(CLIProgram):
     """
     A program to print lines that match patterns in files.
 
-    :ivar bool found_match: Whether a match was found in a file.
-    :ivar int line_number: Line number for tracking where matches were found.
-    :ivar CompiledPatterns patterns: Compiled patterns to match.
+    :ivar found_match: Whether a match was found in a file.
+    :ivar line_number: Line number for tracking where matches were found.
+    :ivar patterns: Compiled patterns to match.
     """
 
     def __init__(self) -> None:
         """
-        Initialize a new instance.
+        Initialize a new ``Scan`` instance.
         """
-        super().__init__(name="scan", version="1.3.6", error_exit_code=2)
+        super().__init__(name="scan", version="1.3.7", error_exit_code=2)
 
         self.found_match: bool = False
         self.line_number: int = 0
@@ -51,7 +51,7 @@ class Scan(CLIProgram):
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
-        Build an argument parser.
+        Build and return an argument parser.
 
         :return: An argument parser.
         """
@@ -84,9 +84,9 @@ class Scan(CLIProgram):
 
     def check_for_errors(self) -> None:
         """
-        Raise a SystemExit if there are any errors.
+        Raise SystemExit if there are any errors.
 
-        :raises SystemExit: Request to exit from the interpreter if there are any errors.
+        :raises SystemExit: If ``has_errors`` is set or ``found_match`` is ``False``.
         """
         super().check_for_errors()
 
@@ -118,15 +118,15 @@ class Scan(CLIProgram):
 
     def print_matches_in_files(self, files: Iterable[str] | TextIO) -> None:
         """
-        Print matches found in ``files``.
+        Print matches found in the files.
 
         :param files: Files to search.
         """
         for file_info in io.read_files(files, self.encoding, on_error=self.print_error):
             try:
-                self.print_matches_in_lines(file_info.text, origin_file=file_info.filename)
+                self.print_matches_in_lines(file_info.text, origin_file=file_info.file_name)
             except UnicodeDecodeError:
-                self.print_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_error(f"{file_info.file_name}: unable to read with {self.encoding}")
 
     def print_matches_in_input(self) -> None:
         """
@@ -153,11 +153,11 @@ class Scan(CLIProgram):
     def print_matches_in_lines(self, lines: Iterable[str] | TextIO, *, origin_file: str,
                                reset_line_number=True) -> None:
         """
-        Print matches found in ``lines``.
+        Print matches found in the lines.
 
         :param lines: Lines to search.
         :param origin_file: File where the lines originated from.
-        :param reset_line_number: Whether to reset the internal line number (default: True).
+        :param reset_line_number: Whether to reset the internal line number (default: ``True``).
         """
         matches = []
 
@@ -168,7 +168,7 @@ class Scan(CLIProgram):
         for line in lines:
             self.line_number += 1
 
-            if patterns.text_has_patterns(line, self.patterns) != self.args.invert_match:  # --invert-match
+            if patterns.text_matches_patterns(line, self.patterns) != self.args.invert_match:  # --invert-match
                 self.found_match = True
 
                 # If --quiet, exit on first match for performance.
@@ -176,41 +176,41 @@ class Scan(CLIProgram):
                     raise SystemExit(0)
 
                 if self.print_color and not self.args.invert_match:  # --invert-match
-                    line = patterns.color_patterns_in_text(line, self.patterns,
-                                                           color=Colors.MATCH) if self.patterns else line
+                    line = patterns.color_pattern_matches(line, self.patterns,
+                                                          color=Colors.MATCH) if self.patterns else line
 
                 matches.append((self.line_number, line))
 
         # Print matches.
-        filename = ""
+        file_name = ""
 
         if self.args.count_nonzero and not matches:  # --count-nonzero
             return
 
         if not self.args.no_file_header:  # --no-file-header
-            filename = os.path.relpath(origin_file) if origin_file else "(standard input)"
+            file_name = os.path.relpath(origin_file) if origin_file else "(standard input)"
 
             if self.print_color:
-                filename = f"{Colors.FILE_NAME}{filename}{Colors.COLON}:{colors.RESET}"
+                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{ansi.RESET}"
             else:
-                filename = f"{filename}:"
+                file_name = f"{file_name}:"
 
         if self.args.count or self.args.count_nonzero:  # --count or --count-nonzero
-            print(f"{filename}{len(matches)}")
+            print(f"{file_name}{len(matches)}")
         elif matches:
             padding = len(str(matches[-1][0])) if reset_line_number else 0
 
-            if filename:
-                print(filename)
+            if file_name:
+                print(file_name)
 
             for line_number, line in matches:
                 if self.args.line_number:  # --line-number
                     if self.print_color:
-                        print(f"{Colors.LINE_NUMBER}{line_number:>{padding}}{Colors.COLON}:{colors.RESET}", end="")
+                        print(f"{Colors.LINE_NUMBER}{line_number:>{padding}}{Colors.COLON}:{ansi.RESET}", end="")
                     else:
                         print(f"{line_number:>{padding}}:", end="")
 
-                io.print_line(line)
+                io.print_normalized_line(line)
 
     def validate_parsed_arguments(self) -> None:
         """

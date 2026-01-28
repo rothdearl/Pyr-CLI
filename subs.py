@@ -4,7 +4,7 @@
 """
 Filename: subs.py
 Author: Roth Earl
-Version: 1.3.6
+Version: 1.3.7
 Description: A program to replace text in files.
 License: GNU GPLv3
 """
@@ -17,15 +17,15 @@ from collections.abc import Iterable
 from enum import StrEnum
 from typing import TextIO, final
 
-from cli import CLIProgram, colors, io, patterns, terminal
+from cli import CLIProgram, ansi, io, patterns, terminal
 
 
 class Colors(StrEnum):
     """
     Terminal color constants.
     """
-    COLON = colors.BRIGHT_CYAN
-    FILE_NAME = colors.BRIGHT_MAGENTA
+    COLON = ansi.BRIGHT_CYAN
+    FILE_NAME = ansi.BRIGHT_MAGENTA
 
 
 @final
@@ -33,20 +33,20 @@ class Subs(CLIProgram):
     """
     A program to replace text in files.
 
-    :ivar re.Pattern[str] pattern: Compiled pattern to match.
+    :ivar pattern: Compiled pattern to match.
     """
 
     def __init__(self) -> None:
         """
-        Initialize a new instance.
+        Initialize a new Subs instance.
         """
-        super().__init__(name="subs", version="1.3.6")
+        super().__init__(name="subs", version="1.3.7")
 
         self.pattern: re.Pattern[str] | None = None
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
-        Build an argument parser.
+        Build and return an argument parser.
 
         :return: An argument parser.
         """
@@ -128,23 +128,23 @@ class Subs(CLIProgram):
         :param file: File header to print.
         """
         if not self.args.no_file_header:  # --no-file-header
-            filename = os.path.relpath(file) if file else "(standard input)"
+            file_name = os.path.relpath(file) if file else "(standard input)"
 
             if self.print_color:
-                filename = f"{Colors.FILE_NAME}{filename}{Colors.COLON}:{colors.RESET}"
+                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{ansi.RESET}"
             else:
-                filename = f"{filename}:"
+                file_name = f"{file_name}:"
 
-            print(filename)
+            print(file_name)
 
     def print_replaced_lines(self, lines: Iterable[str]) -> None:
         """
-        Print replaced matches in ``lines``.
+        Print replaced matches in the lines.
 
         :param lines: Lines to replace matches in.
         """
         for line in self.iterate_replaced_lines(lines):
-            io.print_line(line)
+            io.print_normalized_line(line)
 
     def print_replaced_lines_from_input(self) -> None:
         """
@@ -160,14 +160,14 @@ class Subs(CLIProgram):
         """
         for file_info in io.read_files(files, self.encoding, on_error=self.print_error):
             if self.args.in_place:  # --in-place
-                io.write_text_to_file(file_info.filename, self.iterate_replaced_lines(file_info.text.readlines()),
+                io.write_text_to_file(file_info.file_name, self.iterate_replaced_lines(file_info.text.readlines()),
                                       self.encoding, on_error=self.print_error)
             else:
                 try:
-                    self.print_file_header(file=file_info.filename)
+                    self.print_file_header(file=file_info.file_name)
                     self.print_replaced_lines(file_info.text.readlines())
                 except UnicodeDecodeError:
-                    self.print_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                    self.print_error(f"{file_info.file_name}: unable to read with {self.encoding}")
 
     def validate_parsed_arguments(self) -> None:
         """

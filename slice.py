@@ -4,7 +4,7 @@
 """
 Filename: slice.py
 Author: Roth Earl
-Version: 1.3.6
+Version: 1.3.7
 Description: A program to slice lines in files into shell-style fields.
 License: GNU GPLv3
 """
@@ -17,17 +17,17 @@ from collections.abc import Iterable
 from enum import StrEnum
 from typing import TextIO, final
 
-from cli import CLIProgram, colors, io, terminal
+from cli import CLIProgram, ansi, io, terminal
 
 
 class Colors(StrEnum):
     """
     Terminal color constants.
     """
-    COLON = colors.BRIGHT_CYAN
-    COUNT = colors.BRIGHT_GREEN
-    COUNT_TOTAL = colors.BRIGHT_YELLOW
-    FILE_NAME = colors.BRIGHT_MAGENTA
+    COLON = ansi.BRIGHT_CYAN
+    COUNT = ansi.BRIGHT_GREEN
+    COUNT_TOTAL = ansi.BRIGHT_YELLOW
+    FILE_NAME = ansi.BRIGHT_MAGENTA
 
 
 @final
@@ -35,20 +35,20 @@ class Slice(CLIProgram):
     """
     A program to slice lines in files into shell-style fields.
 
-    :ivar list[int] fields_to_print: Fields to print.
+    :ivar fields_to_print: Fields to print.
     """
 
     def __init__(self) -> None:
         """
-        Initialize a new instance.
+        Initialize a new ``Slice`` instance.
         """
-        super().__init__(name="slice", version="1.3.6")
+        super().__init__(name="slice", version="1.3.7")
 
         self.fields_to_print: list[int] = []
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
-        Build an argument parser.
+        Build and return an argument parser.
 
         :return: An argument parser.
         """
@@ -107,18 +107,18 @@ class Slice(CLIProgram):
         :param file: File header to print.
         """
         if not self.args.no_file_header:  # --no-file-header
-            filename = os.path.relpath(file) if file else "(standard input)"
+            file_name = os.path.relpath(file) if file else "(standard input)"
 
             if self.print_color:
-                filename = f"{Colors.FILE_NAME}{filename}{Colors.COLON}:{colors.RESET}"
+                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{ansi.RESET}"
             else:
-                filename = f"{filename}:"
+                file_name = f"{file_name}:"
 
-            print(filename)
+            print(file_name)
 
     def print_sliced_lines(self, lines: Iterable[str] | TextIO) -> None:
         """
-        Print ``lines`` sliced.
+        Print the lines sliced.
 
         :param lines: Lines to slice.
         """
@@ -136,16 +136,16 @@ class Slice(CLIProgram):
 
     def print_sliced_lines_from_files(self, files: Iterable[str] | TextIO) -> None:
         """
-        Slice lines into fields from ``files``.
+        Slice lines into fields from the files.
 
         :param files: Files to slice lines from.
         """
         for file_info in io.read_files(files, self.encoding, on_error=self.print_error):
             try:
-                self.print_file_header(file_info.filename)
+                self.print_file_header(file_info.file_name)
                 self.print_sliced_lines(file_info.text)
             except UnicodeDecodeError:
-                self.print_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_error(f"{file_info.file_name}: unable to read with {self.encoding}")
 
     def print_sliced_lines_from_input(self) -> None:
         """
@@ -155,7 +155,7 @@ class Slice(CLIProgram):
 
     def slice_line(self, line: str) -> list[str]:
         """
-        Slice ``line`` into fields.
+        Slice the line into fields.
 
         :param line: Line to slice.
         :return: List of fields.

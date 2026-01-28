@@ -4,7 +4,7 @@
 """
 Filename: when.py
 Author: Roth Earl
-Version: 1.0.1
+Version: 1.0.2
 Description: A program to display the current calendar, with optional date and time.
 License: GNU GPLv3
 """
@@ -14,15 +14,15 @@ import calendar
 import datetime
 from typing import Final, NamedTuple, final
 
-from cli import colors, OS_IS_WINDOWS
+from cli import ansi, OS_IS_WINDOWS
 
 
 class CalendarQuarterSlice(NamedTuple):
     """
     Immutable container for information about a calendar quarter slice.
 
-    :ivar int end: End of the quarter slice.
-    :ivar int start: Start of the quarter slice.
+    :ivar end: End of the quarter slice.
+    :ivar start: Start of the quarter slice.
     """
     start: int
     end: int
@@ -55,7 +55,7 @@ def color_day_in_week_for_slice(week: str, day: str, quarter_slice: CalendarQuar
 
     :param week: Current week.
     :param day: Current day.
-    :param quarter_slice: Calendar quarter slice.
+    :param quarter_slice: Immutable container for information about a calendar quarter slice.
     :return: Week with the current day colored.
     """
     colored_text = week[quarter_slice.start:quarter_slice.end].replace(day, get_reverse_color(day))
@@ -81,12 +81,12 @@ def get_calendar_quarter_slice(date: datetime.date) -> CalendarQuarterSlice:
 
 def get_reverse_color(value: str) -> str:
     """
-    Return a formatted color string for ``value``.
+    Return a formatted color string for the value.
 
     :param value: Value to format.
     :return: Formatted color string.
     """
-    return f"{colors.REVERSE}{value}{colors.RESET}"
+    return f"{ansi.REVERSE}{value}{ansi.RESET}"
 
 
 def print_month(date: datetime.date) -> None:
@@ -189,19 +189,19 @@ class When:
     """
     A program to display the current calendar, with optional date and time.
 
-    :cvar Final[str] DEFAULT_DATETIME_FORMAT: Default format for printing the date and time.
-    :cvar Final[str] NAME: Program name.
-    :cvar Final[str] VERSION: Program version.
-    :ivar argparse.Namespace args: Parsed command-line arguments.
+    :cvar DEFAULT_DATETIME_FORMAT: Default format for printing the date and time.
+    :cvar NAME: Program name.
+    :cvar VERSION: Program version.
+    :ivar args: Parsed command-line arguments.
     """
 
     DEFAULT_DATETIME_FORMAT: Final[str] = "%a %b %d %I:%M%p" if OS_IS_WINDOWS else "%a %b %-d %-I:%M%p"
     NAME: Final[str] = "when"
-    VERSION: Final[str] = "1.0.1"
+    VERSION: Final[str] = "1.0.2"
 
     def __init__(self) -> None:
         """
-        Initialize a new instance.
+        Initialize a new ``When`` instance.
         """
         self.args: argparse.Namespace = build_arguments().parse_args()
 
@@ -222,7 +222,7 @@ class When:
             case _:
                 print_year(today)
 
-        if self.args.datetime:  # --datetime
+        if self.args.datetime:  # --datetime FIXME
             date_format = self.args.datetime_format or When.DEFAULT_DATETIME_FORMAT  # --datetime-format
 
             print()

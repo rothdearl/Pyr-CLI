@@ -4,7 +4,7 @@
 """
 Filename: show.py
 Author: Roth Earl
-Version: 1.3.6
+Version: 1.3.7
 Description: A program to print files to standard output.
 License: GNU GPLv3
 """
@@ -16,19 +16,19 @@ from collections.abc import Collection, Iterable
 from enum import StrEnum
 from typing import TextIO, final
 
-from cli import CLIProgram, colors, io, terminal
+from cli import CLIProgram, ansi, io, terminal
 
 
 class Colors(StrEnum):
     """
     Terminal color constants.
     """
-    COLON = colors.BRIGHT_CYAN
-    EOL = colors.BRIGHT_BLUE
-    FILE_NAME = colors.BRIGHT_MAGENTA
-    LINE_NUMBER = colors.BRIGHT_GREEN
-    SPACE = colors.BRIGHT_CYAN
-    TAB = colors.BRIGHT_CYAN
+    COLON = ansi.BRIGHT_CYAN
+    EOL = ansi.BRIGHT_BLUE
+    FILE_NAME = ansi.BRIGHT_MAGENTA
+    LINE_NUMBER = ansi.BRIGHT_GREEN
+    SPACE = ansi.BRIGHT_CYAN
+    TAB = ansi.BRIGHT_CYAN
 
 
 class Whitespace(StrEnum):
@@ -49,13 +49,13 @@ class Show(CLIProgram):
 
     def __init__(self) -> None:
         """
-        Initialize a new instance.
+        Initialize a new ``Show`` instance.
         """
-        super().__init__(name="show", version="1.3.6")
+        super().__init__(name="show", version="1.3.7")
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
-        Build an argument parser.
+        Build and return an argument parser.
 
         :return: An argument parser.
         """
@@ -113,18 +113,18 @@ class Show(CLIProgram):
         :param file: File header to print.
         """
         if not self.args.no_file_header:  # --no-file-header
-            filename = os.path.relpath(file) if file else "(standard input)"
+            file_name = os.path.relpath(file) if file else "(standard input)"
 
             if self.print_color:
-                filename = f"{Colors.FILE_NAME}{filename}{Colors.COLON}:{colors.RESET}"
+                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{ansi.RESET}"
             else:
-                filename = f"{filename}:"
+                file_name = f"{file_name}:"
 
-            print(filename)
+            print(file_name)
 
     def print_lines(self, lines: Collection[str]) -> None:
         """
-        Print ``lines`` with specified formatting.
+        Print the lines (formatting specified from the command-line arguments).
 
         :param lines: Lines to print.
         """
@@ -139,39 +139,39 @@ class Show(CLIProgram):
                 line = self.show_tabs(line) if self.args.tabs else line  # --tabs
                 line = self.show_ends(line) if self.args.ends else line  # --ends
                 line = self.show_line_number(line, index, padding) if self.args.line_numbers else line  # --line-numbers
-                io.print_line(line)
+                io.print_normalized_line(line)
 
     def print_lines_from_files(self, files: Iterable[str] | TextIO) -> None:
         """
-        Print lines from ``files``.
+        Print lines from the files (formatting specified from the command-line arguments).
 
         :param files: Files to print lines from.
         """
         for file_info in io.read_files(files, self.encoding, on_error=self.print_error):
             try:
-                self.print_file_header(file_info.filename)
+                self.print_file_header(file_info.file_name)
                 self.print_lines(file_info.text.readlines())
             except UnicodeDecodeError:
-                self.print_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_error(f"{file_info.file_name}: unable to read with {self.encoding}")
 
     def print_lines_from_input(self) -> None:
         """
-        Print lines from standard input until EOF is entered.
+        Print lines from standard input until EOF is entered (formatting specified from the command-line arguments).
         """
         self.print_lines(sys.stdin.read().splitlines())
 
     def show_ends(self, line: str) -> str:
         """
-        Append the EOL character to the end of ``line``.
+        Append the EOL character to the end of the line.
 
         :param line: Line to append.
-        :return: Formatted line with the EOL character appended.
+        :return: Line with the EOL character appended.
         """
         end_index = -1 if line.endswith("\n") else len(line)
         newline = "\n" if end_index == -1 else ""
 
         if self.print_color:
-            return f"{line[:end_index]}{Colors.EOL}{Whitespace.EOL}{colors.RESET}{newline}"
+            return f"{line[:end_index]}{Colors.EOL}{Whitespace.EOL}{ansi.RESET}{newline}"
 
         return f"{line[:end_index]}{Whitespace.EOL}{newline}"
 
@@ -182,19 +182,19 @@ class Show(CLIProgram):
         :param line: Line to prepend.
         :param line_number: Line number.
         :param padding: Line number padding.
-        :return: Formatted line with a line number prepended.
+        :return: Line with a line number prepended.
         """
         if self.print_color:
-            return f"{Colors.LINE_NUMBER}{line_number:>{padding}}{Colors.COLON}:{colors.RESET}{line}"
+            return f"{Colors.LINE_NUMBER}{line_number:>{padding}}{Colors.COLON}:{ansi.RESET}{line}"
 
         return f"{line_number:>{padding}}:{line}"
 
     def show_spaces(self, line: str) -> str:
         """
-        Replace spaces with Whitespace.SPACE or Whitespace.TRAILING_SPACE in ``line``.
+        Replace spaces with Whitespace.SPACE or Whitespace.TRAILING_SPACE in the line.
 
         :param line: Line to replace spaces.
-        :return: Formatted line with spaces replaced.
+        :return: Line with spaces replaced.
         """
         has_newline = line.endswith("\n")
         trailing_count = len(line) - len(line.rstrip())  # Count trailing spaces.
@@ -206,8 +206,8 @@ class Show(CLIProgram):
             trailing_count -= 1
 
         if self.print_color:
-            line = line.replace(" ", f"{Colors.SPACE}{Whitespace.SPACE}{colors.RESET}")
-            line = line + Colors.SPACE + (Whitespace.TRAILING_SPACE * trailing_count) + colors.RESET
+            line = line.replace(" ", f"{Colors.SPACE}{Whitespace.SPACE}{ansi.RESET}")
+            line = line + Colors.SPACE + (Whitespace.TRAILING_SPACE * trailing_count) + ansi.RESET
         else:
             line = line.replace(" ", Whitespace.SPACE)
             line = line + (Whitespace.TRAILING_SPACE * trailing_count)
@@ -216,13 +216,13 @@ class Show(CLIProgram):
 
     def show_tabs(self, line: str) -> str:
         """
-        Replace tabs with Whitespace.TAB in ``line``.
+        Replace tabs with Whitespace.TAB in the line.
 
         :param line: Line to replace tabs.
-        :return: Formatted line with tabs replaced.
+        :return: Line with tabs replaced.
         """
         if self.print_color:
-            return line.replace("\t", f"{Colors.TAB}{Whitespace.TAB}{colors.RESET}")
+            return line.replace("\t", f"{Colors.TAB}{Whitespace.TAB}{ansi.RESET}")
 
         return line.replace("\t", Whitespace.TAB)
 

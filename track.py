@@ -4,7 +4,7 @@
 """
 Filename: track.py
 Author: Roth Earl
-Version: 1.3.6
+Version: 1.3.7
 Description: A program to print the last part of files.
 License: GNU GPLv3
 """
@@ -18,16 +18,16 @@ from enum import StrEnum
 from threading import Thread
 from typing import TextIO, final
 
-from cli import CLIProgram, colors, io, terminal
+from cli import CLIProgram, ansi, io, terminal
 
 
 class Colors(StrEnum):
     """
     Terminal color constants.
     """
-    COLON = colors.BRIGHT_CYAN
-    FILE_NAME = colors.BRIGHT_MAGENTA
-    FOLLOWING = f"{colors.DIM}{colors.WHITE}"
+    COLON = ansi.BRIGHT_CYAN
+    FILE_NAME = ansi.BRIGHT_MAGENTA
+    FOLLOWING = f"{ansi.DIM}{ansi.WHITE}"
 
 
 @final
@@ -38,13 +38,13 @@ class Track(CLIProgram):
 
     def __init__(self) -> None:
         """
-        Initialize a new instance.
+        Initialize a new ``Track`` instance.
         """
-        super().__init__(name="track", version="1.3.6")
+        super().__init__(name="track", version="1.3.7")
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
-        Build an argument parser.
+        Build and return an argument parser.
 
         :return: An argument parser.
         """
@@ -68,7 +68,7 @@ class Track(CLIProgram):
 
     def follow_file(self, file: str, print_name: bool, polling_interval: float = .5) -> None:
         """
-        Follow ``file`` for new lines.
+        Follow the file for new lines.
 
         :param file: File to follow.
         :param print_name: Whether to print the file name with each update.
@@ -99,7 +99,7 @@ class Track(CLIProgram):
                         if print_name:
                             self.print_file_header(file)
 
-                        io.print_line(next_content[print_index:])
+                        io.print_normalized_line(next_content[print_index:])
                         previous_content = next_content
 
                 time.sleep(polling_interval)
@@ -110,16 +110,16 @@ class Track(CLIProgram):
 
     def follow_files(self, files: Collection[str]) -> list[Thread]:
         """
-        Follow ``files`` for new lines.
+        Follow the files for new lines.
 
         :param files: Files to follow.
         :return: List of threads that are following files.
         """
-        print_filename = len(files) > 1
+        print_file_name = len(files) > 1
         threads = []
 
         for file in files:
-            thread = Thread(target=self.follow_file, args=(file, print_filename))
+            thread = Thread(target=self.follow_file, args=(file, print_file_name))
             thread.daemon = True
             thread.start()
             threads.append(thread)
@@ -162,19 +162,19 @@ class Track(CLIProgram):
         :param file: File header to print.
         """
         if not self.args.no_file_header:  # --no-file-header
-            filename = os.path.relpath(file) if file else "(standard input)"
+            file_name = os.path.relpath(file) if file else "(standard input)"
             following = " (following)" if self.args.follow and file else ""
 
             if self.print_color:
-                filename = f"{Colors.FILE_NAME}{filename}{Colors.COLON}:{Colors.FOLLOWING}{following}{colors.RESET}"
+                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{Colors.FOLLOWING}{following}{ansi.RESET}"
             else:
-                filename = f"{filename}:{following}"
+                file_name = f"{file_name}:{following}"
 
-            print(filename)
+            print(file_name)
 
     def print_lines(self, lines: Collection[str]) -> None:
         """
-        Print ``lines``.
+        Print the lines.
 
         :param lines: Lines to print.
         """
@@ -187,11 +187,11 @@ class Track(CLIProgram):
 
         for index, line in enumerate(lines, start=1):
             if index > skip_to_line:
-                io.print_line(line)
+                io.print_normalized_line(line)
 
     def print_lines_from_files(self, files: Iterable[str] | TextIO) -> list[str]:
         """
-        Print lines from ``files``.
+        Print lines from the files.
 
         :param files: Files to print lines from.
         :return: List of the files printed.
@@ -200,11 +200,11 @@ class Track(CLIProgram):
 
         for file_info in io.read_files(files, self.encoding, on_error=self.print_error):
             try:
-                self.print_file_header(file=file_info.filename)
+                self.print_file_header(file=file_info.file_name)
                 self.print_lines(file_info.text.readlines())
-                files_printed.append(file_info.filename)
+                files_printed.append(file_info.file_name)
             except UnicodeDecodeError:
-                self.print_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_error(f"{file_info.file_name}: unable to read with {self.encoding}")
 
         return files_printed
 

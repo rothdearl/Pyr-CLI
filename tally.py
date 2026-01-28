@@ -4,7 +4,7 @@
 """
 Filename: tally.py
 Author: Roth Earl
-Version: 1.3.6
+Version: 1.3.7
 Description: A program to print line, word, and character counts in files.
 License: GNU GPLv3
 """
@@ -16,19 +16,20 @@ from collections.abc import Iterable
 from enum import IntEnum, StrEnum
 from typing import Final, TextIO, TypeAlias, final
 
-from cli import CLIProgram, colors, io, terminal
+from cli import CLIProgram, ansi, io, terminal
 
 # Define type aliases.
 Counts: TypeAlias = tuple[int, int, int, int]
+Totals: TypeAlias = list[int]
 
 
 class Colors(StrEnum):
     """
     Terminal color constants.
     """
-    COUNT = colors.BRIGHT_CYAN
-    COUNT_ORIGIN = colors.BRIGHT_MAGENTA
-    COUNT_TOTAL = colors.BRIGHT_YELLOW
+    COUNT = ansi.BRIGHT_CYAN
+    COUNT_ORIGIN = ansi.BRIGHT_MAGENTA
+    COUNT_TOTAL = ansi.BRIGHT_YELLOW
 
 
 class CountIndex(IntEnum):
@@ -46,22 +47,22 @@ class Tally(CLIProgram):
     """
     A program to print line, word, and character counts in files.
 
-    :cvar Final[list[bool]] COUNT_FLAGS: Flags for determining if a count will be printed.
-    :cvar Final[str] TOTALS: Total of all counts.
-    :cvar Final[str] WORD_PATTERN: Pattern for splitting lines into words.
-    :ivar int files_counted: Number of files counted.
-    :ivar int flag_count: Number of flags provided as arguments.
+    :cvar COUNT_FLAGS: Flags for determining if a count will be printed.
+    :cvar TOTALS: Total of all counts.
+    :cvar WORD_PATTERN: Pattern for splitting lines into words.
+    :ivar files_counted: Number of files counted.
+    :ivar flag_count: Number of flags provided as arguments.
     """
 
     COUNT_FLAGS: Final[list[bool]] = [False, False, False, False]
-    TOTALS: Final[list[int]] = [0, 0, 0, 0]
+    TOTALS: Final[Totals] = [0, 0, 0, 0]
     WORD_PATTERN: Final[str] = r"\b\w+\b"
 
     def __init__(self) -> None:
         """
-        Initialize a new instance.
+        Initialize a new ``Tally`` instance.
         """
-        super().__init__(name="tally", version="1.3.6")
+        super().__init__(name="tally", version="1.3.7")
 
         self.files_counted: int = 0
         self.flag_count: int = 0
@@ -69,9 +70,9 @@ class Tally(CLIProgram):
     @staticmethod
     def add_counts_to_totals(counts: Counts) -> None:
         """
-        Add ``counts`` to the totals.
+        Add the counts to the totals.
 
-        :param counts: Counts.
+        :param counts: Count information.
         """
         Tally.TOTALS[CountIndex.LINES] += counts[CountIndex.LINES]
         Tally.TOTALS[CountIndex.WORDS] += counts[CountIndex.WORDS]
@@ -81,7 +82,7 @@ class Tally(CLIProgram):
 
     def build_arguments(self) -> argparse.ArgumentParser:
         """
-        Build an argument parser.
+        Build and return an argument parser.
 
         :return: An argument parser.
         """
@@ -110,11 +111,11 @@ class Tally(CLIProgram):
 
     def get_counts(self, text: Iterable[str] | TextIO, *, has_newlines: bool) -> Counts:
         """
-        Return counts for the lines, words, characters, and the maximum line length in ``text``.
+        Return counts for the lines, words, characters, and the maximum line length in the text.
 
         :param text: Text to count.
         :param has_newlines: Whether the text has newlines.
-        :return: Counts.
+        :return: Count information.
         """
         character_count, line_count, max_line_length, words = 0, 0, 0, 0
         display_width_offset = -1 if has_newlines else 0
@@ -156,11 +157,11 @@ class Tally(CLIProgram):
         if self.args.total == "on" or (self.args.total == "auto" and self.files_counted > 1):  # --total
             self.print_counts(Tally.TOTALS, count_origin="total")
 
-    def print_counts(self, counts: Iterable[int] | Counts, *, count_origin: str) -> None:
+    def print_counts(self, counts: Counts | Totals, *, count_origin: str) -> None:
         """
-        Print ``counts``.
+        Print the counts.
 
-        :param counts: Counts to print.
+        :param counts: Count information.
         :param count_origin: Where the counts originated from.
         """
         count_color = Colors.COUNT_TOTAL if count_origin == "total" else Colors.COUNT
@@ -171,13 +172,13 @@ class Tally(CLIProgram):
                 width = 12 if self.flag_count > 1 or count_origin else 0
 
                 if self.print_color:
-                    print(f"{count_color}{count:>{width},}{colors.RESET}", end="")
+                    print(f"{count_color}{count:>{width},}{ansi.RESET}", end="")
                 else:
                     print(f"{count:>{width},}", end="")
 
         if count_origin:
             if self.print_color:
-                print(f"\t{count_origin_color}{count_origin}{colors.RESET}")
+                print(f"\t{count_origin_color}{count_origin}{ansi.RESET}")
             else:
                 print(f"\t{count_origin}")
         else:
@@ -185,7 +186,7 @@ class Tally(CLIProgram):
 
     def print_counts_from_files(self, files: Iterable[str] | TextIO) -> None:
         """
-        Print counts from ``files``.
+        Print counts from the files.
 
         :param files: Files to count.
         """
@@ -195,9 +196,9 @@ class Tally(CLIProgram):
 
                 self.files_counted += 1
                 self.add_counts_to_totals(counts)
-                self.print_counts(counts, count_origin=file_info.filename)
+                self.print_counts(counts, count_origin=file_info.file_name)
             except UnicodeDecodeError:
-                self.print_error(f"{file_info.filename}: unable to read with {self.encoding}")
+                self.print_error(f"{file_info.file_name}: unable to read with {self.encoding}")
 
     def print_counts_from_input(self) -> None:
         """
