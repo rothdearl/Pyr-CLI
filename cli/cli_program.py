@@ -26,7 +26,7 @@ class CLIProgram(ABC):
 
     def __init__(self, *, name: str, version: str, error_exit_code: int = 1) -> None:
         """
-        Initialize a new CLIProgram instance.
+        Initialize a new ``CLIProgram`` instance.
 
         :param name: Name of the program.
         :param version: Program version.
