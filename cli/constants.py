@@ -2,15 +2,15 @@
 Constants used throughout the command-line interface package.
 """
 
-import os as _os
-import sys as _sys
-from typing import Final as _Final
+import os as os
+import sys as sys
+from typing import Final as Final
 
 # OS-related constants.
-OS_IS_LINUX: _Final[bool] = _sys.platform.startswith("linux")
-OS_IS_MAC: _Final[bool] = _sys.platform == "darwin"
-OS_IS_POSIX: _Final[bool] = _os.name == "posix"
-OS_IS_WINDOWS: _Final[bool] = _sys.platform == "win32"
+OS_IS_LINUX: Final[bool] = sys.platform.startswith("linux")
+OS_IS_MAC: Final[bool] = sys.platform == "darwin"
+OS_IS_POSIX: Final[bool] = os.name == "posix"
+OS_IS_WINDOWS: Final[bool] = sys.platform == "win32"
 
 __all__ = [
     "OS_IS_LINUX",
