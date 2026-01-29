@@ -4,8 +4,8 @@
 """
 Filename: term-colors.py
 Author: Roth Earl
-Version: 1.0.0
-Description: A program to display the current calendar, with optional date and time.
+Version: 0.0.0
+Description: A program to display the ANSI 256-color palette.
 License: GNU GPLv3
 """
 
