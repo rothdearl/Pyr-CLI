@@ -144,16 +144,16 @@ class Seek(CLIProgram):
 
     def file_matches_patterns(self, file_name: str, file_path: str) -> bool:
         """
-        Check whether the file name and file path match their patterns.
+        Return whether the file name and file path match their patterns.
 
         :param file_name: File name to check.
         :param file_path: File path to check.
         :return: ``True`` if any pattern is matched.
         """
-        if not patterns.text_matches_patterns(file_name, self.name_patterns):  # --name
+        if not patterns.matches_all_patterns(file_name, self.name_patterns):  # --name
             return False
 
-        if not patterns.text_matches_patterns(file_path, self.path_patterns):  # --path
+        if not patterns.matches_all_patterns(file_path, self.path_patterns):  # --path
             return False
 
         return True
@@ -252,7 +252,7 @@ class Seek(CLIProgram):
                 for file in directory_hierarchy.rglob("*"):
                     self.print_file(file)
             except PermissionError as error:
-                self.print_error(f"{error.file_name}: permission denied")
+                self.print_error(f"{error.filename}: permission denied")
         else:
             directory = directory or '""'
             self.print_error(f"{directory}: no such file or directory")

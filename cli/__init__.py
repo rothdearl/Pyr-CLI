@@ -29,9 +29,9 @@ from .io import (
 
 from .patterns import (
     color_pattern_matches,
-    combine_patterns,
+    compile_combined_patterns,
     compile_patterns,
-    text_matches_patterns
+    matches_all_patterns
 )
 
 from .terminal import (

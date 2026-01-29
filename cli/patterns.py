@@ -51,7 +51,7 @@ def color_pattern_matches(text: str, patterns: Iterable[re.Pattern[str]], *, col
     return "".join(colored_text)
 
 
-def combine_patterns(patterns: PatternGroups, *, ignore_case: bool) -> re.Pattern[str]:
+def compile_combined_patterns(patterns: PatternGroups, *, ignore_case: bool) -> re.Pattern[str]:
     """
     Combine patterns into a single compiled OR-pattern.
 
@@ -89,9 +89,9 @@ def compile_patterns(patterns: Iterable[str], *, ignore_case: bool, on_error: Er
     return compiled
 
 
-def text_matches_patterns(text: str, patterns: PatternGroups) -> bool:
+def matches_all_patterns(text: str, patterns: PatternGroups) -> bool:
     """
-    Check whether the text matches every pattern group.
+    Return whether the text matches every pattern group.
 
     :param text: Text to search.
     :param patterns: Patterns to match.
@@ -106,7 +106,7 @@ def text_matches_patterns(text: str, patterns: PatternGroups) -> bool:
 
 __all__ = [
     "color_pattern_matches",
-    "combine_patterns",
+    "compile_combined_patterns",
     "compile_patterns",
-    "text_matches_patterns"
+    "matches_all_patterns"
 ]

@@ -123,7 +123,7 @@ def get_str_options(section: str, option: str, *, separator: str = ",") -> list[
 
 def has_defaults() -> bool:
     """
-    Check whether the DEFAULT section contains any options.
+    Return whether the DEFAULT section contains any options.
 
     :return: ``True`` if the DEFAULT section has at least one option.
     """
@@ -132,7 +132,7 @@ def has_defaults() -> bool:
 
 def has_sections() -> bool:
     """
-    Check whether any non-default sections exist.
+    Return whether any non-default sections exist.
 
     :return: ``True`` if at least one non-default section exists.
     """
@@ -141,7 +141,7 @@ def has_sections() -> bool:
 
 def is_empty() -> bool:
     """
-    Check whether the configuration is empty.
+    Return whether the configuration is empty.
 
     :return: ``True`` if there are no DEFAULT options and no non-default sections.
     """

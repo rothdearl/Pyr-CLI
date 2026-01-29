@@ -119,7 +119,7 @@ class Subs(CLIProgram):
         """
         if compiled := patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case,
                                                  on_error=self.print_error_and_exit):
-            self.pattern = patterns.combine_patterns(compiled, ignore_case=self.args.ignore_case)
+            self.pattern = patterns.compile_combined_patterns(compiled, ignore_case=self.args.ignore_case)
 
     def print_file_header(self, file: str) -> None:
         """

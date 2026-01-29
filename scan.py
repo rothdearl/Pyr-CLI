@@ -166,7 +166,7 @@ class Scan(CLIProgram):
         for line in lines:
             self.line_number += 1
 
-            if patterns.text_matches_patterns(line, self.patterns) != self.args.invert_match:  # --invert-match
+            if patterns.matches_all_patterns(line, self.patterns) != self.args.invert_match:  # --invert-match
                 self.found_match = True
 
                 # If --quiet, exit on first match for performance.
