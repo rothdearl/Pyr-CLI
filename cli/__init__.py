@@ -14,6 +14,9 @@ from .ini import (
     get_str_option,
     get_str_option_with_fallback,
     get_str_options,
+    has_defaults,
+    has_sections,
+    is_empty,
     read_options
 )
 

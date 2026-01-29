@@ -121,6 +121,33 @@ def get_str_options(section: str, option: str, *, separator: str = ",") -> list[
     return [s for sub in value.split(separator) if (s := sub.strip())]
 
 
+def has_defaults() -> bool:
+    """
+    Check whether the DEFAULT section contains any options.
+
+    :return: ``True`` if the DEFAULT section has at least one option.
+    """
+    return bool(_config.defaults())
+
+
+def has_sections() -> bool:
+    """
+    Check whether any non-default sections exist.
+
+    :return: ``True`` if at least one non-default section exists.
+    """
+    return bool(_config.sections())
+
+
+def is_empty() -> bool:
+    """
+    Check whether the configuration is empty.
+
+    :return: ``True`` if there are no DEFAULT options and no non-default sections.
+    """
+    return not has_defaults() and not has_sections()
+
+
 def read_options(path: str, *, clear_previous: bool = True, on_error: ErrorReporter) -> bool:
     """
     Read options from a configuration file and return whether the operation succeeded.
@@ -164,5 +191,8 @@ __all__ = [
     "get_str_option",
     "get_str_option_with_fallback",
     "get_str_options",
+    "has_defaults",
+    "has_sections",
+    "is_empty",
     "read_options"
 ]
