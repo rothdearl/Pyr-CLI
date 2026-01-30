@@ -5,7 +5,7 @@
 Filename: dupe.py
 Author: Roth Earl
 Version: 1.3.7
-Description: A program to filter matching lines in files.
+Description: A program to filter duplicate and unique lines in files.
 License: GNU GPLv3
 """
 
@@ -32,7 +32,7 @@ class Colors(StrEnum):
 @final
 class Dupe(CLIProgram):
     """
-    A program to filter matching lines in files.
+    A program to filter duplicate and unique lines in files.
 
     :cvar FIELD_PATTERN: Pattern for splitting lines into fields.
     :ivar max_chars: Maximum number of characters to compare.
@@ -58,12 +58,12 @@ class Dupe(CLIProgram):
 
         :return: An argument parser.
         """
-        parser = argparse.ArgumentParser(allow_abbrev=False, description="filter matching lines in FILES",
+        parser = argparse.ArgumentParser(allow_abbrev=False, description="filter duplicate and unique lines in FILES",
                                          epilog="if no FILES are specified, read standard input", prog=self.name)
         print_group = parser.add_mutually_exclusive_group()
 
         parser.add_argument("files", help="one or more input files", metavar="FILES", nargs="*")
-        parser.add_argument("-a", "--adjacent", action="store_true", help="only filter matching adjacent lines")
+        parser.add_argument("-a", "--adjacent", action="store_true", help="compare only adjacent lines")
         parser.add_argument("-b", "--skip-blank", action="store_true", help="avoid comparing blank lines")
         parser.add_argument("-c", "--count", action="store_true", help="prefix lines by the number of occurrences")
         print_group.add_argument("-d", "--repeated", action="store_true",
