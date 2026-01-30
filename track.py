@@ -220,7 +220,7 @@ class Track(CLIProgram):
         threads = []
 
         for file_name in files:
-            thread = Thread(target=self.follow_file, args=(file_name, print_file_name), name=f"follow-{file_name}")
+            thread = Thread(target=self.follow_file, args=(file_name, print_file_name), name=f"following-{file_name}")
             thread.daemon = True
             thread.start()
             threads.append(thread)
