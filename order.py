@@ -61,29 +61,29 @@ class Order(CLIProgram):
 
         :return: An argument parser.
         """
-        parser = argparse.ArgumentParser(allow_abbrev=False, description="sort FILES to standard output",
+        parser = argparse.ArgumentParser(allow_abbrev=False, description="sort and print FILES to standard output",
                                          epilog="if no FILES are specified, read standard input", prog=self.name)
         sort_group = parser.add_mutually_exclusive_group()
 
         parser.add_argument("files", help="one or more input files", metavar="FILES", nargs="*")
-        parser.add_argument("-b", "--ignore-leading-blanks", action="store_true", help="ignore leading blanks")
-        parser.add_argument("-B", "--no-blank", action="store_true", help="suppress all blank lines")
+        parser.add_argument("-b", "--ignore-leading-blanks", action="store_true", help="ignore leading blanks in lines")
         sort_group.add_argument("-d", "--dictionary-sort", action="store_true",
-                                help="compare lines using dictionary order")
-        sort_group.add_argument("-D", "--date-sort", action="store_true", help="compare dates from newest to oldest")
-        sort_group.add_argument("-k", "--key-pattern", help="generate sort keys by splitting lines on PATTERN",
+                                help="sort lines using dictionary order")
+        sort_group.add_argument("-D", "--date-sort", action="store_true", help="sort lines by date")
+        sort_group.add_argument("-k", "--key-pattern", help="generate sort keys by splitting lines on regex PATTERN",
                                 metavar="PATTERN")
         sort_group.add_argument("-n", "--natural-sort", action="store_true",
-                                help="compare words alphabetically and numbers numerically")
-        sort_group.add_argument("-R", "--random-sort", action="store_true", help="randomize the result of comparisons")
-        parser.add_argument("-f", "--skip-fields", help="avoid comparing the first N fields (N >= 0)", metavar="N",
+                                help="sort alphabetically, treating numbers numerically")
+        sort_group.add_argument("-R", "--random-sort", action="store_true", help="sort lines in random order")
+        parser.add_argument("-f", "--skip-fields", help="skip the first N fields when sorting (N >= 0)", metavar="N",
                             type=int)
-        parser.add_argument("-H", "--no-file-header", action="store_true",
-                            help="do not prefix output lines with file names")
+        parser.add_argument("-H", "--no-file-header", action="store_true", help="do not prepend file names to output")
         parser.add_argument("-i", "--ignore-case", action="store_true",
                             help="ignore differences in case when comparing")
-        parser.add_argument("-r", "--reverse", action="store_true", help="reverse the result of comparisons")
-        parser.add_argument("--color", choices=("on", "off"), default="on", help="colorize file headers (default: on)")
+        parser.add_argument("-r", "--reverse", action="store_true", help="reverse the order of the sort")
+        parser.add_argument("-s", "--skip-blank", action="store_true", help="ignore blank lines when comparing")
+        parser.add_argument("--color", choices=("on", "off"), default="on",
+                            help="use color for file headers (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
@@ -219,7 +219,7 @@ class Order(CLIProgram):
 
         # Print lines.
         for line in lines:
-            if self.args.no_blank and not line.rstrip():  # --no-blank
+            if self.args.skip_blank and not line.rstrip():  # --skip-blank
                 continue
 
             io.print_normalized_line(line)

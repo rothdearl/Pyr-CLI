@@ -66,15 +66,14 @@ class Scan(CLIProgram):
                                  help="print the count only for files with at least one match")
         parser.add_argument("-f", "--find", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
                             nargs=1, required=True)
-        parser.add_argument("-H", "--no-file-header", action="store_true",
-                            help="do not prefix output lines with file names")
+        parser.add_argument("-H", "--no-file-header", action="store_true", help="do not prepend file names to output")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when matching patterns")
         parser.add_argument("-n", "--line-number", action="store_true", help="print line number with output lines")
         parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress all normal output")
         parser.add_argument("-s", "--no-messages", action="store_true", help="suppress error messages about files")
         parser.add_argument("-v", "--invert-match", action="store_true", help="print lines that do not match")
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="colorize matches, file names, and line numbers (default: on)")
+                            help="use color for matches, file names, and line numbers (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")

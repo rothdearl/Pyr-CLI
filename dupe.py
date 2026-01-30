@@ -64,7 +64,7 @@ class Dupe(CLIProgram):
 
         parser.add_argument("files", help="one or more input files", metavar="FILES", nargs="*")
         parser.add_argument("-a", "--adjacent", action="store_true", help="compare only adjacent lines")
-        parser.add_argument("-b", "--skip-blank", action="store_true", help="avoid comparing blank lines")
+        parser.add_argument("-b", "--skip-blank", action="store_true", help="ignore blank lines when comparing")
         parser.add_argument("-c", "--count", action="store_true", help="prefix lines by the number of occurrences")
         print_group.add_argument("-d", "--repeated", action="store_true",
                                  help="only print duplicate lines, one for each group")
@@ -72,20 +72,19 @@ class Dupe(CLIProgram):
         print_group.add_argument("-g", "--group", action="store_true",
                                  help="show all items, separating groups with an empty line")
         print_group.add_argument("-u", "--unique", action="store_true", help="only print unique lines")
-        parser.add_argument("-f", "--skip-fields", help="avoid comparing the first N fields (N >= 0)", metavar="N",
+        parser.add_argument("-f", "--skip-fields", help="skip the first N fields when comparing (N >= 0)", metavar="N",
                             type=int)
-        parser.add_argument("-H", "--no-file-header", action="store_true",
-                            help="do not prefix output lines with file names")
+        parser.add_argument("-H", "--no-file-header", action="store_true", help="do not prepend file names to output")
         parser.add_argument("-i", "--ignore-case", action="store_true",
                             help="ignore differences in case when comparing")
         parser.add_argument("-m", "--max-chars", help="compare no more than N characters (N >= 1)", metavar="N",
                             type=int)
-        parser.add_argument("-s", "--skip-chars", help="avoid comparing the first N characters (N >= 0)", metavar="N",
-                            type=int)
+        parser.add_argument("-s", "--skip-chars", help="skip the first N characters when comparing (N >= 0)",
+                            metavar="N", type=int)
         parser.add_argument("-w", "--skip-whitespace", action="store_true",
-                            help="avoid comparing leading and trailing whitespace")
+                            help="skip leading and trailing whitespace when comparing")
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="colorize counts and file headers (default: on)")
+                            help="use color for counts and file headers (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")

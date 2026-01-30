@@ -56,13 +56,12 @@ class Slice(CLIProgram):
                                          epilog="if no FILES are specified, read standard input", prog=self.name)
 
         parser.add_argument("files", help="one or more input files", metavar="FILES", nargs="*")
-        parser.add_argument("-H", "--no-file-header", action="store_true",
-                            help="do not prefix output lines with file names")
+        parser.add_argument("-H", "--no-file-header", action="store_true", help="do not prepend file names to output")
         parser.add_argument("-s", "--separator", help="use SEP to separate output fields (default: tab)", metavar="SEP")
         parser.add_argument("-u", "--unique", action="store_true",
                             help="print each field only once, in ascending order")
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="colorize counts and file headers (default: on)")
+                            help="use color for counts and file headers (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
         parser.add_argument("--literal-quotes", action="store_true",
                             help="treat quotes as ordinary characters (disable shell-style quote parsing)")

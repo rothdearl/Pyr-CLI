@@ -68,7 +68,7 @@ class Seek(CLIProgram):
         parser.add_argument("-v", "--invert-match", action="store_true",
                             help="print files that do not match the specified criteria")
         parser.add_argument("--abs", action="store_true", help="print absolute file paths")
-        parser.add_argument("--color", choices=("on", "off"), default="on", help="colorize matches (default: on)")
+        parser.add_argument("--color", choices=("on", "off"), default="on", help="use color for matches (default: on)")
         parser.add_argument("--dot", action="store_true", help="include dot (.) files in output")
         parser.add_argument("--empty", choices=("y", "n"), help="print only empty files")
         modified_group.add_argument("--m-days", help="print files modified less than or more than N days ago",

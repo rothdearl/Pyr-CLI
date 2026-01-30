@@ -74,7 +74,7 @@ class Glue(CLIProgram):
         parser.add_argument("-T", "--show-tabs", action="store_true",
                             help=f"display tab characters as '{Whitespace.TAB}'")
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="colorize whitespace and numbers (default: on)")
+                            help="use color for whitespace and numbers (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
         parser.add_argument("--number-width", default=7, help="pad line numbers to width N (default: 7)", metavar="N",
                             type=int)

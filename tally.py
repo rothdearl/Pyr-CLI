@@ -99,7 +99,7 @@ class Tally(CLIProgram):
                             type=int)
         parser.add_argument("-w", "--words", action="store_true", help="print the word counts")
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="colorize counts and file names (default: on)")
+                            help="use color for counts and file names (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")

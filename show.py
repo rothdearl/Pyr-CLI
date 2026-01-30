@@ -63,15 +63,14 @@ class Show(CLIProgram):
                                          epilog="if no FILES are specified, read standard input", prog=self.name)
 
         parser.add_argument("files", help="one or more input files", metavar="FILES", nargs="*")
-        parser.add_argument("-H", "--no-file-header", action="store_true",
-                            help="do not prefix output lines with file names")
+        parser.add_argument("-H", "--no-file-header", action="store_true", help="do not prepend file names to output")
         parser.add_argument("-n", "--line-numbers", action="store_true", help="print line numbers with output lines")
         parser.add_argument("-p", "--print", default=sys.maxsize, help="print only N lines (N >= 1)", metavar="N",
                             type=int)
         parser.add_argument("-s", "--start", default=1, help="start at line N, from end if negative (N != 0)",
                             metavar="N", type=int)
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="colorize file names, whitespace, and line numbers (default: on)")
+                            help="use color for file names, whitespace, and line numbers (default: on)")
         parser.add_argument("--ends", action="store_true", help=f"display '{Whitespace.EOL}' at end of each line")
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
         parser.add_argument("--spaces", action="store_true",
