@@ -10,8 +10,8 @@ _CSI: Final[str] = "\x1b["
 # Controls.
 RESET: Final[str] = f"{_CSI}0m"
 
-# Text attributes.
-TEXT_ATTRIBUTES: Final[list[str]] = [f"{_CSI}{code}m" for code in range(1, 10) if code != 6]
+# Text attributes (SGR codes 1–9 except 6 which is undefined)
+TEXT_ATTRIBUTES: Final[list[str]] = [f"{_CSI}{code}m" for code in (1, 2, 3, 4, 5, 7, 8, 9)]
 
 # 16-color palettes.
 BG_COLORS_16: Final[list[str]] = [f"{_CSI}{code}m" for code in (*range(40, 48), *range(100, 108))]

@@ -88,7 +88,7 @@ def get_reverse_color(value: str) -> str:
     :param value: Value to format.
     :return: Formatted color string.
     """
-    return f"{ansi.text_attribute(6)}{value}{ansi.RESET}"
+    return f"{ansi.text_attribute(5)}{value}{ansi.RESET}"
 
 
 def print_month(date: datetime.date) -> None:
