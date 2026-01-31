@@ -79,3 +79,19 @@ class INITest(unittest.TestCase):
         # Invalid.
         self.assertIsNone(ini.get_int_option("int_options", "invalid_value"))
         self.assertIsNone(ini.get_int_option("int_options", "invalid_string"))
+
+    def test_values_json(self) -> None:
+        # Valid.
+        self.assertEqual(ini.get_json_option("json_options", "valid_object"), {"a": 1, "b": True})
+        self.assertEqual(ini.get_json_option("json_options", "valid_array"), [1, 2, 3])
+        self.assertEqual(ini.get_json_option("json_options", "valid_string"), "hello")
+        self.assertFalse(ini.get_json_option("json_options", "valid_bool"))
+        self.assertIsNone(ini.get_json_option("json_options", "valid_null"))
+
+        # Fallback.
+        self.assertEqual(ini.get_json_option("json_options", "empty_value"), {})
+        self.assertEqual(ini.get_json_option("json_options", "missing_value"), {})
+        self.assertEqual(ini.get_json_option("missing_section", "valid_object"), {})
+
+        # Invalid.
+        self.assertIsNone(ini.get_int_option("json_options", "invalid_value"))
