@@ -55,7 +55,7 @@ class Scan(CLIProgram):
 
         :return: An argument parser.
         """
-        parser = argparse.ArgumentParser(allow_abbrev=False, description="print lines that match PATTERN in FILES",
+        parser = argparse.ArgumentParser(allow_abbrev=False, description="print lines that match patterns in FILES",
                                          epilog="if no FILES are specified, read from standard input", prog=self.name)
         count_group = parser.add_mutually_exclusive_group()
 
