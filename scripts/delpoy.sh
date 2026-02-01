@@ -26,16 +26,18 @@ system="$(uname -s)"
 
 # Deploy scripts.
 for script in "${scripts[@]}"; do
+    script_path="${HOME}/.local/bin/${script}"
+
     printf "%b%s%b: Deploying Python script: %b%s%b\n" "${bright_yellow}" "$(basename "${0}")" "${reset}" "${bright_cyan}" "${script}" "${reset}"
 
     # Copy generic POSIX script, renaming it to the script name.
-    cp "${HOME}/GitHub/PyTools/scripts/posix.sh" "${HOME}/.local/bin/${script}"
+    cp "${HOME}/GitHub/PyTools/scripts/posix.sh" "${script_path}"
 
     # Replace generic script name with the actual script name.
     if [ "${system}" = "Linux" ]; then
-        sed -i "s/python-script/${script}/g" "${HOME}/.local/bin/${script}"
+        sed -i "s/python-script/${script}/g" "${script_path}"
     elif [ "${system}" = "Darwin" ]; then
-        sed -i '' "s/python-script/${script}/g" "${HOME}/.local/bin/${script}"
+        sed -i '' "s/python-script/${script}/g" "${script_path}"
     else
         printf "%s: system not supported\n" "${0}" >&2
         exit 1
