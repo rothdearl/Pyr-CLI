@@ -83,7 +83,7 @@ class Dupe(CLIProgram):
         parser.add_argument("-w", "--skip-whitespace", action="store_true",
                             help="skip leading and trailing whitespace when comparing")
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="use color for counts and file headers (default: on)")
+                            help="use color for file names and counts (default: on)")
         parser.add_argument("--count-width", default=4, help="pad occurrence counts to width N (default: 4; N >= 1)",
                             metavar="N", type=int)
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")

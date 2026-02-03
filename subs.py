@@ -61,7 +61,7 @@ class Subs(CLIProgram):
         parser.add_argument("-r", "--replace", help="replace matches with literal STRING", metavar="STRING",
                             required=True)
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="use color for file headers (default: on)")
+                            help="use color for file names (default: on)")
         parser.add_argument("--in-place", action="store_true",
                             help="write changes back to FILES instead of standard output")
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")

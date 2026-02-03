@@ -61,7 +61,7 @@ class Num(CLIProgram):
         parser.add_argument("-w", "--number-width", default=6, help="pad line numbers to width N (default: 6; N >= 1)",
                             metavar="N", type=int)
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="use color for file names and line numbers (default: on)")
+                            help="use color for file names, line numbers, and number separators (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
         blank_group.add_argument("--no-blank", action="store_true", help="suppress all blank lines")
         blank_group.add_argument("--squeeze-blank", action="store_true", help="suppress repeated blank lines")
@@ -147,7 +147,7 @@ class Num(CLIProgram):
                 line_number += 1
 
                 if self.print_color:
-                    line = f"{Colors.LINE_NUMBER}{line_number:{format_prefix}{self.args.number_width}}{ansi.RESET}{self.args.number_separator}{line}"
+                    line = f"{Colors.LINE_NUMBER}{line_number:{format_prefix}{self.args.number_width}}{ansi.RESET}{Colors.COLON}{self.args.number_separator}{ansi.RESET}{line}"
                 else:
                     line = f"{line_number:{format_prefix}{self.args.number_width}}{self.args.number_separator}{line}"
 

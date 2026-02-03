@@ -70,7 +70,7 @@ class Show(CLIProgram):
         parser.add_argument("-s", "--start", default=1, help="start at line N, from end if negative (N != 0)",
                             metavar="N", type=int)
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="use color for file names, whitespace, and line numbers (default: on)")
+                            help="use color for file names, line numbers, and whitespace (default: on)")
         parser.add_argument("--ends", action="store_true", help=f"display '{Whitespace.EOL}' at end of each line")
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
         parser.add_argument("--spaces", action="store_true",

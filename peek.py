@@ -55,7 +55,7 @@ class Peek(CLIProgram):
                             help="print the first N lines (N >= 1), or all but the last N if negative (default: 10)",
                             metavar="N", type=int)
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="use color for file headers (default: on)")
+                            help="use color for file names (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")

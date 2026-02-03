@@ -60,7 +60,7 @@ class Slice(CLIProgram):
         parser.add_argument("-u", "--unique", action="store_true",
                             help="print each field only once, in ascending order")
         parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="use color for counts and file headers (default: on)")
+                            help="use color for file names (default: on)")
         parser.add_argument("--fields", action="extend",
                             help="print only the specified fields (1-based indexes; duplicates allowed)", metavar="N",
                             nargs='+', type=int)
