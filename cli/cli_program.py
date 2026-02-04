@@ -59,6 +59,13 @@ class CLIProgram(ABC):
             raise SystemExit(self.error_exit_code)
 
     @abstractmethod
+    def check_parsed_arguments(self) -> None:
+        """
+        Validate parsed command-line arguments.
+        """
+        ...
+
+    @abstractmethod
     def main(self) -> None:
         """
         Run the program logic.
@@ -117,7 +124,7 @@ class CLIProgram(ABC):
                 signal(SIGPIPE, SIG_DFL)
 
             self.parse_arguments()
-            self.validate_parsed_arguments()
+            self.check_parsed_arguments()
             self.main()
             self.check_for_errors()
         except KeyboardInterrupt:
@@ -125,13 +132,6 @@ class CLIProgram(ABC):
             raise SystemExit(self.error_exit_code if OS_IS_WINDOWS else keyboard_interrupt_error_code)
         except OSError as error:
             raise SystemExit(self.error_exit_code) from error
-
-    @abstractmethod
-    def validate_parsed_arguments(self) -> None:
-        """
-        Validate the parsed command-line arguments.
-        """
-        ...
 
 
 __all__ = ["CLIProgram"]
