@@ -271,7 +271,7 @@ class Order(CLIProgram):
         """
         Read lines from standard input until EOF and print them.
         """
-        self.sort_and_print_lines(sys.stdin)
+        self.sort_and_print_lines(sys.stdin.readlines())
 
     def split_line(self, line: str, field_pattern: str, *, strip_number_separators: bool) -> list[str]:
         """
