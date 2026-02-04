@@ -13,15 +13,16 @@ import argparse
 import os
 import sys
 from collections.abc import Collection, Iterable
-from typing import Final, final
+from dataclasses import dataclass
+from typing import ClassVar, Final, final, override
 
 from cli import CLIProgram, ansi, io, terminal
 
 
-@final
+@dataclass(frozen=True, slots=True)
 class Colors:
     """
-    Terminal color constants.
+    Namespace for terminal color constants.
 
     :cvar COLON: Color used for the colon following a file name.
     :cvar EOL: Color used for the EOL replacement.
@@ -30,28 +31,28 @@ class Colors:
     :cvar SPACE: Color used for the space replacement.
     :cvar TAB: Color used for the tab replacement.
     """
-    COLON: Final[str] = ansi.Colors16.BRIGHT_CYAN
-    EOL: Final[str] = ansi.Colors16.BRIGHT_BLUE
-    FILE_NAME: Final[str] = ansi.Colors16.BRIGHT_MAGENTA
-    LINE_NUMBER: Final[str] = ansi.Colors16.BRIGHT_GREEN
-    SPACE: Final[str] = ansi.Colors16.BRIGHT_CYAN
-    TAB: Final[str] = ansi.Colors16.BRIGHT_CYAN
+    COLON: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_CYAN
+    EOL: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_BLUE
+    FILE_NAME: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_MAGENTA
+    LINE_NUMBER: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_GREEN
+    SPACE: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_CYAN
+    TAB: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_CYAN
 
 
-@final
+@dataclass(frozen=True, slots=True)
 class Whitespace:
     """
-    Whitespace replacement constants.
+    Namespace for whitespace replacement constants.
 
     :cvar EOL: Replacement for the EOL.
     :cvar SPACE: Replacement for a space.
     :cvar TAB: Replacement for a tab.
     :cvar TRAILING_SPACE: Replacement for a trailing space.
     """
-    EOL: Final[str] = "$"
-    SPACE: Final[str] = "·"
-    TAB: Final[str] = ">···"
-    TRAILING_SPACE: Final[str] = "~"
+    EOL: ClassVar[Final[str]] = "$"
+    SPACE: ClassVar[Final[str]] = "·"
+    TAB: ClassVar[Final[str]] = ">···"
+    TRAILING_SPACE: ClassVar[Final[str]] = "~"
 
 
 @final
@@ -66,6 +67,7 @@ class Show(CLIProgram):
         """
         super().__init__(name="show", version="1.3.10")
 
+    @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """
         Build and return an argument parser.
@@ -95,6 +97,18 @@ class Show(CLIProgram):
 
         return parser
 
+    @override
+    def check_parsed_arguments(self) -> None:
+        """
+        Validate parsed command-line arguments.
+        """
+        if self.args.print < 1:  # --print
+            self.print_error_and_exit("'print' must be >= 1")
+
+        if self.args.start == 0:  # --start
+            self.print_error_and_exit("'start' cannot = 0")
+
+    @override
     def main(self) -> None:
         """
         Run the program logic.
@@ -120,7 +134,7 @@ class Show(CLIProgram):
 
     def print_file_header(self, file_name: str) -> None:
         """
-        Print the file name, or "(standard input)" if empty, followed by a colon.
+        Print the file name or "(standard input)" if empty, followed by a colon, unless ``--no-file-name`` is set.
 
         :param file_name: File name to print.
         """
@@ -170,7 +184,7 @@ class Show(CLIProgram):
         """
         Read lines from standard input until EOF and print them.
         """
-        self.print_lines(sys.stdin.readlines())
+        self.print_lines(sys.stdin)
 
     def show_ends(self, line: str) -> str:
         """
@@ -237,16 +251,6 @@ class Show(CLIProgram):
             return line.replace("\t", f"{Colors.TAB}{Whitespace.TAB}{ansi.RESET}")
 
         return line.replace("\t", Whitespace.TAB)
-
-    def validate_parsed_arguments(self) -> None:
-        """
-        Validate the parsed command-line arguments.
-        """
-        if self.args.print < 1:  # --print
-            self.print_error_and_exit("'print' must be >= 1")
-
-        if self.args.start == 0:  # --start
-            self.print_error_and_exit("'start' cannot = 0")
 
 
 if __name__ == "__main__":

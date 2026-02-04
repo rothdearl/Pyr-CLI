@@ -13,25 +13,26 @@ import argparse
 import os
 import sys
 from collections.abc import Iterable
-from typing import Final, final
+from dataclasses import dataclass
+from typing import ClassVar, Final, final, override
 
 from cli import CLIProgram, Patterns, ansi, io, patterns, terminal
 
 
-@final
+@dataclass(frozen=True, slots=True)
 class Colors:
     """
-    Terminal color constants.
+    Namespace for terminal color constants.
 
     :cvar COLON: Color used for the colon following a file name.
     :cvar FILE_NAME: Color used for a file name.
     :cvar LINE_NUMBER: Color used for line numbers.
     :cvar MATCH: Color used for a match.
     """
-    COLON: Final[str] = ansi.Colors16.BRIGHT_CYAN
-    FILE_NAME: Final[str] = ansi.Colors16.BRIGHT_MAGENTA
-    LINE_NUMBER: Final[str] = ansi.Colors16.BRIGHT_GREEN
-    MATCH = ansi.Colors16.BRIGHT_RED
+    COLON: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_CYAN
+    FILE_NAME: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_MAGENTA
+    LINE_NUMBER: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_GREEN
+    MATCH: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_RED
 
 
 @final
@@ -57,6 +58,7 @@ class Scan(CLIProgram):
         self.line_number: int = 0
         self.patterns: Patterns = []
 
+    @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """
         Build and return an argument parser.
@@ -89,6 +91,7 @@ class Scan(CLIProgram):
 
         return parser
 
+    @override
     def check_for_errors(self) -> None:
         """
         Call ``sys.exit(NO_MATCHES_EXIT_CODE)`` if a match was not found.
@@ -96,6 +99,15 @@ class Scan(CLIProgram):
         super().check_for_errors()
 
         if not self.found_match:
+            sys.exit(Scan.NO_MATCHES_EXIT_CODE)
+
+    @override
+    def check_parsed_arguments(self) -> None:
+        """
+        Validate parsed command-line arguments.
+        """
+        # Exit early if no --find patterns are provided.
+        if not self.args.find:
             sys.exit(Scan.NO_MATCHES_EXIT_CODE)
 
     def is_printing_counts(self) -> bool:
@@ -106,6 +118,7 @@ class Scan(CLIProgram):
         """
         return self.args.count or self.args.count_nonzero  # --count or --count-nonzero
 
+    @override
     def main(self) -> None:
         """
         Run the program logic.
@@ -223,14 +236,6 @@ class Scan(CLIProgram):
                         print(f"{line_number:>{padding}}:", end="")
 
                 io.print_line_normalized(line)
-
-    def validate_parsed_arguments(self) -> None:
-        """
-        Validate the parsed command-line arguments.
-        """
-        # Exit early if no --find patterns are provided.
-        if not self.args.find:
-            sys.exit(Scan.NO_MATCHES_EXIT_CODE)
 
 
 if __name__ == "__main__":

@@ -12,35 +12,36 @@ License: GNU GPLv3
 import argparse
 import sys
 from collections.abc import Collection, Iterable
-from typing import Final, final
+from dataclasses import dataclass
+from typing import ClassVar, Final, final, override
 
 from cli import CLIProgram, ansi, io, terminal
 
 
-@final
+@dataclass(frozen=True, slots=True)
 class Colors:
     """
-    Terminal color constants.
+    Namespace for terminal color constants.
 
     :cvar EOL: Color used for the EOL replacement.
     :cvar NUMBER: Color used for numbering lines.
     :cvar TAB: Color used for the tab replacement.
     """
-    EOL: Final[str] = ansi.Colors16.BRIGHT_BLUE
-    NUMBER: Final[str] = ansi.Colors16.BRIGHT_GREEN
-    TAB: Final[str] = ansi.Colors16.BRIGHT_CYAN
+    EOL: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_BLUE
+    NUMBER: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_GREEN
+    TAB: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_CYAN
 
 
-@final
+@dataclass(frozen=True, slots=True)
 class Whitespace:
     """
-    Whitespace replacement constants.
+    Namespace for whitespace replacement constants.
 
     :cvar EOL: Replacement for the EOL.
     :cvar TAB: Replacement for a tab.
     """
-    EOL: Final[str] = "$"
-    TAB: Final[str] = ">···"
+    EOL: ClassVar[Final[str]] = "$"
+    TAB: ClassVar[Final[str]] = ">···"
 
 
 @final
@@ -59,6 +60,7 @@ class Glue(CLIProgram):
 
         self.line_number: int = 0
 
+    @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """
         Build and return an argument parser.
@@ -92,13 +94,22 @@ class Glue(CLIProgram):
 
         return parser
 
+    @override
+    def check_parsed_arguments(self) -> None:
+        """
+        Validate parsed command-line arguments.
+        """
+        if self.args.number_width < 1:  # --number-width
+            self.print_error_and_exit("'number-width' must be >= 1")
+
+    @override
     def main(self) -> None:
         """
         Run the program logic.
         """
         if terminal.stdin_is_redirected():
             if self.args.stdin_files:  # --stdin-files
-                self.print_lines_from_files(sys.stdin.readlines())
+                self.print_lines_from_files(sys.stdin)
             else:
                 self.print_lines(sys.stdin)
 
@@ -111,53 +122,32 @@ class Glue(CLIProgram):
 
     def print_lines(self, lines: Iterable[str]) -> None:
         """
-        Print lines to standard output according to command-line arguments.
+        Print lines to standard output applying numbering and whitespace rendering and blank-line suppression.
 
         :param lines: Iterable of lines to print.
         """
-        print_number = False
-        repeated_blank_lines = 0
+        blank_line_count = 0
+        number_lines = self.args.number or self.args.number_nonblank  # --number or --number-nonblank
 
         for line in lines:
-            if self.args.number or self.args.number_nonblank:  # --number or --number-nonblank
-                print_number = True
+            print_number = number_lines
 
             if line == "\n":  # Blank line?
-                repeated_blank_lines += 1
+                blank_line_count += 1
+
+                if self.should_skip_line(blank_line_count):
+                    continue
 
                 if self.args.number_nonblank:  # --number-nonblank
                     print_number = False
-
-                if self.args.no_blank and repeated_blank_lines:  # --no-blank
-                    continue
-
-                if self.args.squeeze_blank and repeated_blank_lines > 1:  # --squeeze-blank
-                    continue
             else:
-                repeated_blank_lines = 0
+                blank_line_count = 0
 
-            if self.args.show_tabs:  # --show-tabs
-                if self.print_color:
-                    line = line.replace("\t", f"{Colors.TAB}{Whitespace.TAB}{ansi.RESET}")
-                else:
-                    line = line.replace("\t", Whitespace.TAB)
-
-            if self.args.show_ends:  # --show-ends
-                end_index = -1 if line.endswith("\n") else len(line)
-                newline = "\n" if end_index == -1 else ""
-
-                if self.print_color:
-                    line = f"{line[:end_index]}{Colors.EOL}{Whitespace.EOL}{ansi.RESET}{newline}"
-                else:
-                    line = f"{line[:end_index]}{Whitespace.EOL}{newline}"
+            line = self.render_whitespace(line)
 
             if print_number:
                 self.line_number += 1
-
-                if self.print_color:
-                    line = f"{Colors.NUMBER}{self.line_number:>{self.args.number_width}}{ansi.RESET} {line}"
-                else:
-                    line = f"{self.line_number:>{self.args.number_width}} {line}"
+                line = self.render_number(line)
 
             io.print_line_normalized(line)
 
@@ -182,14 +172,58 @@ class Glue(CLIProgram):
         """
         Read lines from standard input until EOF and print them.
         """
-        self.print_lines(sys.stdin.readlines())
+        self.print_lines(sys.stdin)
 
-    def validate_parsed_arguments(self) -> None:
+    def render_number(self, line: str) -> str:
         """
-        Validate the parsed command-line arguments.
+        Prefix a formatted line number to the line.
+
+        :param line: Line to format.
+        :return: The line prefixed with a line number.
         """
-        if self.args.number_width < 1:  # --number-width
-            self.print_error_and_exit("'number-width' must be >= 1")
+        if self.print_color:
+            return f"{Colors.NUMBER}{self.line_number:>{self.args.number_width}}{ansi.RESET} {line}"
+
+        return f"{self.line_number:>{self.args.number_width}} {line}"
+
+    def render_whitespace(self, line: str) -> str:
+        """
+        Render visible representations of tabs and end-of-line markers.
+
+        :param line: Line to render.
+        :return: The line with tab and end-of-line markers rendered.
+        """
+        if self.args.show_tabs:  # --show-tabs
+            if self.print_color:
+                line = line.replace("\t", f"{Colors.TAB}{Whitespace.TAB}{ansi.RESET}")
+            else:
+                line = line.replace("\t", Whitespace.TAB)
+
+        if self.args.show_ends:  # --show-ends
+            end_index = -1 if line.endswith("\n") else len(line)
+            newline = "\n" if end_index == -1 else ""
+
+            if self.print_color:
+                line = f"{line[:end_index]}{Colors.EOL}{Whitespace.EOL}{ansi.RESET}{newline}"
+            else:
+                line = f"{line[:end_index]}{Whitespace.EOL}{newline}"
+
+        return line
+
+    def should_skip_line(self, blank_line_count: int) -> bool:
+        """
+        Determine whether the current line should be suppressed based on blank-line handling options.
+
+        :param blank_line_count: Number of consecutive blank lines encountered so far, including the current line.
+        :return: Return ``True`` if the current blank line should be skipped.
+        """
+        if self.args.no_blank and blank_line_count:  # --no-blank
+            return True
+
+        if self.args.squeeze_blank and blank_line_count > 1:  # --squeeze-blank
+            return True
+
+        return False
 
 
 if __name__ == "__main__":

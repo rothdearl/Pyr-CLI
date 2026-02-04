@@ -14,18 +14,22 @@ import os
 import re
 import sys
 from collections.abc import Iterable
-from enum import StrEnum
-from typing import final
+from dataclasses import dataclass
+from typing import ClassVar, Final, final, override
 
 from cli import CLIProgram, ansi, io, patterns, terminal
 
 
-class Colors(StrEnum):
+@dataclass(frozen=True, slots=True)
+class Colors:
     """
-    Terminal color constants.
+    Namespace for terminal color constants.
+
+    :cvar COLON: Color used for the colon following a file name.
+    :cvar FILE_NAME: Color used for a file name.
     """
-    COLON = ansi.Colors16.BRIGHT_CYAN
-    FILE_NAME = ansi.Colors16.BRIGHT_MAGENTA
+    COLON: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_CYAN
+    FILE_NAME: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_MAGENTA
 
 
 @final
@@ -44,6 +48,7 @@ class Subs(CLIProgram):
 
         self.pattern: re.Pattern[str] | None = None
 
+    @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """
         Build and return an argument parser.
@@ -73,6 +78,14 @@ class Subs(CLIProgram):
 
         return parser
 
+    @override
+    def check_parsed_arguments(self) -> None:
+        """
+        Validate parsed command-line arguments.
+        """
+        if self.args.max_replacements < 1:  # --max-replacements
+            self.print_error_and_exit("'max-replacements' must be >= 1")
+
     def iterate_replaced_lines(self, lines: Iterable[str]) -> Iterable[str]:
         """
         Yield lines with pattern matches replaced.
@@ -88,6 +101,7 @@ class Subs(CLIProgram):
 
             yield line
 
+    @override
     def main(self) -> None:
         """
         Run the program logic.
@@ -123,7 +137,7 @@ class Subs(CLIProgram):
 
     def print_file_header(self, file_name: str) -> None:
         """
-        Print the file name, or "(standard input)" if empty, followed by a colon.
+        Print the file name or "(standard input)" if empty, followed by a colon, unless ``--no-file-name`` is set.
 
         :param file_name: File name to print.
         """
@@ -150,7 +164,7 @@ class Subs(CLIProgram):
         """
         Print replaced matches in lines from standard input until EOF.
         """
-        self.print_replaced_lines(sys.stdin.read().splitlines())
+        self.print_replaced_lines(sys.stdin)
 
     def process_files(self, files: Iterable[str]) -> None:
         """
@@ -168,13 +182,6 @@ class Subs(CLIProgram):
                     self.print_replaced_lines(file_info.text.readlines())
                 except UnicodeDecodeError:
                     self.print_error(f"{file_info.file_name}: unable to read with {self.encoding}")
-
-    def validate_parsed_arguments(self) -> None:
-        """
-        Validate the parsed command-line arguments.
-        """
-        if self.args.max_replacements < 1:  # --max-replacements
-            self.print_error_and_exit("'max-replacements' must be >= 1")
 
 
 if __name__ == "__main__":

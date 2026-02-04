@@ -14,19 +14,20 @@ import os
 import pathlib
 import sys
 import time
-from typing import Final, final
+from dataclasses import dataclass
+from typing import ClassVar, Final, final, override
 
 from cli import CLIProgram, Patterns, ansi, patterns, terminal
 
 
-@final
+@dataclass(frozen=True, slots=True)
 class Colors:
     """
-    Terminal color constants.
+    Namespace for terminal color constants.
 
     :cvar MATCH: Color used for a match.
     """
-    MATCH = ansi.Colors16.BRIGHT_RED
+    MATCH: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_RED
 
 
 @final
@@ -52,6 +53,7 @@ class Seek(CLIProgram):
         self.name_patterns: Patterns = []
         self.path_patterns: Patterns = []
 
+    @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """
         Build and return an argument parser.
@@ -93,6 +95,7 @@ class Seek(CLIProgram):
 
         return parser
 
+    @override
     def check_for_errors(self) -> None:
         """
         Call ``sys.exit(NO_MATCHES_EXIT_CODE)`` if a match was not found.
@@ -101,6 +104,14 @@ class Seek(CLIProgram):
 
         if not self.found_match:
             sys.exit(Seek.NO_MATCHES_EXIT_CODE)
+
+    @override
+    def check_parsed_arguments(self) -> None:
+        """
+        Validate parsed command-line arguments.
+        """
+        if self.args.max_depth < 1:  # --max-depth
+            self.print_error_and_exit("'max-depth' must be >= 1")
 
     def file_matches_filters(self, file: pathlib.Path) -> bool:
         """
@@ -163,6 +174,7 @@ class Seek(CLIProgram):
 
         return True
 
+    @override
     def main(self) -> None:
         """
         Run the program logic.
@@ -259,13 +271,6 @@ class Seek(CLIProgram):
         else:
             name = directory or '""'
             self.print_error(f"{name}: no such file or directory")
-
-    def validate_parsed_arguments(self) -> None:
-        """
-        Validate the parsed command-line arguments.
-        """
-        if self.args.max_depth < 1:  # --max-depth
-            self.print_error_and_exit("'max-depth' must be >= 1")
 
 
 if __name__ == "__main__":

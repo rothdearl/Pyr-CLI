@@ -13,23 +13,24 @@ import argparse
 import os
 import sys
 from collections.abc import Iterable
-from typing import Final, final
+from dataclasses import dataclass
+from typing import ClassVar, Final, final, override
 
 from cli import CLIProgram, ansi, io, terminal
 
 
-@final
+@dataclass(frozen=True, slots=True)
 class Colors:
     """
-    Terminal color constants.
+    Namespace for terminal color constants.
 
     :cvar COLON: Color used for the colon following a file name.
     :cvar FILE_NAME: Color used for a file name.
     :cvar LINE_NUMBER: Color used for line numbers and number separators.
     """
-    COLON: Final[str] = ansi.Colors16.BRIGHT_CYAN
-    FILE_NAME: Final[str] = ansi.Colors16.BRIGHT_MAGENTA
-    LINE_NUMBER: Final[str] = ansi.Colors16.BRIGHT_GREEN
+    COLON: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_CYAN
+    FILE_NAME: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_MAGENTA
+    LINE_NUMBER: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_GREEN
 
 
 @final
@@ -41,7 +42,11 @@ class Num(CLIProgram):
     :ivar format_prefix: Format-spec prefix used when formatting line numbers.
     """
 
-    FORMAT_PREFIXES: Final[dict[str, str]] = {"ln": "<", "rn": ">", "rz": "0>"}
+    FORMAT_PREFIXES: Final[dict[str, str]] = {
+        "ln": "<",  # Left-aligned
+        "rn": ">",  # Right-aligned
+        "rz": "0>",  # Zero-padded, right-aligned
+    }
 
     def __init__(self) -> None:
         """
@@ -51,6 +56,7 @@ class Num(CLIProgram):
 
         self.format_prefix: str = ""
 
+    @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """
         Build and return an argument parser.
@@ -84,6 +90,20 @@ class Num(CLIProgram):
 
         return parser
 
+    @override
+    def check_parsed_arguments(self) -> None:
+        """
+        Validate parsed command-line arguments.
+        """
+        self.format_prefix = Num.FORMAT_PREFIXES[self.args.number_format]  # --number-format
+
+        if self.args.number_start < 0:  # --number-start
+            self.print_error_and_exit("'--number-start' must be >= 0")
+
+        if self.args.number_width < 1:  # --number-width
+            self.print_error_and_exit("'number-width' must be >= 1")
+
+    @override
     def main(self) -> None:
         """
         Run the program logic.
@@ -113,33 +133,26 @@ class Num(CLIProgram):
 
         :param lines: Iterable of lines to print.
         """
+        blank_line_count = 0
         line_number = self.args.number_start - 1  # --number-start
-        repeated_blank_lines = 0
 
         for line in lines:
             print_number = True
 
             if line == "\n":  # Blank line?
-                repeated_blank_lines += 1
+                blank_line_count += 1
+
+                if self.should_skip_line(blank_line_count):
+                    continue
 
                 if self.args.number_nonblank:  # --number-nonblank
                     print_number = False
-
-                if self.args.no_blank:  # --no-blank
-                    continue
-
-                if self.args.squeeze_blank and repeated_blank_lines > 1:  # --squeeze-blank
-                    continue
             else:
-                repeated_blank_lines = 0
+                blank_line_count = 0
 
             if print_number:
                 line_number += 1
-
-                if self.print_color:
-                    line = f"{Colors.LINE_NUMBER}{line_number:{self.format_prefix}{self.args.number_width}}{self.args.number_separator}{ansi.RESET}{line}"
-                else:
-                    line = f"{line_number:{self.format_prefix}{self.args.number_width}}{self.args.number_separator}{line}"
+                line = self.render_line_number(line, line_number)
 
             io.print_line_normalized(line)
 
@@ -160,11 +173,11 @@ class Num(CLIProgram):
         """
         Read lines from standard input until EOF, then number and print them.
         """
-        self.number_lines(sys.stdin.readlines())
+        self.number_lines(sys.stdin)
 
     def print_file_header(self, file_name: str) -> None:
         """
-        Print the file name, or "(standard input)" if empty, followed by a colon.
+        Print the file name or "(standard input)" if empty, followed by a colon, unless ``--no-file-name`` is set.
 
         :param file_name: File name to print.
         """
@@ -178,17 +191,33 @@ class Num(CLIProgram):
 
             print(file_name)
 
-    def validate_parsed_arguments(self) -> None:
+    def render_line_number(self, line: str, line_number: int) -> str:
         """
-        Validate the parsed command-line arguments.
+        Prefix a formatted line number to the line.
+
+        :param line: Line to format.
+        :param line_number: Current line number.
+        :return: The line prefixed with a line number.
         """
-        self.format_prefix = Num.FORMAT_PREFIXES[self.args.number_format]  # --number-format
+        if self.print_color:
+            return f"{Colors.LINE_NUMBER}{line_number:{self.format_prefix}{self.args.number_width}}{self.args.number_separator}{ansi.RESET}{line}"
 
-        if self.args.number_start < 0:  # --number-start
-            self.print_error_and_exit("'--number-start' must be >= 0")
+        return f"{line_number:{self.format_prefix}{self.args.number_width}}{self.args.number_separator}{line}"
 
-        if self.args.number_width < 1:  # --number-width
-            self.print_error_and_exit("'number-width' must be >= 1")
+    def should_skip_line(self, blank_line_count: int) -> bool:
+        """
+        Determine whether the current line should be suppressed based on blank-line handling options.
+
+        :param blank_line_count: Number of consecutive blank lines encountered so far, including the current line.
+        :return: Return ``True`` if the current blank line should be skipped.
+        """
+        if self.args.no_blank and blank_line_count:  # --no-blank
+            return True
+
+        if self.args.squeeze_blank and blank_line_count > 1:  # --squeeze-blank
+            return True
+
+        return False
 
 
 if __name__ == "__main__":

@@ -13,8 +13,9 @@ import argparse
 import re
 import sys
 from collections.abc import Iterable
+from dataclasses import dataclass
 from enum import IntEnum
-from typing import Final, TypeAlias, final
+from typing import ClassVar, Final, TypeAlias, final, override
 
 from cli import CLIProgram, ansi, io, terminal
 
@@ -22,18 +23,18 @@ from cli import CLIProgram, ansi, io, terminal
 Counts: TypeAlias = tuple[int, int, int, int]  # Indexed by CountIndex.
 
 
-@final
+@dataclass(frozen=True, slots=True)
 class Colors:
     """
-    Terminal color constants.
+    Namespace for terminal color constants.
 
     :cvar COUNT: Color used for a count.
     :cvar COUNT_TOTAL: Color used for a count total.
     :cvar FILE_NAME: Color used for a file name.
     """
-    COUNT: Final[str] = ansi.Colors16.BRIGHT_CYAN
-    COUNT_TOTAL: Final[str] = ansi.Colors16.BRIGHT_YELLOW
-    FILE_NAME: Final[str] = ansi.Colors16.BRIGHT_MAGENTA
+    COUNT: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_CYAN
+    COUNT_TOTAL: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_YELLOW
+    FILE_NAME: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_MAGENTA
 
 
 class CountIndex(IntEnum):
@@ -84,6 +85,7 @@ class Tally(CLIProgram):
             else:
                 Tally.TOTALS[index] += counts[index]
 
+    @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """
         Build and return an argument parser.
@@ -137,6 +139,36 @@ class Tally(CLIProgram):
 
         return line_count, words, character_count, max_line_length
 
+    @override
+    def check_parsed_arguments(self) -> None:
+        """
+        Validate parsed command-line arguments.
+        """
+        if self.args.count_width < 1:  # --count-width
+            self.print_error_and_exit("'count-width' must be >= 1")
+
+        if self.args.tab_width < 1:  # --tab-width
+            self.print_error_and_exit("'tab-width' must be >= 1")
+
+        # -1 one for the tab character.
+        self.args.tab_width -= 1
+
+        # Check which count flags were provided: --lines, --words, --chars, or --max-line-length
+        for index, flag in enumerate((self.args.lines, self.args.words, self.args.chars, self.args.max_line_length)):
+            if flag:
+                Tally.COUNT_FLAGS[index] = True
+                self.flag_count += 1
+
+        # If no count flags, default to lines, words and characters.
+        if not self.flag_count:
+            flags = (CountIndex.LINES, CountIndex.WORDS, CountIndex.CHARACTERS)
+
+            for index in flags:
+                Tally.COUNT_FLAGS[index] = True
+
+            self.flag_count = len(flags)
+
+    @override
     def main(self) -> None:
         """
         Run the program logic.
@@ -209,38 +241,10 @@ class Tally(CLIProgram):
         """
         Read lines from standard input until EOF, then count and print.
         """
-        counts = self.calculate_counts(sys.stdin.readlines())
+        counts = self.calculate_counts(sys.stdin)
 
         self.add_counts_to_totals(counts)
         self.print_counts(counts, count_origin="")
-
-    def validate_parsed_arguments(self) -> None:
-        """
-        Validate the parsed command-line arguments.
-        """
-        if self.args.count_width < 1:  # --count-width
-            self.print_error_and_exit("'count-width' must be >= 1")
-
-        if self.args.tab_width < 1:  # --tab-width
-            self.print_error_and_exit("'tab-width' must be >= 1")
-
-        # -1 one for the tab character.
-        self.args.tab_width -= 1
-
-        # Check which count flags were provided: --lines, --words, --chars, or --max-line-length
-        for index, flag in enumerate((self.args.lines, self.args.words, self.args.chars, self.args.max_line_length)):
-            if flag:
-                Tally.COUNT_FLAGS[index] = True
-                self.flag_count += 1
-
-        # If no count flags, default to lines, words and characters.
-        if not self.flag_count:
-            flags = (CountIndex.LINES, CountIndex.WORDS, CountIndex.CHARACTERS)
-
-            for index in flags:
-                Tally.COUNT_FLAGS[index] = True
-
-            self.flag_count = len(flags)
 
 
 if __name__ == "__main__":

@@ -14,23 +14,24 @@ import os
 import re
 import sys
 from collections.abc import Iterable
-from typing import Final, final
+from dataclasses import dataclass
+from typing import ClassVar, Final, final, override
 
 from cli import CLIProgram, ansi, io, terminal
 
 
-@final
+@dataclass(frozen=True, slots=True)
 class Colors:
     """
-    Terminal color constants.
+    Namespace for terminal color constants.
 
     :cvar COLON: Color used for the colon following a file name.
     :cvar FILE_NAME: Color used for a file name.
     :cvar GROUP_COUNT: Color used for group counts.
     """
-    COLON: Final[str] = ansi.Colors16.BRIGHT_CYAN
-    FILE_NAME: Final[str] = ansi.Colors16.BRIGHT_MAGENTA
-    GROUP_COUNT = ansi.Colors16.BRIGHT_GREEN
+    COLON: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_CYAN
+    FILE_NAME: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_MAGENTA
+    GROUP_COUNT: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_GREEN
 
 
 @final
@@ -56,6 +57,7 @@ class Dupe(CLIProgram):
         self.skip_chars: int = 0
         self.skip_fields: int = 0
 
+    @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """
         Build and return an argument parser.
@@ -106,6 +108,27 @@ class Dupe(CLIProgram):
         :return: ``True`` if the key is non-empty, or if blank keys are allowed.
         """
         return not self.args.no_blank or key.strip()  # --no-blank
+
+    @override
+    def check_parsed_arguments(self) -> None:
+        """
+        Validate parsed command-line arguments.
+        """
+        self.max_chars = self.args.max_chars if self.args.max_chars is not None else 1  # --max-chars
+        self.skip_chars = self.args.skip_chars if self.args.skip_chars is not None else 0  # --skip-chars
+        self.skip_fields = self.args.skip_fields if self.args.skip_fields is not None else 0  # --skip-fields
+
+        if self.args.count_width < 1:  # --count-width
+            self.print_error_and_exit("'count-width' must be >= 1")
+
+        if self.max_chars < 1:
+            self.print_error_and_exit("'max-chars' must be >= 1")
+
+        if self.skip_chars < 0:
+            self.print_error_and_exit("'skip-chars' must be >= 0")
+
+        if self.skip_fields < 0:
+            self.print_error_and_exit("'skip-fields' must be >= 0")
 
     def get_compare_key(self, line: str) -> str:
         """
@@ -230,7 +253,7 @@ class Dupe(CLIProgram):
         """
         Read lines from standard input until EOF and print them.
         """
-        self.group_and_print_lines(sys.stdin.readlines(), origin_file="")
+        self.group_and_print_lines(sys.stdin, origin_file="")
 
     def group_lines_by_key(self, lines: Iterable[str]) -> dict[str, list[str]]:
         """
@@ -254,6 +277,7 @@ class Dupe(CLIProgram):
 
         return group_map
 
+    @override
     def main(self) -> None:
         """
         Run the program logic.
@@ -278,7 +302,7 @@ class Dupe(CLIProgram):
 
     def print_file_header(self, file_name: str) -> None:
         """
-        Print the file name, or "(standard input)" if empty, followed by a colon.
+        Print the file name or "(standard input)" if empty, followed by a colon, unless ``--no-file-name`` is set.
 
         :param file_name: File name to print.
         """
@@ -291,26 +315,6 @@ class Dupe(CLIProgram):
                 file_name = f"{file_name}:"
 
             print(file_name)
-
-    def validate_parsed_arguments(self) -> None:
-        """
-        Validate the parsed command-line arguments.
-        """
-        self.max_chars = self.args.max_chars if self.args.max_chars is not None else 1  # --max-chars
-        self.skip_chars = self.args.skip_chars if self.args.skip_chars is not None else 0  # --skip-chars
-        self.skip_fields = self.args.skip_fields if self.args.skip_fields is not None else 0  # --skip-fields
-
-        if self.args.count_width < 1:  # --count-width
-            self.print_error_and_exit("'count-width' must be >= 1")
-
-        if self.max_chars < 1:
-            self.print_error_and_exit("'max-chars' must be >= 1")
-
-        if self.skip_chars < 0:
-            self.print_error_and_exit("'skip-chars' must be >= 0")
-
-        if self.skip_fields < 0:
-            self.print_error_and_exit("'skip-fields' must be >= 0")
 
 
 if __name__ == "__main__":

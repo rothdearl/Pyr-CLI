@@ -14,22 +14,23 @@ import os
 import sys
 import time
 from collections.abc import Collection, Iterable
+from dataclasses import dataclass
 from threading import Thread
-from typing import Final, final
+from typing import ClassVar, Final, final, override
 
 from cli import CLIProgram, ansi, io, terminal
 
 
-@final
+@dataclass(frozen=True, slots=True)
 class Colors:
     """
-    Terminal color constants.
+    Namespace for terminal color constants.
 
     :cvar COLON: Color used for the colon following a file name.
     :cvar FILE_NAME: Color used for a file name.
     """
-    COLON: Final[str] = ansi.Colors16.BRIGHT_CYAN
-    FILE_NAME: Final[str] = ansi.Colors16.BRIGHT_MAGENTA
+    COLON: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_CYAN
+    FILE_NAME: ClassVar[Final[str]] = ansi.Colors16.BRIGHT_MAGENTA
 
 
 @final
@@ -44,6 +45,7 @@ class Track(CLIProgram):
         """
         super().__init__(name="track", version="1.3.10")
 
+    @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """
         Build and return an argument parser.
@@ -68,6 +70,13 @@ class Track(CLIProgram):
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")
 
         return parser
+
+    @override
+    def check_parsed_arguments(self) -> None:
+        """
+        Validate parsed command-line arguments.
+        """
+        pass
 
     def follow_file(self, file_name: str, print_file_name: bool, polling_interval: float = .5) -> None:
         """
@@ -111,6 +120,7 @@ class Track(CLIProgram):
         except (OSError, UnicodeDecodeError):
             self.print_error(f"{file_name} is no longer accessible")
 
+    @override
     def main(self) -> None:
         """
         Run the program logic.
@@ -143,7 +153,7 @@ class Track(CLIProgram):
 
     def print_file_header(self, file_name: str) -> None:
         """
-        Print the file name, or "(standard input)" if empty, followed by a colon.
+        Print the file name or "(standard input)" if empty, followed by a colon, unless ``--no-file-name`` is set.
 
         :param file_name: File name to print.
         """
@@ -228,12 +238,6 @@ class Track(CLIProgram):
             threads.append(thread)
 
         return threads
-
-    def validate_parsed_arguments(self) -> None:
-        """
-        Validate the parsed command-line arguments.
-        """
-        pass
 
 
 if __name__ == "__main__":
