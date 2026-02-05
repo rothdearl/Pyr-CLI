@@ -1,5 +1,5 @@
 """
-Abstract base class (ABC) for command-line programs.
+Abstract base class (ABC) for command-line programs to define a standard lifecycle.
 """
 
 import argparse
@@ -13,7 +13,7 @@ from .terminal import stdout_is_terminal
 
 class CLIProgram(ABC):
     """
-    Abstract base class (ABC) for command-line programs.
+    Abstract base class (ABC) for command-line programs to define a standard lifecycle.
 
     :ivar args: Parsed command-line arguments.
     :ivar encoding: Encoding for reading and writing to files.

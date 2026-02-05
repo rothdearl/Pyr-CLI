@@ -2,9 +2,9 @@
 Constants used throughout the command-line interface package.
 """
 
-import os as os
-import sys as sys
-from typing import Final as Final
+import os
+import sys
+from typing import Final
 
 # OS-related constants.
 OS_IS_LINUX: Final[bool] = sys.platform.startswith("linux")

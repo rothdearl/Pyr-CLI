@@ -141,7 +141,7 @@ class Order(CLIProgram):
 
     def generate_natural_sort_key(self, line: str) -> list[tuple[int, str | float]]:
         """
-        Return a sort key that orders text lexicographically and then numbers numerically.
+        Return a sort key that orders text lexicographically and numbers numerically.
 
         :param line: Line to derive key from.
         :return: A list of tuples containing the kind (0 = text, 1 = number) and comparison value.
@@ -288,4 +288,4 @@ class Order(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Order())
+    Order().run()

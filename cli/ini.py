@@ -1,5 +1,5 @@
 """
-Functions for reading and parsing values from INI configuration files using a single global configuration instance.
+Functions for reading and parsing values from INI configuration files using a single instance shared across the module.
 """
 
 import configparser

@@ -71,8 +71,7 @@ def write_text_to_file(file_name: str, text: Iterable[str], encoding: str, *, on
     try:
         with open(file_name, "wt", encoding=encoding) as f:
             for line in text:
-                line = line.rstrip("\n")  # Normalize line.
-                f.write(f"{line}\n")
+                f.write(f"{line.rstrip("\n")}\n")  # Normalize and print line.
     except PermissionError:
         on_error(f"{file_name}: permission denied")
     except OSError:

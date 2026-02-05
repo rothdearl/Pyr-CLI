@@ -204,4 +204,4 @@ class Slice(CLIProgram):
 
 
 if __name__ == "__main__":
-    CLIProgram.run(Slice())
+    Slice().run()
