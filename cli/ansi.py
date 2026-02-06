@@ -2,7 +2,7 @@
 Define constants for ANSI escape sequences used for terminal text attributes and color output.
 """
 
-from typing import Final
+from typing import Final, final
 
 # Control Sequence Introducer (CSI).
 _CSI: Final[str] = "\x1b["
@@ -15,6 +15,7 @@ BG_COLORS_256: Final[tuple[str, ...]] = tuple(f"{_CSI}48;5;{code}m" for code in 
 COLORS_256: Final[tuple[str, ...]] = tuple(f"{_CSI}38;5;{code}m" for code in range(256))
 
 
+@final
 class BgColors:
     """
     Namespace for background color constants from the standard 16-color palette (SGR codes 40–47 and 100–107).
@@ -37,6 +38,7 @@ class BgColors:
     BRIGHT_WHITE: Final[str] = f"{_CSI}107m"
 
 
+@final
 class Colors:
     """
     Namespace for foreground color constants from the standard 16-color palette (SGR codes 30–37 and 90–97).
@@ -59,6 +61,7 @@ class Colors:
     BRIGHT_WHITE: Final[str] = f"{_CSI}97m"
 
 
+@final
 class TextAttributes:
     """
     Namespace for text attribute constants (SGR codes 1–9, excluding 6, which is undefined).

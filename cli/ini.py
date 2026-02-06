@@ -170,17 +170,16 @@ def read_options(path: str, *, clear_previous: bool = True, on_error: ErrorRepor
 
             _config.read_file(f)
     except (OSError, configparser.Error) as error:
-        name = path or '""'
-
         match error:
             case FileNotFoundError():
+                name = path or '""'  # Make empty file names visible in errors.
                 on_error(f"{name}: no such file or directory")
             case PermissionError():
-                on_error(f"{name}: permission denied")
+                on_error(f"{path}: permission denied")
             case OSError():
-                on_error(f"{name}: unable to read file")
+                on_error(f"{path}: unable to read file")
             case configparser.Error():
-                on_error(f"{name}: invalid configuration file")
+                on_error(f"{path}: invalid configuration file")
 
         return False
 

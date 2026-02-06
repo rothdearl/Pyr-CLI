@@ -51,7 +51,7 @@ def read_text_files(files: Iterable[str], encoding: str, *, on_error: ErrorRepor
             with open(file_name, mode="rt", encoding=encoding) as text:
                 yield FileInfo(file_index, file_name, text)
         except FileNotFoundError:
-            name = file_name or '""'
+            name = file_name or '""'  # Make empty file names visible in errors.
             on_error(f"{name}: no such file or directory")
         except PermissionError:
             on_error(f"{file_name}: permission denied")

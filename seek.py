@@ -266,7 +266,7 @@ class Seek(CLIProgram):
             except PermissionError as error:
                 self.print_error(f"{error.filename}: permission denied")
         else:
-            name = directory or '""'
+            name = directory or '""'  # Make empty file names visible in errors.
             self.print_error(f"{name}: no such file or directory")
 
 
