@@ -4,22 +4,22 @@
 """
 Filename: tally.py
 Author: Roth Earl
-Version: 1.3.11
-Description: A program to count lines, words, and characters in files.
+Version: 1.3.12
+Description: A program that counts lines, words, and characters in files.
 License: GNU GPLv3
 """
 
 import argparse
 import re
 import sys
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from enum import IntEnum
-from typing import Final, TypeAlias, override
+from typing import Final, override
 
 from cli import CLIProgram, ansi, io, terminal
 
 # Define type aliases.
-Counts: TypeAlias = tuple[int, int, int, int]  # Indexed by CountIndex.
+type Counts = tuple[int, int, int, int]  # Indexed by CountIndex.
 
 
 class Colors:
@@ -47,7 +47,7 @@ class CountIndex(IntEnum):
 
 class Tally(CLIProgram):
     """
-    A program to count lines, words, and characters in files.
+    A program that counts lines, words, and characters in files.
 
     :cvar COUNT_FLAGS: Flags for determining if a count will be printed.
     :cvar TOTALS: Total counts across all files.
@@ -61,21 +61,15 @@ class Tally(CLIProgram):
     WORD_PATTERN: Final[str] = r"\b\w+\b"
 
     def __init__(self) -> None:
-        """
-        Initialize a new ``Tally`` instance.
-        """
-        super().__init__(name="tally", version="1.3.11")
+        """Initialize a new ``Tally`` instance."""
+        super().__init__(name="tally", version="1.3.12")
 
         self.files_counted: int = 0
         self.flag_count: int = 0
 
     @staticmethod
     def add_counts_to_totals(counts: Counts) -> None:
-        """
-        Add the counts to the totals.
-
-        :param counts: Count information.
-        """
+        """Add the counts to the totals."""
         for index in CountIndex:
             if index is CountIndex.MAX_LINE_LENGTH:
                 Tally.TOTALS[index] = max(Tally.TOTALS[index], counts[index])
@@ -84,11 +78,7 @@ class Tally(CLIProgram):
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
-        """
-        Build and return an argument parser.
-
-        :return: An argument parser.
-        """
+        """Build and return an argument parser."""
         parser = argparse.ArgumentParser(allow_abbrev=False,
                                          description="count lines, words, and characters in FILES",
                                          epilog="if no FILES are specified, read from standard input", prog=self.name)
@@ -106,7 +96,7 @@ class Tally(CLIProgram):
                             help="use color for counts and file names (default: on)")
         parser.add_argument("--count-width", default=8, help="pad counts to width N (default: 8; N >= 1)", metavar="N",
                             type=int)
-        parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
+        parser.add_argument("--latin1", action="store_true", help="read FILES using latin-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
         parser.add_argument("--total", choices=("auto", "on", "off"), default="auto",
@@ -116,12 +106,7 @@ class Tally(CLIProgram):
         return parser
 
     def calculate_counts(self, text: Iterable[str]) -> Counts:
-        """
-        Calculate the counts for the lines, words, characters, and the maximum line length in the text.
-
-        :param text: Text to count.
-        :return: Count information.
-        """
+        """Calculate the counts for the lines, words, characters, and the maximum line length in the text."""
         character_count, line_count, max_line_length, words = 0, 0, 0, 0
 
         for line in text:
@@ -137,14 +122,12 @@ class Tally(CLIProgram):
 
     @override
     def check_parsed_arguments(self) -> None:
-        """
-        Validate parsed command-line arguments.
-        """
+        """Validate parsed command-line arguments."""
         if self.args.count_width < 1:  # --count-width
-            self.print_error_and_exit("'count-width' must be >= 1")
+            self.print_error_and_exit("--count-width must be >= 1")
 
         if self.args.tab_width < 1:  # --tab-width
-            self.print_error_and_exit("'tab-width' must be >= 1")
+            self.print_error_and_exit("--tab-width must be >= 1")
 
         # -1 one for the tab character.
         self.args.tab_width -= 1
@@ -166,9 +149,7 @@ class Tally(CLIProgram):
 
     @override
     def main(self) -> None:
-        """
-        Run the program logic.
-        """
+        """Run the program logic."""
         if terminal.stdin_is_redirected():
             if self.args.stdin_files:  # --stdin-files
                 self.print_counts_from_files(sys.stdin)
@@ -178,7 +159,7 @@ class Tally(CLIProgram):
 
                     self.files_counted += 1
                     self.add_counts_to_totals(counts)
-                    self.print_counts(counts, count_origin="(standard input)" if self.args.files else "")
+                    self.print_counts(counts, origin_file="(standard input)" if self.args.files else "")
 
             if self.args.files:  # Process any additional files.
                 self.print_counts_from_files(self.args.files)
@@ -188,59 +169,48 @@ class Tally(CLIProgram):
             self.print_counts_from_input()
 
         if self.args.total == "on" or (self.args.total == "auto" and self.files_counted > 1):  # --total
-            self.print_counts(Tally.TOTALS, count_origin="total")
+            self.print_counts(Tally.TOTALS, origin_file="total")
 
-    def print_counts(self, counts: Iterable, *, count_origin: str) -> None:
-        """
-        Print counts.
-
-        :param counts: Count information.
-        :param count_origin: Where the counts originated from.
-        """
-        count_color = Colors.COUNT_TOTAL if count_origin == "total" else Colors.COUNT
-        count_origin_color = Colors.COUNT_TOTAL if count_origin == "total" else Colors.FILE_NAME
+    def print_counts(self, counts: Sequence[int], *, origin_file: str) -> None:
+        """Print line, word, and character counts for the given file."""
+        count_color = Colors.COUNT_TOTAL if origin_file == "total" else Colors.COUNT
+        origin_file_color = Colors.COUNT_TOTAL if origin_file == "total" else Colors.FILE_NAME
 
         for index, count in enumerate(counts):
             if Tally.COUNT_FLAGS[index]:
-                padding = self.args.count_width if self.flag_count > 1 or count_origin else 0
+                padding = self.args.count_width if self.flag_count > 1 or origin_file else 0
 
                 if self.print_color:
                     print(f"{count_color}{count:>{padding},}{ansi.RESET}", end="")
                 else:
                     print(f"{count:>{padding},}", end="")
 
-        if count_origin:
+        if origin_file:
             if self.print_color:
-                print(f" {count_origin_color}{count_origin}{ansi.RESET}")
+                print(f" {origin_file_color}{origin_file}{ansi.RESET}")
             else:
-                print(f" {count_origin}")
+                print(f" {origin_file}")
         else:
             print()
 
     def print_counts_from_files(self, files: Iterable[str]) -> None:
-        """
-        Read lines from each file, then count and print.
-
-        :param files: Iterable of files to read.
-        """
+        """Read lines from each file, then count and print."""
         for file_info in io.read_text_files(files, self.encoding, on_error=self.print_error):
             try:
                 counts = self.calculate_counts(file_info.text)
 
                 self.files_counted += 1
                 self.add_counts_to_totals(counts)
-                self.print_counts(counts, count_origin=file_info.file_name)
+                self.print_counts(counts, origin_file=file_info.file_name)
             except UnicodeDecodeError:
                 self.print_error(f"{file_info.file_name}: unable to read with {self.encoding}")
 
     def print_counts_from_input(self) -> None:
-        """
-        Read lines from standard input until EOF, then count and print.
-        """
+        """Read lines from standard input until EOF, then count and print."""
         counts = self.calculate_counts(sys.stdin)
 
         self.add_counts_to_totals(counts)
-        self.print_counts(counts, count_origin="")
+        self.print_counts(counts, origin_file="")
 
 
 if __name__ == "__main__":
