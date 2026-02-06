@@ -4,8 +4,8 @@
 """
 Filename: track.py
 Author: Roth Earl
-Version: 1.3.11
-Description: A program to print the last part of files, optionally following new lines.
+Version: 1.3.12
+Description: A program that prints the last part of files, optionally following new lines.
 License: GNU GPLv3
 """
 
@@ -32,23 +32,15 @@ class Colors:
 
 
 class Track(CLIProgram):
-    """
-    A program to print the last part of files, optionally following new lines
-    """
+    """A program that prints the last part of files, optionally following new lines."""
 
     def __init__(self) -> None:
-        """
-        Initialize a new ``Track`` instance.
-        """
-        super().__init__(name="track", version="1.3.11")
+        """Initialize a new ``Track`` instance."""
+        super().__init__(name="track", version="1.3.12")
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
-        """
-        Build and return an argument parser.
-
-        :return: An argument parser.
-        """
+        """Build and return an argument parser."""
         parser = argparse.ArgumentParser(allow_abbrev=False,
                                          description="print the last part of FILES, optionally following new lines",
                                          epilog="if no FILES are specified, read from standard input", prog=self.name)
@@ -61,7 +53,7 @@ class Track(CLIProgram):
                             metavar="N", type=int)
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names (default: on)")
-        parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
+        parser.add_argument("--latin1", action="store_true", help="read FILES using latin-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")
@@ -70,9 +62,7 @@ class Track(CLIProgram):
 
     @override
     def check_parsed_arguments(self) -> None:
-        """
-        Validate parsed command-line arguments.
-        """
+        """Validate parsed command-line arguments."""
         pass
 
     def follow_file(self, file_name: str, print_file_name: bool, polling_interval: float = .5) -> None:
@@ -108,7 +98,7 @@ class Track(CLIProgram):
                         if print_file_name:
                             self.print_file_header(file_name)
 
-                        io.print_line_normalized(next_content[print_index:])
+                        io.print_line(next_content[print_index:])
                         previous_content = next_content
 
                 time.sleep(polling_interval)
@@ -119,9 +109,7 @@ class Track(CLIProgram):
 
     @override
     def main(self) -> None:
-        """
-        Run the program logic.
-        """
+        """Run the program logic."""
         files_printed = []
 
         # Set --no-file-name to True if there are no files and --stdin-files=False.
@@ -149,11 +137,7 @@ class Track(CLIProgram):
                 thread.join()
 
     def print_file_header(self, file_name: str) -> None:
-        """
-        Print the file name or "(standard input)" if empty, followed by a colon, unless ``--no-file-name`` is set.
-
-        :param file_name: File name to print.
-        """
+        """Print the file name (or "(standard input)" if empty), followed by a colon, unless ``--no-file-name`` is set."""
         if not self.args.no_file_name:  # --no-file-name
             file_header = os.path.relpath(file_name) if file_name else "(standard input)"
 
@@ -165,11 +149,7 @@ class Track(CLIProgram):
             print(file_header)
 
     def print_lines(self, lines: Collection[str]) -> None:
-        """
-        Print lines to standard output.
-
-        :param lines: Iterable of lines to print.
-        """
+        """Print lines to standard output."""
         max_lines = self.args.lines  # --lines
         skip_to_line = len(lines) - max_lines
 
@@ -179,7 +159,7 @@ class Track(CLIProgram):
 
         for index, line in enumerate(lines, start=1):
             if index > skip_to_line:
-                io.print_line_normalized(line)
+                io.print_line(line)
 
     def print_lines_from_files(self, files: Iterable[str]) -> list[str]:
         """
@@ -201,9 +181,7 @@ class Track(CLIProgram):
         return files_printed
 
     def print_lines_from_input(self) -> None:
-        """
-        Read lines from standard input until EOF and print them.
-        """
+        """Read lines from standard input until EOF and print them."""
         eof = False
         lines = []
 
