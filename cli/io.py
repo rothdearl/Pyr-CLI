@@ -48,7 +48,7 @@ def read_text_files(files: Iterable[str], encoding: str, *, on_error: ErrorRepor
                 on_error(f"{file_name}: is a directory")
                 continue
 
-            with open(file_name, "rt", encoding=encoding) as text:
+            with open(file_name, mode="rt", encoding=encoding) as text:
                 yield FileInfo(file_index, file_name, text)
         except FileNotFoundError:
             name = file_name or '""'
@@ -69,9 +69,9 @@ def write_text_to_file(file_name: str, text: Iterable[str], encoding: str, *, on
     :param on_error: Callback invoked with an error message for file-related errors.
     """
     try:
-        with open(file_name, "wt", encoding=encoding) as f:
+        with open(file_name, mode="wt", encoding=encoding) as f:
             for line in text:
-                f.write(f"{line.rstrip("\n")}\n")  # Normalize and print line.
+                f.write(line.rstrip("\n") + "\n")
     except PermissionError:
         on_error(f"{file_name}: permission denied")
     except OSError:

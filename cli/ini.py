@@ -164,7 +164,7 @@ def read_options(path: str, *, clear_previous: bool = True, on_error: ErrorRepor
     :return: ``True`` if the process was successful.
     """
     try:
-        with open(path, encoding="utf-8") as f:
+        with open(path, mode="rt", encoding="utf-8") as f:
             if clear_previous:
                 _config.clear()
 

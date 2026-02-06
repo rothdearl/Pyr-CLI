@@ -85,13 +85,13 @@ class Track(CLIProgram):
         """
         try:
             # Get the initial file content.
-            with open(file_name, "rt", encoding=self.encoding) as f:
+            with open(file_name, mode="rt", encoding=self.encoding) as f:
                 previous_content = f.read()
 
             # Follow file until Ctrl-C.
             while True:
                 # Re-open the file with each iteration.
-                with open(file_name, "rt", encoding=self.encoding) as f:
+                with open(file_name, mode="rt", encoding=self.encoding) as f:
                     next_content = f.read()
 
                     # Check for changes.
