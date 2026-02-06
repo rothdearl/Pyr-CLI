@@ -4,7 +4,7 @@
 """
 Filename: order.py
 Author: Roth Earl
-Version: 1.3.11
+Version: 1.3.12
 Description: A program to sort and print files to standard output.
 License: GNU GPLv3
 """
@@ -14,7 +14,8 @@ import os
 import random
 import re
 import sys
-from typing import Final, TextIO, override
+from collections.abc import Iterable
+from typing import Final, override
 
 from dateutil.parser import ParserError, parse
 
@@ -46,18 +47,12 @@ class Order(CLIProgram):
     WORD_PATTERN: Final[str] = r"\s+|\W+"
 
     def __init__(self) -> None:
-        """
-        Initialize a new ``Order`` instance.
-        """
-        super().__init__(name="order", version="1.3.11")
+        """Initialize a new ``Order`` instance."""
+        super().__init__(name="order", version="1.3.12")
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
-        """
-        Build and return an argument parser.
-
-        :return: An argument parser.
-        """
+        """Build and return an argument parser."""
         parser = argparse.ArgumentParser(allow_abbrev=False, description="sort and print FILES to standard output",
                                          epilog="if no FILES are specified, read from standard input", prog=self.name)
         sort_group = parser.add_mutually_exclusive_group()
@@ -80,7 +75,7 @@ class Order(CLIProgram):
         parser.add_argument("-r", "--reverse", action="store_true", help="reverse the order of the sort")
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names (default: on)")
-        parser.add_argument("--latin1", action="store_true", help="read FILES using iso-8859-1 (default: utf-8)")
+        parser.add_argument("--latin1", action="store_true", help="read FILES using latin-1 (default: utf-8)")
         parser.add_argument("--no-blank", action="store_true", help="suppress all blank lines")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
@@ -90,19 +85,12 @@ class Order(CLIProgram):
 
     @override
     def check_parsed_arguments(self) -> None:
-        """
-        Validate parsed command-line arguments.
-        """
+        """Validate parsed command-line arguments."""
         if self.args.skip_fields < 0:  # --skip-fields
-            self.print_error_and_exit("'skip-fields' must be >= 0")
+            self.print_error_and_exit("--skip-fields must be >= 0")
 
     def generate_date_sort_key(self, line: str) -> str:
-        """
-        Return a sort key that orders fields by the first parseable date.
-
-        :param line: Line to derive key from.
-        :return: Date sort key.
-        """
+        """Return a sort key that orders fields by the first parseable date."""
         fields = self.split_line(line, Order.DATE_PATTERN)
 
         try:
@@ -113,30 +101,15 @@ class Order(CLIProgram):
         return date_key
 
     def generate_default_sort_key(self, line: str) -> list[str]:
-        """
-        Return a sort key that orders fields lexicographically.
-
-        :param line: Line to derive key from.
-        :return: Default sort key.
-        """
+        """Return a sort key that orders fields lexicographically."""
         return self.split_line(line, Order.WHITESPACE_PATTERN)
 
     def generate_dictionary_sort_key(self, line: str) -> list[str]:
-        """
-        Return a sort key that orders word-like fields lexicographically.
-
-        :param line: Line to derive key from.
-        :return: Dictionary sort key.
-        """
+        """Return a sort key that orders word-like fields lexicographically."""
         return self.split_line(line, Order.WORD_PATTERN)
 
     def generate_key_pattern_sort_key(self, line: str) -> list[str]:
-        """
-        Return a sort key that orders fields lexicographically using a user-defined pattern.
-
-        :param line: Line to derive key from.
-        :return: Key pattern sort key.
-        """
+        """Return a sort key that orders fields lexicographically using a user-defined pattern."""
         return self.split_line(line, self.args.key_pattern)
 
     def generate_natural_sort_key(self, line: str) -> list[tuple[int, str | float]]:
@@ -159,9 +132,7 @@ class Order(CLIProgram):
 
     @override
     def main(self) -> None:
-        """
-        Run the program logic.
-        """
+        """Run the program logic."""
         # Set --ignore-case to True if --dictionary-order=True or --natural-sort=True.
         if self.args.dictionary_order or self.args.natural_sort:
             self.args.ignore_case = True
@@ -186,12 +157,7 @@ class Order(CLIProgram):
             self.sort_and_print_lines_from_input()
 
     def normalize_line(self, line: str) -> str:
-        """
-        Normalize the line for field splitting according to command-line options.
-
-        :param line: The line to normalize.
-        :return: A normalized line.
-        """
+        """Normalize the line for field splitting according to command-line options."""
         line = line.rstrip()  # Remove trailing whitespace.
 
         if self.args.ignore_leading_blanks:  # --ignore-leading-blanks
@@ -203,11 +169,7 @@ class Order(CLIProgram):
         return line
 
     def print_file_header(self, file_name: str) -> None:
-        """
-        Print the file name or "(standard input)" if empty, followed by a colon, unless ``--no-file-name`` is set.
-
-        :param file_name: File name to print.
-        """
+        """Print the file name (or "(standard input)" if empty), followed by a colon, unless ``--no-file-name`` is set."""
         if not self.args.no_file_name:  # --no-file-name
             file_header = os.path.relpath(file_name) if file_name else "(standard input)"
 
@@ -219,11 +181,7 @@ class Order(CLIProgram):
             print(file_header)
 
     def sort_and_print_lines(self, lines: list[str]) -> None:
-        """
-        Sort and print lines to standard output according to command-line arguments.
-
-        :param lines: List of lines to sort (modified in place).
-        """
+        """Sort lines in place and print them to standard output according to command-line arguments."""
         if self.args.random_sort:  # --random-sort
             random.shuffle(lines)
         else:
@@ -243,14 +201,10 @@ class Order(CLIProgram):
             if self.args.no_blank and not line.rstrip():  # --no-blank
                 continue
 
-            io.print_line_normalized(line)
+            io.print_line(line)
 
-    def sort_and_print_lines_from_files(self, files: TextIO | list[str]) -> None:
-        """
-        Read lines from each file and print them.
-
-        :param files: Iterable of files to read.
-        """
+    def sort_and_print_lines_from_files(self, files: Iterable[str]) -> None:
+        """Read lines from each file and print them."""
         for _, file, text in io.read_text_files(files, self.encoding, on_error=self.print_error):
             try:
                 self.print_file_header(file)
@@ -259,19 +213,11 @@ class Order(CLIProgram):
                 self.print_error(f"{file}: unable to read with {self.encoding}")
 
     def sort_and_print_lines_from_input(self) -> None:
-        """
-        Read lines from standard input until EOF and print them.
-        """
+        """Read lines from standard input until EOF and print them."""
         self.sort_and_print_lines(sys.stdin.readlines())
 
     def split_line(self, line: str, field_pattern: str) -> list[str]:
-        """
-        Split the line into sortable fields.
-
-        :param line: Line to split.
-        :param field_pattern: Pattern for splitting fields.
-        :return: List of fields.
-        """
+        """Split the line into fields using a regular expression pattern."""
         fields = []
 
         # Normalize the line before splitting.
