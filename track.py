@@ -177,19 +177,13 @@ class Track(CLIProgram):
 
     def print_lines_from_input(self) -> None:
         """Read lines from standard input until EOF and print them."""
-        eof = False
-        lines = []
+        infinite_loop = self.args.follow  # --follow on standard input is an infinite loop until Ctrl-C.
 
-        while not eof:
-            try:
-                lines.append(input())
-            except EOFError:
-                self.print_lines(lines)
-                lines.clear()
+        while True:
+            self.print_lines(sys.stdin.readlines())
 
-                # --follow on standard input is an infinite loop until Ctrl-C.
-                if not self.args.follow:
-                    eof = True
+            if not infinite_loop:
+                break
 
     def start_following_threads(self, files: Collection[str], *, print_file_name: bool) -> list[Thread]:
         """

@@ -122,7 +122,7 @@ class Peek(CLIProgram):
                 self.print_error(f"{file_info.file_name}: unable to read with {self.encoding}")
 
     def print_lines_from_input(self) -> None:
-        """Read lines from standard input until EOF and print them."""
+        """Read lines from standard input until EOF or the configured line limit is reached, and print them."""
         self.print_lines(sys.stdin)
 
 
