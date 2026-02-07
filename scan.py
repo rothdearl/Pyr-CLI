@@ -175,7 +175,7 @@ class Scan(CLIProgram):
                     else:
                         print(f"{line_number:>{padding}}:", end="")
 
-                io.print_line(line)
+                io.print_line_with_newline(line)
 
     def print_matches_from_files(self, files: Iterable[str]) -> None:
         """Read lines from each file and print matches."""

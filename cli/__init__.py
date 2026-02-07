@@ -37,6 +37,7 @@ from .ini import (
 from .io import (
     FileInfo,
     print_line,
+    print_line_with_newline,
     read_text_files,
     write_text_to_file,
 )

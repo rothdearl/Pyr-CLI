@@ -27,6 +27,11 @@ def print_line(line: str) -> None:
     print(line, end="")
 
 
+def print_line_with_newline(line: str) -> None:
+    """Print a line with exactly one trailing newline."""
+    print(line, end="" if line.endswith("\n") else "\n")
+
+
 def read_text_files(files: Iterable[str], encoding: str, *, on_error: ErrorReporter) -> Iterator[FileInfo]:
     """
     Open files for reading in text mode and yield ``FileInfo`` objects.
@@ -79,6 +84,7 @@ def write_text_to_file(file_name: str, text: Iterable[str], encoding: str, *, on
 __all__ = [
     "FileInfo",
     "print_line",
+    "print_line_with_newline",
     "read_text_files",
     "write_text_to_file",
 ]
