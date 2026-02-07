@@ -181,7 +181,7 @@ class Track(CLIProgram):
             self.print_lines(sys.stdin.readlines())
 
             if not self.args.follow:  # --follow on standard input is an infinite loop until Ctrl-C.
-                break
+                return
 
     def start_following_threads(self, files: Collection[str], *, print_file_name: bool) -> list[Thread]:
         """
