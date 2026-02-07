@@ -77,14 +77,15 @@ class Subs(CLIProgram):
 
     def iterate_replaced_lines(self, lines: Iterable[str]) -> Iterable[str]:
         """Yield lines with pattern matches replaced."""
-        for line in lines:
-            normalized = line.rstrip("\n")  # Remove the newline so $ matches only once per line.
-
+        for raw_line in lines:
             if self.pattern:
-                normalized = self.pattern.sub(self.args.replace, normalized, count=self.args.max_replacements)
-                normalized = normalized + "\n"  # Add back the newline.
+                line = raw_line.rstrip("\n")  # Remove the newline so $ matches only once per line.
 
-            yield normalized
+                line = self.pattern.sub(self.args.replace, line, count=self.args.max_replacements)
+                line = line + "\n"  # Add back the newline.
+                yield line
+            else:
+                yield raw_line
 
     @override
     def main(self) -> None:

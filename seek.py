@@ -233,8 +233,8 @@ class Seek(CLIProgram):
             except PermissionError as error:
                 self.print_error(f"{error.filename}: permission denied")
         else:
-            name = directory or '""'  # Use a visible placeholder for empty file names in messages.
-            self.print_error(f"{name}: no such file or directory")
+            visible_name = directory or '""'  # Use a visible placeholder for empty file names in messages.
+            self.print_error(f"{visible_name}: no such file or directory")
 
 
 if __name__ == "__main__":

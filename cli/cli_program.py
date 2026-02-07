@@ -85,7 +85,14 @@ class CLIProgram(ABC):
 
     @final
     def run(self) -> None:
-        """Set up the environment, parse and validate arguments, execute the program, and handle errors."""
+        """
+        Run the full program lifecycle and normalize process exit behavior.
+
+        - Configure the environment.
+        - Parse and validate arguments.
+        - Run the program logic.
+        - Handle errors.
+        """
         keyboard_interrupt_error_code = 130
         sigpipe_exit_code = 141
 

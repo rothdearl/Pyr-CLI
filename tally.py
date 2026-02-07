@@ -12,52 +12,38 @@ License: GNU GPLv3
 import argparse
 import re
 import sys
-from collections.abc import Iterable, Sequence
-from enum import IntEnum
-from typing import Final, override
+from collections.abc import Iterable
+from typing import Final, NamedTuple, override
 
 from cli import CLIProgram, ansi, io, terminal
 
-# Define type aliases.
-type Counts = tuple[int, int, int, int]  # Indexed by CountIndex.
-
 
 class Colors:
-    """
-    Namespace for terminal color constants.
-
-    :cvar COUNT: Color used for a count.
-    :cvar COUNT_TOTAL: Color used for a count total.
-    :cvar FILE_NAME: Color used for a file name.
-    """
+    """Namespace for terminal color constants."""
     COUNT: Final[str] = ansi.Colors.BRIGHT_CYAN
     COUNT_TOTAL: Final[str] = ansi.Colors.BRIGHT_YELLOW
     FILE_NAME: Final[str] = ansi.Colors.BRIGHT_MAGENTA
 
 
-class CountIndex(IntEnum):
-    """
-    Count index constants.
-    """
-    LINES = 0
-    WORDS = 1
-    CHARACTERS = 2
-    MAX_LINE_LENGTH = 3
+class Counts(NamedTuple):
+    """Immutable container for information about counts."""
+    lines: int
+    words: int
+    characters: int
+    max_line_length: int
 
 
 class Tally(CLIProgram):
     """
     A program that counts lines, words, and characters in files.
 
-    :cvar COUNT_FLAGS: Flags for determining if a count will be printed.
-    :cvar TOTALS: Total counts across all files.
     :cvar WORD_PATTERN: Pattern for splitting lines into words.
     :ivar files_counted: Number of files counted.
     :ivar flag_count: Number of flags provided as arguments.
+    :ivar flags: Flags for determining if a count will be printed.
+    :ivar totals: Total counts across all files.
     """
 
-    COUNT_FLAGS: Final[list[bool]] = [False, False, False, False]  # Indexed by CountIndex.
-    TOTALS: Final[list[int]] = [0, 0, 0, 0]  # Indexed by CountIndex.
     WORD_PATTERN: Final[str] = r"\b\w+\b"
 
     def __init__(self) -> None:
@@ -66,15 +52,17 @@ class Tally(CLIProgram):
 
         self.files_counted: int = 0
         self.flag_count: int = 0
+        self.flags: Final[list[bool]] = [False, False, False, False]  # [Lines, words, characters, max line length]
+        self.totals: Counts = Counts(0, 0, 0, 0)
 
-    @staticmethod
-    def add_counts_to_totals(counts: Counts) -> None:
+    def add_counts_to_totals(self, counts: Counts) -> None:
         """Add the counts to the totals."""
-        for index in CountIndex:
-            if index is CountIndex.MAX_LINE_LENGTH:
-                Tally.TOTALS[index] = max(Tally.TOTALS[index], counts[index])
-            else:
-                Tally.TOTALS[index] += counts[index]
+        self.totals = Counts(
+            self.totals.lines + counts.lines,
+            self.totals.words + counts.words,
+            self.totals.characters + counts.characters,
+            max(self.totals.max_line_length, counts.max_line_length)
+        )
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
@@ -118,7 +106,7 @@ class Tally(CLIProgram):
             max_line_length = max(max_display_width, max_line_length)
             words += len(re.findall(Tally.WORD_PATTERN, line))
 
-        return line_count, words, character_count, max_line_length
+        return Counts(line_count, words, character_count, max_line_length)
 
     @override
     def check_parsed_arguments(self) -> None:
@@ -135,15 +123,15 @@ class Tally(CLIProgram):
         # Check which count flags were provided: --lines, --words, --chars, or --max-line-length
         for index, flag in enumerate((self.args.lines, self.args.words, self.args.chars, self.args.max_line_length)):
             if flag:
-                Tally.COUNT_FLAGS[index] = True
+                self.flags[index] = True
                 self.flag_count += 1
 
-        # If no count flags, default to lines, words and characters.
+        # If no count flags, default to lines (0), words (1), and characters (2).
         if not self.flag_count:
-            flags = (CountIndex.LINES, CountIndex.WORDS, CountIndex.CHARACTERS)
+            flags = (0, 1, 2)
 
             for index in flags:
-                Tally.COUNT_FLAGS[index] = True
+                self.flags[index] = True
 
             self.flag_count = len(flags)
 
@@ -169,15 +157,15 @@ class Tally(CLIProgram):
             self.print_counts_from_input()
 
         if self.args.total == "on" or (self.args.total == "auto" and self.files_counted > 1):  # --total
-            self.print_counts(Tally.TOTALS, origin_file="total")
+            self.print_counts(self.totals, origin_file="total")
 
-    def print_counts(self, counts: Sequence[int], *, origin_file: str) -> None:
+    def print_counts(self, counts: Counts, *, origin_file: str) -> None:
         """Print line, word, and character counts for the given file."""
         count_color = Colors.COUNT_TOTAL if origin_file == "total" else Colors.COUNT
         origin_file_color = Colors.COUNT_TOTAL if origin_file == "total" else Colors.FILE_NAME
 
         for index, count in enumerate(counts):
-            if Tally.COUNT_FLAGS[index]:
+            if self.flags[index]:
                 padding = self.args.count_width if self.flag_count > 1 or origin_file else 0
 
                 if self.print_color:
