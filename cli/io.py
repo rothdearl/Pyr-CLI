@@ -1,5 +1,5 @@
 """
-Functions for file-related operations.
+Provides utilities for reading and writing text files and streams.
 """
 
 import os
@@ -15,21 +15,22 @@ class FileInfo(NamedTuple):
 
     :ivar file_index: Position of the file name in the original input sequence.
     :ivar file_name: Normalized file name.
-    :ivar text: Open text stream for the file, valid only until the next iteration.
+    :ivar text: Open text stream for the file, valid only until the next yield.
     """
     file_index: int
     file_name: str
     text: TextIO
 
 
-def print_line(line: str) -> None:
-    """Print a line exactly as provided, preserving any existing newline."""
-    print(line, end="")
+def _remove_trailing_newline(string: str) -> str:
+    """Remove a single trailing newline, if present."""
+    return string.removesuffix("\n")
 
 
-def print_line_with_newline(line: str) -> None:
-    """Print a line with exactly one trailing newline."""
-    print(line, end="" if line.endswith("\n") else "\n")
+def normalize_input_lines(lines: Iterable[str]) -> Iterator[str]:
+    """Yield lines with a single trailing newline removed, if present."""
+    for line in lines:
+        yield _remove_trailing_newline(line)
 
 
 def read_text_files(files: Iterable[str], encoding: str, *, on_error: ErrorReporter) -> Iterator[FileInfo]:
@@ -39,10 +40,10 @@ def read_text_files(files: Iterable[str], encoding: str, *, on_error: ErrorRepor
     :param files: Iterable of file names or a text stream yielding file names.
     :param encoding: Text encoding.
     :param on_error: Callback invoked with an error message for file-related errors.
-    :return: Iterator yielding ``FileInfo`` objects, where the text stream is only valid until the next iteration.
+    :return: Iterator yielding ``FileInfo`` objects, where the text stream is only valid until the next yield.
     """
     for file_index, raw_name in enumerate(files):
-        file_name = raw_name.rstrip("\n")  # Normalize file name.
+        file_name = _remove_trailing_newline(raw_name)  # Normalize file name.
 
         try:
             if os.path.isdir(file_name):
@@ -72,19 +73,18 @@ def write_text_to_file(file_name: str, text: Iterable[str], encoding: str, *, on
     try:
         with open(file_name, mode="wt", encoding=encoding) as f:
             for line in text:
-                f.write(line.rstrip("\n") + "\n")
+                f.write(_remove_trailing_newline(line) + "\n")
     except PermissionError:
         on_error(f"{file_name}: permission denied")
-    except OSError:
-        on_error(f"{file_name}: unable to write file")
     except UnicodeEncodeError:
         on_error(f"{file_name}: unable to write with {encoding}")
+    except OSError:
+        on_error(f"{file_name}: unable to write file")
 
 
 __all__ = [
     "FileInfo",
-    "print_line",
-    "print_line_with_newline",
+    "normalize_input_lines",
     "read_text_files",
     "write_text_to_file",
 ]
