@@ -228,7 +228,6 @@ class Order(CLIProgram):
         except re.error:  # re.PatternError was introduced in Python 3.13; use re.error for Python < 3.13.
             self.print_error_and_exit(f"invalid regex pattern: {field_pattern}")
 
-        print(fields)
         return fields
 
 
