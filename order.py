@@ -74,15 +74,14 @@ class Order(CLIProgram):
         parser.add_argument("-r", "--reverse", action="store_true", help="reverse the order of the sort")
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names (default: on)")
+        parser.add_argument("--decimal-sep", choices=("period", "comma"), default="period",
+                            help="use period or comma as the decimal separator when comparing numbers (default: period)")
         parser.add_argument("--field-pattern", help="use PATTERN to split lines into fields (affects --skip-fields)",
                             metavar="PATTERN")
         parser.add_argument("--latin1", action="store_true", help="read FILES using latin-1 (default: utf-8)")
         parser.add_argument("--no-blank", action="store_true", help="suppress all blank lines")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
-        parser.add_argument("--thousands-sep", default=",",
-                            help="use SEP as the thousands separator when sorting currencies (default: ',')",
-                            metavar="SEP")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")
 
         return parser
@@ -101,19 +100,13 @@ class Order(CLIProgram):
         :return: ``(0, number)`` when the key parses as a number, otherwise ``(1, text)``.
         """
         key = self.make_sort_key(line, default_field_pattern=FieldPatterns.NON_SPACE_WHITESPACE)
-        negative = "-" in key or key.startswith("(") and key.endswith(")")
+        negative = "-" in key or "(" in key and ")" in key  # Negative if key contains "-" or "(" and ")".
 
-        # Remove non-numeric characters.
-        currency = re.sub(r"[^0-9,.]", "", key)
-
-        # Remove thousands separator.
-        currency = currency.replace(self.args.thousands_sep, "")  # --thousands-sep
-
-        # Ensure decimal separator is a period.
-        currency = currency.replace(",", ".")
+        # Remove non-numeric characters and normalize.
+        number = self.normalize_number(re.sub(pattern=r"[^0-9,.]", repl="", string=key))
 
         try:
-            return 0, float(currency) * (-1 if negative else 1)  # Convert to float and apply sign.
+            return 0, float(number) * (-1 if negative else 1)  # Convert to float and apply sign.
         except ValueError:
             return 1, key
 
@@ -149,7 +142,7 @@ class Order(CLIProgram):
         key = self.make_sort_key(line, default_field_pattern=FieldPatterns.WHITESPACE)
 
         try:
-            return 0, float(key.replace(",", ""))  # Strip commas before parsing.
+            return 0, float(self.normalize_number(key))
         except ValueError:
             return 1, key
 
@@ -159,7 +152,7 @@ class Order(CLIProgram):
         fields = []
         logical_index = 0
 
-        # Normalize the line before splitting.
+        # Normalize line before splitting.
         line = self.normalize_line(line)
 
         try:
@@ -217,6 +210,15 @@ class Order(CLIProgram):
             line = line.casefold()
 
         return line
+
+    def normalize_number(self, number: str) -> str:
+        """Return the number with a period "." as the decimal separator and no thousands separators."""
+        if self.args.decimal_sep == "period":  # --decimal-sep
+            # Remove thousands separator.
+            return number.replace(",", "")
+
+        # Remove thousands separator, then replace commas with decimals.
+        return number.replace(".", "").replace(",", ".")
 
     def print_file_header(self, file_name: str) -> None:
         """Print the file name (or "(standard input)" if empty), followed by a colon, unless ``args.no_file_name`` is set."""
