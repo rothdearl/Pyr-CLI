@@ -33,13 +33,15 @@ class FieldPatterns:
     """
     Namespace for field pattern constants.
 
+    :cvar DIGITS: Pattern for splitting fields on digits.
+    :cvar NON_ALPHANUMERIC: Pattern for splitting fields on non-alphanumeric characters.
     :cvar NON_SPACE_WHITESPACE: Pattern for splitting fields on non-space whitespace characters.
-    :cvar WHITESPACE: Pattern for splitting fields on runs of whitespace.
-    :cvar WORDS: Pattern for splitting fields on whitespace and non-word characters.
+    :cvar NO_MATCH: Pattern that never matches.
     """
+    DIGITS: Final[str] = r"[0-9]+"
+    NON_ALPHANUMERIC: Final[str] = r"[^a-zA-Z0-9]"
     NON_SPACE_WHITESPACE: Final[str] = r"[\f\r\n\t\v]"
-    WHITESPACE: Final[str] = r"\s+"
-    WORDS: Final[str] = r"\s+|\W+"
+    NO_MATCH: Final[str] = "(?!.)"
 
 
 class Order(CLIProgram):
@@ -66,7 +68,7 @@ class Order(CLIProgram):
         sort_group.add_argument("-n", "--natural-sort", action="store_true",
                                 help="sort alphabetically, treating numbers numerically")
         sort_group.add_argument("-R", "--random-sort", action="store_true", help="sort lines in random order")
-        parser.add_argument("-f", "--skip-fields", default=0, help="skip the first N non-empty fields (N >= 0)",
+        parser.add_argument("-f", "--skip-fields", default=0, help="skip the first N fields (N >= 0)",
                             metavar="N", type=int)
         parser.add_argument("-H", "--no-file-name", action="store_true", help="do not prefix output with file names")
         parser.add_argument("-i", "--ignore-case", action="store_true",
@@ -126,11 +128,11 @@ class Order(CLIProgram):
 
     def generate_default_sort_key(self, line: str) -> str:
         """Return a sort key that orders text lexicographically using whitespace-delimited fields."""
-        return self.make_sort_key(line, default_field_pattern=FieldPatterns.WHITESPACE)
+        return self.make_sort_key(line, default_field_pattern=FieldPatterns.NO_MATCH)
 
     def generate_dictionary_sort_key(self, line: str) -> str:
         """Return a sort key that orders text lexicographically using whitespace and non-word characters."""
-        return self.make_sort_key(line, default_field_pattern=FieldPatterns.WORDS)
+        return self.make_sort_key(line, default_field_pattern=FieldPatterns.NON_ALPHANUMERIC)
 
     def generate_natural_sort_key(self, line: str) -> tuple[int, float | str]:
         """
@@ -139,7 +141,7 @@ class Order(CLIProgram):
         :param line: Line to derive key from.
         :return: ``(0, number)`` when the key parses as a number, otherwise ``(1, text)``.
         """
-        key = self.make_sort_key(line, default_field_pattern=FieldPatterns.WHITESPACE)
+        key = self.make_sort_key(line, default_field_pattern=FieldPatterns.DIGITS)
 
         try:
             return 0, float(self.normalize_number(key))
@@ -147,26 +149,21 @@ class Order(CLIProgram):
             return 1, key
 
     def get_sort_fields(self, line: str, *, default_field_pattern: str) -> list[str]:
-        """Return the normalized fields used for sorting after skipping the first ``skip_fields`` non-empty fields."""
+        """Return the normalized fields used for sorting after skipping the first ``skip_fields`` fields."""
         field_pattern = self.args.field_pattern or default_field_pattern
         fields = []
-        logical_index = 0
 
         # Normalize line before splitting.
         line = self.normalize_line(line)
 
         try:
-            for field in re.split(field_pattern, line):
-                if not field:  # Skip empty fields.
-                    continue
-
-                if logical_index >= self.args.skip_fields:  # --skip-fields
+            for index, field in enumerate(re.split(field_pattern, line)):
+                if index >= self.args.skip_fields:  # --skip-fields
                     fields.append(field)
-
-                logical_index += 1
         except re.error:  # re.PatternError was introduced in Python 3.13; use re.error for Python < 3.13.
             self.print_error_and_exit(f"invalid regex pattern: {field_pattern}")
 
+        # print(fields)
         return fields
 
     @override
