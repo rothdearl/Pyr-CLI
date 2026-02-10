@@ -4,7 +4,7 @@
 """
 Filename: dupe.py
 Author: Roth Earl
-Version: 1.3.13
+Version: 1.3.14
 Description: A program that filters duplicate or unique lines from files.
 License: GNU GPLv3
 """
@@ -40,7 +40,7 @@ class Dupe(CLIProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Dupe`` instance."""
-        super().__init__(name="dupe", version="1.3.13")
+        super().__init__(name="dupe", version="1.3.14")
 
         self.max_chars: int = 0
         self.skip_chars: int = 0
@@ -50,25 +50,23 @@ class Dupe(CLIProgram):
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
         parser = argparse.ArgumentParser(allow_abbrev=False, description="filter duplicate or unique lines in FILES",
-                                         epilog="if no FILES are specified, read from standard input", prog=self.name)
+                                         epilog="read standard input when no FILES are specified", prog=self.name)
         print_group = parser.add_mutually_exclusive_group()
 
-        parser.add_argument("files", help="input files", metavar="FILES", nargs="*")
-        parser.add_argument("-a", "--adjacent", action="store_true", help="compare only adjacent lines")
+        parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
+        parser.add_argument("-a", "--adjacent", action="store_true", help="compare adjacent lines only")
         parser.add_argument("-c", "--count", action="store_true", help="prefix lines with the number of occurrences")
-        print_group.add_argument("-d", "--repeated", action="store_true",
-                                 help="print only duplicate lines, one per group")
-        print_group.add_argument("-D", "--all-repeated", action="store_true", help="print all duplicate lines")
+        print_group.add_argument("-d", "--repeated", action="store_true", help="print one duplicate line per group")
+        print_group.add_argument("-D", "--all-repeated", action="store_true",
+                                 help="print all duplicate lines per group")
         print_group.add_argument("-g", "--group", action="store_true",
                                  help="show all lines, separating groups with an empty line")
-        print_group.add_argument("-u", "--unique", action="store_true", help="only print unique lines")
+        print_group.add_argument("-u", "--unique", action="store_true", help="print unique lines only")
         parser.add_argument("-f", "--skip-fields", help="skip the first N fields when comparing (N >= 0)", metavar="N",
                             type=int)
-        parser.add_argument("-H", "--no-file-name", action="store_true", help="do not prefix output with file names")
-        parser.add_argument("-i", "--ignore-case", action="store_true",
-                            help="ignore differences in case when comparing")
-        parser.add_argument("-m", "--max-chars", help="compare no more than N characters (N >= 1)", metavar="N",
-                            type=int)
+        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
+        parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when comparing")
+        parser.add_argument("-m", "--max-chars", help="compare at most N characters (N >= 1)", metavar="N", type=int)
         parser.add_argument("-s", "--skip-chars", help="skip the first N characters when comparing (N >= 0)",
                             metavar="N", type=int)
         parser.add_argument("-w", "--skip-whitespace", action="store_true",
@@ -77,7 +75,7 @@ class Dupe(CLIProgram):
                             help="use color for file names and counts (default: on)")
         parser.add_argument("--count-width", default=4, help="pad occurrence counts to width N (default: 4; N >= 1)",
                             metavar="N", type=int)
-        parser.add_argument("--latin1", action="store_true", help="read FILES using latin-1 (default: utf-8)")
+        parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
         parser.add_argument("--no-blank", action="store_true", help="suppress all blank lines")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")

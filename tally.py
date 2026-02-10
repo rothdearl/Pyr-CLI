@@ -4,7 +4,7 @@
 """
 Filename: tally.py
 Author: Roth Earl
-Version: 1.3.13
+Version: 1.3.14
 Description: A program that counts lines, words, and characters in files.
 License: GNU GPLv3
 """
@@ -47,7 +47,7 @@ class Tally(CLIProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Tally`` instance."""
-        super().__init__(name="tally", version="1.3.13")
+        super().__init__(name="tally", version="1.3.14")
 
         self.files_counted: int = 0
         self.flags: Final[list[bool]] = [False, False, False, False]  # [Lines, words, characters, max line length]
@@ -67,26 +67,25 @@ class Tally(CLIProgram):
         """Build and return an argument parser."""
         parser = argparse.ArgumentParser(allow_abbrev=False,
                                          description="count lines, words, and characters in FILES",
-                                         epilog="if no FILES are specified, read from standard input", prog=self.name)
+                                         epilog="read standard input when no FILES are specified", prog=self.name)
 
-        parser.add_argument("files", help="input files", metavar="FILES", nargs="*")
-        parser.add_argument("-c", "--chars", action="store_true", help="print the character counts")
-        parser.add_argument("-l", "--lines", action="store_true", help="print the line counts")
-        parser.add_argument("-L", "--max-line-length", action="store_true",
-                            help="print the maximum line length in characters")
+        parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
+        parser.add_argument("-c", "--chars", action="store_true", help="print character counts")
+        parser.add_argument("-l", "--lines", action="store_true", help="print line counts")
+        parser.add_argument("-L", "--max-line-length", action="store_true", help="print maximum line length")
         parser.add_argument("-t", "--tab-width", default=8,
-                            help="use N spaces for tabs when computing line length (default: 8; N >= 1)", metavar="N",
+                            help="use N spaces per tab when computing line length (default: 8; N >= 1)", metavar="N",
                             type=int)
-        parser.add_argument("-w", "--words", action="store_true", help="print the word counts")
+        parser.add_argument("-w", "--words", action="store_true", help="print word counts")
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for counts and file names (default: on)")
         parser.add_argument("--count-width", default=8, help="pad counts to width N (default: 8; N >= 1)", metavar="N",
                             type=int)
-        parser.add_argument("--latin1", action="store_true", help="read FILES using latin-1 (default: utf-8)")
+        parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
         parser.add_argument("--total", choices=("auto", "on", "off"), default="auto",
-                            help="print a line with total counts across all FILES")
+                            help="print total counts in an extra line (default: auto)")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")
 
         return parser

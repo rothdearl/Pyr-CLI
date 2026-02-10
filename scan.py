@@ -4,7 +4,7 @@
 """
 Filename: scan.py
 Author: Roth Earl
-Version: 1.3.13
+Version: 1.3.14
 Description: A program that prints lines that match patterns in files.
 License: GNU GPLv3
 """
@@ -39,7 +39,7 @@ class Scan(CLIProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Scan`` instance."""
-        super().__init__(name="scan", version="1.3.13", error_exit_code=2)
+        super().__init__(name="scan", version="1.3.14", error_exit_code=2)
 
         self.found_match: bool = False
         self.patterns: Patterns = []
@@ -48,25 +48,25 @@ class Scan(CLIProgram):
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
         parser = argparse.ArgumentParser(allow_abbrev=False, description="print lines that match patterns in FILES",
-                                         epilog="if no FILES are specified, read from standard input", prog=self.name)
+                                         epilog="read standard input when no FILES are specified", prog=self.name)
         count_group = parser.add_mutually_exclusive_group()
 
-        parser.add_argument("files", help="input files", metavar="FILES", nargs="*")
-        count_group.add_argument("-c", "--count", action="store_true",
-                                 help="print the count of matching lines per input file")
+        parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
+        count_group.add_argument("-c", "--count", action="store_true", help="print count of matching lines per file")
         count_group.add_argument("-C", "--count-nonzero", action="store_true",
-                                 help="print the count only for files with at least one match")
-        parser.add_argument("-f", "--find", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
+                                 help="print count of matching lines only for files with a match")
+        parser.add_argument("-e", "--find", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
                             nargs=1)
-        parser.add_argument("-H", "--no-file-name", action="store_true", help="do not prefix output with file names")
-        parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case distinctions")
+        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
+        parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when comparing")
         parser.add_argument("-n", "--line-number", action="store_true", help="show line number for each matching line")
-        parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress all normal output")
-        parser.add_argument("-s", "--no-messages", action="store_true", help="suppress error messages about files")
+        parser.add_argument("-q", "--quiet", "--silent", action="store_true",
+                            help="suppress normal output (matches, counts, and file names)")
+        parser.add_argument("-s", "--no-messages", action="store_true", help="suppress file error messages")
         parser.add_argument("-v", "--invert-match", action="store_true", help="print lines that do not match")
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names, matches, and line numbers (default: on)")
-        parser.add_argument("--latin1", action="store_true", help="read FILES using latin-1 (default: utf-8)")
+        parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")

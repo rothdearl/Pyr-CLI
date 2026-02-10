@@ -4,7 +4,7 @@
 """
 Filename: peek.py
 Author: Roth Earl
-Version: 1.3.13
+Version: 1.3.14
 Description: A program that prints the first part of files.
 License: GNU GPLv3
 """
@@ -30,22 +30,22 @@ class Peek(CLIProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Peek`` instance."""
-        super().__init__(name="peek", version="1.3.13")
+        super().__init__(name="peek", version="1.3.14")
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
         parser = argparse.ArgumentParser(allow_abbrev=False, description="print the first part of FILES",
-                                         epilog="if no FILES are specified, read from standard input", prog=self.name)
+                                         epilog="read standard input when no FILES are specified", prog=self.name)
 
-        parser.add_argument("files", help="input files", metavar="FILES", nargs="*")
-        parser.add_argument("-H", "--no-file-name", action="store_true", help="do not prefix output with file names")
+        parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
+        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("-n", "--lines", default=10,
-                            help="print the first N lines (N >= 1), or all but the last N if negative (default: 10)",
-                            metavar="N", type=int)
+                            help="print the first N lines, or all but the last N if N < 0 (default: 10)", metavar="N",
+                            type=int)
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names (default: on)")
-        parser.add_argument("--latin1", action="store_true", help="read FILES using latin-1 (default: utf-8)")
+        parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")

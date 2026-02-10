@@ -4,7 +4,7 @@
 """
 Filename: glue.py
 Author: Roth Earl
-Version: 1.3.13
+Version: 1.3.14
 Description: A program that concatenates files and standard input to standard output.
 License: GNU GPLv3
 """
@@ -44,23 +44,22 @@ class Glue(CLIProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Glue`` instance."""
-        super().__init__(name="glue", version="1.3.13")
+        super().__init__(name="glue", version="1.3.14")
 
         self.line_number: int = 0
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
-        parser = argparse.ArgumentParser(allow_abbrev=False,
-                                         description="concatenate FILES and standard input to standard output",
-                                         epilog="if no FILES are specified, read from standard input", prog=self.name)
+        parser = argparse.ArgumentParser(allow_abbrev=False, description="concatenate FILES to standard output",
+                                         epilog="read standard input when no FILES are specified", prog=self.name)
         blank_group = parser.add_mutually_exclusive_group()
         number_group = parser.add_mutually_exclusive_group()
 
-        parser.add_argument("files", help="input files", metavar="FILES", nargs="*")
-        number_group.add_argument("-b", "--number-nonblank", action="store_true", help="number nonblank output lines")
-        number_group.add_argument("-n", "--number", action="store_true", help="number output lines")
-        blank_group.add_argument("--no-blank", action="store_true", help="suppress all blank lines")
+        parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
+        number_group.add_argument("-b", "--number-nonblank", action="store_true", help="number nonblank lines")
+        number_group.add_argument("-n", "--number", action="store_true", help="number lines")
+        blank_group.add_argument("--no-blank", action="store_true", help="suppress blank lines")
         blank_group.add_argument("-s", "--squeeze-blank", action="store_true", help="suppress repeated blank lines")
         parser.add_argument("-E", "--show-ends", action="store_true",
                             help=f"display '{Whitespace.EOL}' at end of each line")
@@ -68,7 +67,7 @@ class Glue(CLIProgram):
                             help=f"display tab characters as '{Whitespace.TAB}'")
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for numbers and whitespace (default: on)")
-        parser.add_argument("--latin1", action="store_true", help="read FILES using latin-1 (default: utf-8)")
+        parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
         parser.add_argument("--number-width", default=6, help="pad line numbers to width N (default: 6; N >= 1)",
                             metavar="N", type=int)
         parser.add_argument("--stdin-files", action="store_true",

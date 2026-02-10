@@ -4,7 +4,7 @@
 """
 Filename: num.py
 Author: Roth Earl
-Version: 1.3.13
+Version: 1.3.14
 Description: A program that numbers lines from files and prints them to standard output.
 License: GNU GPLv3
 """
@@ -41,27 +41,26 @@ class Num(CLIProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Num`` instance."""
-        super().__init__(name="num", version="1.3.13")
+        super().__init__(name="num", version="1.3.14")
 
         self.format_prefix: str = ""
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
-        parser = argparse.ArgumentParser(allow_abbrev=False,
-                                         description="number output lines from FILES to standard output",
-                                         epilog="if no FILES are specified, read from standard input", prog=self.name)
+        parser = argparse.ArgumentParser(allow_abbrev=False, description="number lines in FILES",
+                                         epilog="read standard input when no FILES are specified", prog=self.name)
         blank_group = parser.add_mutually_exclusive_group()
 
-        parser.add_argument("files", help="input files", metavar="FILES", nargs="*")
-        parser.add_argument("-b", "--number-nonblank", action="store_true", help="number nonblank output lines")
-        parser.add_argument("-H", "--no-file-name", action="store_true", help="do not prefix output with file names")
+        parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
+        parser.add_argument("-b", "--number-nonblank", action="store_true", help="number nonblank lines")
+        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("-w", "--number-width", default=6, help="pad line numbers to width N (default: 6; N >= 1)",
                             metavar="N", type=int)
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names, line numbers, and number separators (default: on)")
-        parser.add_argument("--latin1", action="store_true", help="read FILES using latin-1 (default: utf-8)")
-        blank_group.add_argument("--no-blank", action="store_true", help="suppress all blank lines")
+        parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
+        blank_group.add_argument("--no-blank", action="store_true", help="suppress blank lines")
         blank_group.add_argument("--squeeze-blank", action="store_true", help="suppress repeated blank lines")
         parser.add_argument("--number-format", choices=("ln", "rn", "rz"), default="rn",
                             help="format line numbers (ln=left, rn=right, rz=zero-padded; default: rn)")

@@ -4,7 +4,7 @@
 """
 Filename: when.py
 Author: Roth Earl
-Version: 1.0.5
+Version: 1.0.6
 Description: A program that displays the current calendar, with optional date and time.
 License: GNU GPLv3
 """
@@ -27,15 +27,15 @@ class CalendarQuarterColumnBounds(NamedTuple):
 def build_arguments() -> argparse.ArgumentParser:
     """Build and return an argument parser."""
     parser = argparse.ArgumentParser(allow_abbrev=False,
-                                     description="display the current calendar, with optional date and time",
+                                     description="display a calendar, optionally with date and time",
                                      epilog="datetime format is interpreted using strftime(3)", prog=When.NAME)
 
     parser.add_argument("-c", "--calendar", choices=("m", "q", "y"), default="m",
                         help="print calendar as a month, quarter, or year (default: m)")
     parser.add_argument("-d", "--datetime", action="store_true",
-                        help="print current date and time after calendar output")
+                        help="print current date and time after calendar")
     parser.add_argument("-w", "--week-start", choices=("mon", "sun"), default="mon",
-                        help="set first day of week to monday or sunday (default: mon)")
+                        help="use monday or sunday as first day of week (default: mon)")
     parser.add_argument("--datetime-format", help="use STRING as the datetime format", metavar="STRING")
     parser.add_argument("--version", action="version", version=f"%(prog)s {When.VERSION}")
 
@@ -163,7 +163,7 @@ class When:
 
     DEFAULT_DATETIME_FORMAT: Final[str] = "%a %b %-d %-I:%M%p" if OS_IS_POSIX else "%a %b %d %I:%M%p"
     NAME: Final[str] = "when"
-    VERSION: Final[str] = "1.0.5"
+    VERSION: Final[str] = "1.0.6"
 
     def __init__(self) -> None:
         """Initialize a new ``When`` instance."""

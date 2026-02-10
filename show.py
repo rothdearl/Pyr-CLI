@@ -4,7 +4,7 @@
 """
 Filename: show.py
 Author: Roth Earl
-Version: 1.3.13
+Version: 1.3.14
 Description: A program that prints files to standard output.
 License: GNU GPLv3
 """
@@ -48,25 +48,25 @@ class Show(CLIProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Show`` instance."""
-        super().__init__(name="show", version="1.3.13")
+        super().__init__(name="show", version="1.3.14")
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
         parser = argparse.ArgumentParser(allow_abbrev=False, description="print FILES to standard output",
-                                         epilog="if no FILES are specified, read from standard input", prog=self.name)
+                                         epilog="read standard input when no FILES are specified", prog=self.name)
 
-        parser.add_argument("files", help="input files", metavar="FILES", nargs="*")
-        parser.add_argument("-H", "--no-file-name", action="store_true", help="do not prefix output with file names")
-        parser.add_argument("-n", "--line-numbers", action="store_true", help="number output lines")
-        parser.add_argument("-p", "--print", default=sys.maxsize, help="print only N lines (N >= 1)", metavar="N",
+        parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
+        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
+        parser.add_argument("-l", "--max-lines", default=sys.maxsize, help="print first N lines (N >= 1)", metavar="N",
                             type=int)
-        parser.add_argument("-s", "--start", default=1, help="start at line N, from end if negative (N != 0)",
+        parser.add_argument("-n", "--line-numbers", action="store_true", help="number lines")
+        parser.add_argument("-s", "--start", default=1, help="start at line N (N < 0 counts from end; N != 0)",
                             metavar="N", type=int)
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names, line numbers, and whitespace (default: on)")
         parser.add_argument("--ends", action="store_true", help=f"display '{Whitespace.EOL}' at end of each line")
-        parser.add_argument("--latin1", action="store_true", help="read FILES using latin-1 (default: utf-8)")
+        parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
         parser.add_argument("--spaces", action="store_true",
                             help=f"display spaces as '{Whitespace.SPACE}' and trailing spaces as '{Whitespace.TRAILING_SPACE}'")
         parser.add_argument("--stdin-files", action="store_true",
@@ -79,8 +79,8 @@ class Show(CLIProgram):
     @override
     def check_parsed_arguments(self) -> None:
         """Validate parsed command-line arguments."""
-        if self.args.print < 1:  # --print
-            self.print_error_and_exit("--print must be >= 1")
+        if self.args.max_lines < 1:  # --max-lines
+            self.print_error_and_exit("--max-lines must be >= 1")
 
         if self.args.start == 0:  # --start
             self.print_error_and_exit("--start cannot = 0")
@@ -122,8 +122,8 @@ class Show(CLIProgram):
     def print_lines(self, lines: Collection[str]) -> None:
         """Print lines to standard output according to command-line arguments."""
         line_start = len(lines) + self.args.start + 1 if self.args.start < 0 else self.args.start
-        line_end = line_start + self.args.print - 1
-        line_min = min(self.args.print, len(lines)) if self.args.print else len(lines)
+        line_end = line_start + self.args.max_lines - 1
+        line_min = min(self.args.max_lines, len(lines)) if self.args.max_lines else len(lines)
         padding = len(str(line_min))
 
         for line_number, line in enumerate(io.normalize_input_lines(lines), start=1):

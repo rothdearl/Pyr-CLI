@@ -4,7 +4,7 @@
 """
 Filename: order.py
 Author: Roth Earl
-Version: 1.3.13
+Version: 1.3.14
 Description: A program that sorts files and prints them to standard output.
 License: GNU GPLv3
 """
@@ -42,6 +42,7 @@ class FieldPatterns:
     NON_ALPHANUMERIC: Final[str] = r"[^a-zA-Z0-9]"
     NON_SPACE_WHITESPACE: Final[str] = r"[\f\r\n\t\v]"
     NO_MATCH: Final[str] = "(?!.)"
+    WORDS: Final[str] = r"\b\w+\b"
 
 
 class Order(CLIProgram):
@@ -49,39 +50,36 @@ class Order(CLIProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Order`` instance."""
-        super().__init__(name="order", version="1.3.13")
+        super().__init__(name="order", version="1.3.14")
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
-        parser = argparse.ArgumentParser(allow_abbrev=False, description="sort and print FILES to standard output",
-                                         epilog="if no FILES are specified, read from standard input", prog=self.name)
+        parser = argparse.ArgumentParser(allow_abbrev=False, description="sort and print FILES",
+                                         epilog="read standard input when no FILES are specified", prog=self.name)
         sort_group = parser.add_mutually_exclusive_group()
 
-        parser.add_argument("files", help="input files", metavar="FILES", nargs="*")
-        parser.add_argument("-b", "--ignore-leading-blanks", action="store_true", help="ignore leading blanks")
-        sort_group.add_argument("-c", "--currency-sort", action="store_true",
-                                help="sort lines by numeric currency value")
-        sort_group.add_argument("-d", "--dictionary-order", action="store_true",
-                                help="sort lines using dictionary order")
+        parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
+        parser.add_argument("-b", "--ignore-leading-blanks", action="store_true", help="ignore leading whitespace")
+        sort_group.add_argument("-c", "--currency-sort", action="store_true", help="sort lines by currency value")
+        sort_group.add_argument("-d", "--dictionary-order", action="store_true", help="sort lines in dictionary order")
         sort_group.add_argument("-D", "--date-sort", action="store_true", help="sort lines by date")
         sort_group.add_argument("-n", "--natural-sort", action="store_true",
-                                help="sort alphabetically, treating numbers numerically")
+                                help="sort lines in natural order (numbers numeric)")
         sort_group.add_argument("-R", "--random-sort", action="store_true", help="sort lines in random order")
-        parser.add_argument("-f", "--skip-fields", default=0, help="skip the first N fields (N >= 0)",
+        parser.add_argument("-f", "--skip-fields", default=0, help="skip the first N fields when comparing (N >= 0)",
                             metavar="N", type=int)
-        parser.add_argument("-H", "--no-file-name", action="store_true", help="do not prefix output with file names")
-        parser.add_argument("-i", "--ignore-case", action="store_true",
-                            help="ignore differences in case when comparing")
+        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
+        parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when comparing")
         parser.add_argument("-r", "--reverse", action="store_true", help="reverse the order of the sort")
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names (default: on)")
         parser.add_argument("--decimal-sep", choices=("period", "comma"), default="period",
-                            help="use period or comma as the decimal separator when comparing numbers (default: period)")
+                            help="use period or comma as decimal separator (default: period)")
         parser.add_argument("--field-pattern", help="use PATTERN to split lines into fields (affects --skip-fields)",
                             metavar="PATTERN")
-        parser.add_argument("--latin1", action="store_true", help="read FILES using latin-1 (default: utf-8)")
-        parser.add_argument("--no-blank", action="store_true", help="suppress all blank lines")
+        parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
+        parser.add_argument("--no-blank", action="store_true", help="suppress blank lines")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")

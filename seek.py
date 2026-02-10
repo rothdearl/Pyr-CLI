@@ -4,7 +4,7 @@
 """
 Filename: seek.py
 Author: Roth Earl
-Version: 1.3.13
+Version: 1.3.14
 Description: A program that searches for files in a directory hierarchy.
 License: GNU GPLv3
 """
@@ -38,7 +38,7 @@ class Seek(CLIProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Seek`` instance."""
-        super().__init__(name="seek", version="1.3.13", error_exit_code=2)
+        super().__init__(name="seek", version="1.3.14", error_exit_code=2)
 
         self.found_match: bool = False
         self.name_patterns: Patterns = []
@@ -48,20 +48,20 @@ class Seek(CLIProgram):
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
         parser = argparse.ArgumentParser(allow_abbrev=False, description="search for files in a directory hierarchy",
-                                         epilog="default starting point is the current directory", prog=self.name)
+                                         epilog="use the current directory as the default starting point",
+                                         prog=self.name)
         modified_group = parser.add_mutually_exclusive_group()
 
-        parser.add_argument("dirs", help="directory starting points", metavar="DIRECTORIES", nargs="*")
-        parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case distinctions")
-        parser.add_argument("-n", "--name", action="extend", help="print files whose name matches PATTERN",
+        parser.add_argument("directories", help="search starting points", metavar="DIRECTORIES", nargs="*")
+        parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when comparing")
+        parser.add_argument("-n", "--name", action="extend", help="print files with names matching PATTERN",
                             metavar="PATTERN", nargs=1)
-        parser.add_argument("-p", "--path", action="extend", help="print files whose path matches PATTERN",
+        parser.add_argument("-p", "--path", action="extend", help="print files with paths matching PATTERN",
                             metavar="PATTERN", nargs=1)
-        parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress all normal output")
-        parser.add_argument("-s", "--no-messages", action="store_true", help="suppress error messages about files")
-        parser.add_argument("-v", "--invert-match", action="store_true",
-                            help="print files that do not match the specified criteria")
-        parser.add_argument("--abs", action="store_true", help="print absolute file paths")
+        parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress normal output")
+        parser.add_argument("-s", "--no-messages", action="store_true", help="suppress file error messages")
+        parser.add_argument("-v", "--invert-match", action="store_true", help="print files that do not match")
+        parser.add_argument("--abs", action="store_true", help="print absolute paths")
         parser.add_argument("--color", choices=("on", "off"), default="on", help="use color for matches (default: on)")
         parser.add_argument("--dot", action="store_true", help="include dot (.) files in output")
         parser.add_argument("--empty-only", action="store_true", help="print only empty files")
@@ -76,7 +76,7 @@ class Seek(CLIProgram):
                                     metavar="N", type=int)
         parser.add_argument("--max-depth", default=sys.maxsize,
                             help="descend at most N levels below the starting points (N >= 1)", metavar="N", type=int)
-        parser.add_argument("--quotes", action="store_true", help="print file paths enclosed in double quotes")
+        parser.add_argument("--quotes", action="store_true", help="print file paths in double quotes")
         parser.add_argument("--type", choices=("d", "f"), help="print only directories (d) or regular files (f)")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")
 
@@ -154,10 +154,10 @@ class Seek(CLIProgram):
         if terminal.stdin_is_redirected():
             self.print_files(sys.stdin)
 
-            if self.args.dirs:  # Process any additional directories.
-                self.print_files(self.args.dirs)
+            if self.args.directories:  # Process any additional directories.
+                self.print_files(self.args.directories)
         else:
-            self.print_files(self.args.dirs or [os.curdir])
+            self.print_files(self.args.directories or [os.curdir])
 
     def precompile_patterns(self) -> None:
         """Pre-compile search patterns."""

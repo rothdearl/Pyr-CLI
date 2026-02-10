@@ -4,7 +4,7 @@
 """
 Filename: subs.py
 Author: Roth Earl
-Version: 1.3.13
+Version: 1.3.14
 Description: A program that replaces text in files.
 License: GNU GPLv3
 """
@@ -34,7 +34,7 @@ class Subs(CLIProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Subs`` instance."""
-        super().__init__(name="subs", version="1.3.13")
+        super().__init__(name="subs", version="1.3.14")
 
         self.pattern: re.Pattern[str] | None = None
 
@@ -42,22 +42,22 @@ class Subs(CLIProgram):
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
         parser = argparse.ArgumentParser(allow_abbrev=False, description="replace text in FILES",
-                                         epilog="if no FILES are specified, read from standard input", prog=self.name)
+                                         epilog="read standard input when no FILES are specified", prog=self.name)
 
-        parser.add_argument("files", help="input files", metavar="FILES", nargs="*")
-        parser.add_argument("-f", "--find", action="extend", help="replace text matching PATTERN", metavar="PATTERN",
-                            nargs=1, required=True)
-        parser.add_argument("-H", "--no-file-name", action="store_true", help="do not prefix output with file names")
-        parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case distinctions")
+        parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
+        parser.add_argument("-e", "--find", action="extend", help="match PATTERN", metavar="PATTERN", nargs=1,
+                            required=True)
+        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
+        parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when comparing")
         parser.add_argument("-r", "--replace", help="replace matches with literal STRING", metavar="STRING",
                             required=True)
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names (default: on)")
         parser.add_argument("--in-place", action="store_true",
                             help="write changes back to FILES instead of standard output")
-        parser.add_argument("--latin1", action="store_true", help="read FILES using latin-1 (default: utf-8)")
-        parser.add_argument("--max-replacements", default=sys.maxsize,
-                            help="limit replacements to N per line (default: unlimited; N >= 1)", metavar="N", type=int)
+        parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
+        parser.add_argument("--max-replacements", default=sys.maxsize, help="limit replacements to N per line (N >= 1)",
+                            metavar="N", type=int)
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")
