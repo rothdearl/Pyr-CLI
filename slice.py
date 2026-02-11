@@ -53,7 +53,7 @@ class Slice(CLIProgram):
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names (default: on)")
         parser.add_argument("--fields", action="extend",
-                            help="print only the specified fields (1-based indexes; duplicates allowed)", metavar="N",
+                            help="print only the specified fields (counting from 1; duplicates allowed)", metavar="N",
                             nargs='+', type=int)
         parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
         parser.add_argument("--literal-quotes", action="store_true",

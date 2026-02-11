@@ -11,7 +11,6 @@ License: GNU GPLv3
 
 import argparse
 import os
-import re
 import sys
 from collections.abc import Iterable
 from typing import Final, override
@@ -27,42 +26,32 @@ class Colors:
 
 
 class Dupe(CLIProgram):
-    """
-    A program that filters duplicate or unique lines from files.
-
-    :cvar FIELD_PATTERN: Pattern for splitting lines into fields.
-    :ivar max_chars: Maximum number of characters to compare.
-    :ivar skip_chars: Number of characters to skip at the beginning of each line.
-    :ivar skip_fields: Number of fields to skip at the beginning of each line.
-    """
-
-    FIELD_PATTERN: Final[str] = r"\s+|\W+"
+    """A program that filters duplicate or unique lines from files."""
 
     def __init__(self) -> None:
         """Initialize a new ``Dupe`` instance."""
         super().__init__(name="dupe", version="1.3.14")
 
-        self.max_chars: int = 0
-        self.skip_chars: int = 0
-        self.skip_fields: int = 0
-
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
-        parser = argparse.ArgumentParser(allow_abbrev=False, description="filter duplicate or unique lines in FILES",
+        parser = argparse.ArgumentParser(allow_abbrev=False,
+                                         description="find and filter duplicate or unique lines in FILES",
                                          epilog="read standard input when no FILES are specified", prog=self.name)
         print_group = parser.add_mutually_exclusive_group()
 
         parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
-        parser.add_argument("-a", "--adjacent", action="store_true", help="compare adjacent lines only")
+        parser.add_argument("-a", "--adjacent", action="store_true",
+                            help="compare adjacent lines only (do not search entire file)")
         parser.add_argument("-c", "--count", action="store_true", help="prefix lines with the number of occurrences")
         print_group.add_argument("-d", "--repeated", action="store_true", help="print one duplicate line per group")
         print_group.add_argument("-D", "--all-repeated", action="store_true",
                                  help="print all duplicate lines per group")
         print_group.add_argument("-g", "--group", action="store_true",
-                                 help="show all lines, separating groups with an empty line")
+                                 help="show all lines, separating each group with an empty line")
         print_group.add_argument("-u", "--unique", action="store_true", help="print unique lines only")
-        parser.add_argument("-f", "--skip-fields", help="skip the first N fields when comparing (N >= 0)", metavar="N",
+        parser.add_argument("-f", "--skip-fields",
+                            help="skip the first N fields when comparing (counting from 1; N >= 1)", metavar="N",
                             type=int)
         parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when comparing")
@@ -70,13 +59,16 @@ class Dupe(CLIProgram):
         parser.add_argument("-s", "--skip-chars", help="skip the first N characters when comparing (N >= 0)",
                             metavar="N", type=int)
         parser.add_argument("-w", "--skip-whitespace", action="store_true",
-                            help="skip leading and trailing whitespace when comparing")
+                            help="ignore leading and trailing whitespace when comparing")
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names and counts (default: on)")
         parser.add_argument("--count-width", default=4, help="pad occurrence counts to width N (default: 4; N >= 1)",
                             metavar="N", type=int)
+        parser.add_argument("--field-separator", default=" ",
+                            help="split lines into fields using SEP (default: <space>; affects --skip-fields)",
+                            metavar="SEP")
         parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
-        parser.add_argument("--no-blank", action="store_true", help="suppress all blank lines")
+        parser.add_argument("--no-blank", action="store_true", help="suppress blank lines")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")
@@ -90,21 +82,17 @@ class Dupe(CLIProgram):
     @override
     def check_parsed_arguments(self) -> None:
         """Validate parsed command-line arguments."""
-        self.max_chars = self.args.max_chars if self.args.max_chars is not None else 1  # --max-chars
-        self.skip_chars = self.args.skip_chars if self.args.skip_chars is not None else 0  # --skip-chars
-        self.skip_fields = self.args.skip_fields if self.args.skip_fields is not None else 0  # --skip-fields
-
         if self.args.count_width < 1:  # --count-width
             self.print_error_and_exit("--count-width must be >= 1")
 
-        if self.max_chars < 1:
+        if self.args.max_chars is not None and self.args.max_chars < 1:  # --max-chars
             self.print_error_and_exit("--max-chars must be >= 1")
 
-        if self.skip_chars < 0:
+        if self.args.skip_chars is not None and self.args.skip_chars < 0:  # --skip-chars
             self.print_error_and_exit("--skip-chars must be >= 0")
 
-        if self.skip_fields < 0:
-            self.print_error_and_exit("--skip-fields must be >= 0")
+        if self.args.skip_fields is not None and self.args.skip_fields < 1:  # --skip-fields
+            self.print_error_and_exit("--skip-fields must be >= 1")
 
     def get_compare_key(self, line: str) -> str:
         """Return a normalized comparison key derived from the line, applying rules according to command-line options."""
@@ -112,11 +100,14 @@ class Dupe(CLIProgram):
             line = line.strip()
 
         if self.args.skip_fields:  # --skip-fields
-            line = "".join(re.split(Dupe.FIELD_PATTERN, line)[self.skip_fields:])
+            field_separator = self.args.field_separator  # --field-separator
+            fields = [field for field in line.split(field_separator) if field]
+
+            line = field_separator.join(fields[self.args.skip_fields:])
 
         if self.args.max_chars or self.args.skip_chars:  # --max_chars or --skip_chars
-            start_index = self.skip_chars
-            end_index = start_index + self.max_chars if self.args.max_chars else len(line)
+            start_index = self.args.skip_chars or 0
+            end_index = start_index + self.args.max_chars if self.args.max_chars else len(line)
 
             line = line[start_index:end_index]
 
