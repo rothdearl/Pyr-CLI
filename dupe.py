@@ -43,9 +43,8 @@ class Dupe(CLIProgram):
         print_group.add_argument("-g", "--group", action="store_true",
                                  help="show all lines, separating each group with an empty line")
         print_group.add_argument("-u", "--unique", action="store_true", help="print unique lines only")
-        parser.add_argument("-f", "--skip-fields",
-                            help="skip the first N fields when comparing (counting from 1; N >= 1)", metavar="N",
-                            type=int)
+        parser.add_argument("-f", "--skip-fields", help="skip the first N non-empty fields when comparing (N >= 1)",
+                            metavar="N", type=int)
         parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when comparing")
         parser.add_argument("-m", "--max-chars", help="compare at most N characters (N >= 1)", metavar="N", type=int)
