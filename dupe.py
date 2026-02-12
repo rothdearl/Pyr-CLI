@@ -68,7 +68,7 @@ class Dupe(CLIProgram):
         return parser
 
     def can_group_key(self, key: str) -> bool:
-        """Return whether the key is non-empty, or if blank keys are allowed."""
+        """Return whether the key should participate in grouping (optionally ignoring blank keys)."""
         return not self.args.ignore_blank or key.strip()  # --ignore-blank
 
     @override
@@ -194,7 +194,7 @@ class Dupe(CLIProgram):
 
     def group_lines_by_key(self, lines: Iterable[str]) -> dict[str, list[str]]:
         """Return a mapping from comparison key to the lines that match that key."""
-        groups = {}
+        group_map = {}
 
         for line in io.normalize_input_lines(lines):
             key = self.get_compare_key(line)
@@ -202,12 +202,12 @@ class Dupe(CLIProgram):
             if not self.can_group_key(key):
                 continue
 
-            if key in groups:
-                groups[key].append(line)
+            if key in group_map:
+                group_map[key].append(line)
             else:
-                groups[key] = [line]
+                group_map[key] = [line]
 
-        return groups
+        return group_map
 
     @override
     def main(self) -> None:
