@@ -46,7 +46,6 @@ class Seek(CLIProgram):
                                          epilog="use the current directory as the default starting point",
                                          prog=self.name)
         modified_group = parser.add_mutually_exclusive_group()
-        path_group = parser.add_mutually_exclusive_group()
 
         parser.add_argument("directories", help="search starting points", metavar="DIRECTORIES", nargs="*")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when matching")
@@ -59,10 +58,10 @@ class Seek(CLIProgram):
         parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress normal output")
         parser.add_argument("-s", "--no-messages", action="store_true", help="suppress file error messages")
         parser.add_argument("-v", "--invert-match", action="store_true", help="print files that do not match")
-        path_group.add_argument("--abs", action="store_true", help="print absolute paths")
-        path_group.add_argument("--dot-prefix", action="store_true",
-                                help="print relative paths with './' (print '.' for current directory)")
+        parser.add_argument("--abs", action="store_true", help="print absolute paths")
         parser.add_argument("--color", choices=("on", "off"), default="on", help="use color for matches (default: on)")
+        parser.add_argument("--dot-prefix", action="store_true",
+                            help="prefix relative paths with './' (print '.' for current directory)")
         parser.add_argument("--empty-only", action="store_true", help="print only empty files")
         modified_group.add_argument("--mtime-days",
                                     help="print files modified within N days or more than N days ago (use N or -N)",

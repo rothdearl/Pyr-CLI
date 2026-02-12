@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""A program that prints lines that match patterns in files."""
+"""A program that prints lines matching patterns in files."""
 
 import argparse
 import os
@@ -22,7 +22,7 @@ class Colors:
 
 class Scan(CLIProgram):
     """
-    A program that prints lines that match patterns in files.
+    A program that prints lines matching patterns in files.
 
     :cvar NO_MATCHES_EXIT_CODE: Exit code when no matches are found.
     :ivar found_any_match: Whether any match was found.
@@ -41,14 +41,14 @@ class Scan(CLIProgram):
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
-        parser = argparse.ArgumentParser(allow_abbrev=False, description="print lines that match patterns in FILES",
+        parser = argparse.ArgumentParser(allow_abbrev=False, description="print lines matching patterns in FILES",
                                          epilog="read standard input when no FILES are specified", prog=self.name)
         count_group = parser.add_mutually_exclusive_group()
 
         parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
         count_group.add_argument("-c", "--count", action="store_true", help="print count of matching lines per file")
         count_group.add_argument("-C", "--count-nonzero", action="store_true",
-                                 help="print count of matching lines only for files with a match")
+                                 help="print count of matching lines for files with a match")
         parser.add_argument("-e", "--find", action="extend",
                             help="print lines that match PATTERN (repeat -e to require all patterns)",
                             metavar="PATTERN", nargs=1)
