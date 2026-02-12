@@ -65,7 +65,7 @@ class Dupe(CLIProgram):
         parser.add_argument("--count-width", default=4, help="pad occurrence counts to width N (default: 4; N >= 1)",
                             metavar="N", type=int)
         parser.add_argument("--field-separator", default=" ",
-                            help="split lines into fields using SEP (CSV-style; default: <space>; for --skip-fields)",
+                            help="split lines into fields using SEP (default: <space>; used with --skip-fields)",
                             metavar="SEP")
         parser.add_argument("--ignore-blank", action="store_true", help="ignore blank lines")
         parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")

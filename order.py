@@ -70,7 +70,7 @@ class Order(CLIProgram):
         parser.add_argument("--decimal-separator", choices=("period", "comma"), default="period",
                             help="interpret numbers using period or comma as the decimal separator (default: period)")
         parser.add_argument("--field-separator", default=" ",
-                            help="split lines into fields using SEP (CSV-style; default: <space>; for --skip-fields)",
+                            help="split lines into fields using SEP (default: <space>; used with --skip-fields)",
                             metavar="SEP")
         parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
         parser.add_argument("--no-blank", action="store_true", help="suppress blank lines")
