@@ -81,6 +81,14 @@ class Order(CLIProgram):
         if self.args.skip_fields is not None and self.args.skip_fields < 1:  # --skip-fields
             self.print_error_and_exit("--skip-fields must be >= 1")
 
+        # Set --ignore-case to True if --dictionary-order=True or --natural-sort=True.
+        if self.args.dictionary_order or self.args.natural_sort:
+            self.args.ignore_case = True
+
+        # Set --no-file-name to True if there are no files and --stdin-files=False.
+        if not self.args.files and not self.args.stdin_files:
+            self.args.no_file_name = True
+
     def generate_currency_sort_key(self, line: str) -> list[tuple[int, float | str]]:
         """
         Return a sort key that orders currency-like values numerically when possible.
@@ -182,14 +190,6 @@ class Order(CLIProgram):
     @override
     def main(self) -> None:
         """Run the program."""
-        # Set --ignore-case to True if --dictionary-order=True or --natural-sort=True.
-        if self.args.dictionary_order or self.args.natural_sort:
-            self.args.ignore_case = True
-
-        # Set --no-file-name to True if there are no files and --stdin-files=False.
-        if not self.args.files and not self.args.stdin_files:
-            self.args.no_file_name = True
-
         if terminal.stdin_is_redirected():
             if self.args.stdin_files:  # --stdin-files
                 self.sort_and_print_lines_from_files(sys.stdin)

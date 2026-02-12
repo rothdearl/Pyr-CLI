@@ -52,7 +52,9 @@ class Track(CLIProgram):
     @override
     def check_parsed_arguments(self) -> None:
         """Validate parsed command-line arguments."""
-        pass
+        # Set --no-file-name to True if there are no files and --stdin-files=False.
+        if not self.args.files and not self.args.stdin_files:
+            self.args.no_file_name = True
 
     def follow_file(self, file_name: str, print_file_name: bool, polling_interval: float = .5) -> None:
         """
@@ -100,10 +102,6 @@ class Track(CLIProgram):
     def main(self) -> None:
         """Run the program."""
         files_printed = []
-
-        # Set --no-file-name to True if there are no files and --stdin-files=False.
-        if not self.args.files and not self.args.stdin_files:
-            self.args.no_file_name = True
 
         if terminal.stdin_is_redirected():
             if self.args.stdin_files:  # --stdin-files

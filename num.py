@@ -79,13 +79,13 @@ class Num(CLIProgram):
         if self.args.number_width < 1:  # --number-width
             self.print_error_and_exit("--number-width must be >= 1")
 
-    @override
-    def main(self) -> None:
-        """Run the program."""
         # Set --no-file-name to True if there are no files and --stdin-files=False.
         if not self.args.files and not self.args.stdin_files:
             self.args.no_file_name = True
 
+    @override
+    def main(self) -> None:
+        """Run the program."""
         if terminal.stdin_is_redirected():
             if self.args.stdin_files:  # --stdin-files
                 self.number_lines_from_files(sys.stdin)

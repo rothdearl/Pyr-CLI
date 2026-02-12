@@ -86,6 +86,10 @@ class Dupe(CLIProgram):
         if self.args.skip_fields is not None and self.args.skip_fields < 1:  # --skip-fields
             self.print_error_and_exit("--skip-fields must be >= 1")
 
+        # Set --no-file-name to True if there are no files and --stdin-files=False.
+        if not self.args.files and not self.args.stdin_files:
+            self.args.no_file_name = True
+
     def get_compare_key(self, line: str) -> str:
         """Return a normalized comparison key derived from the line, applying rules according to command-line options."""
         if self.args.skip_whitespace:  # --skip-whitespace
@@ -213,10 +217,6 @@ class Dupe(CLIProgram):
     @override
     def main(self) -> None:
         """Run the program."""
-        # Set --no-file-name to True if there are no files and --stdin-files=False.
-        if not self.args.files and not self.args.stdin_files:
-            self.args.no_file_name = True
-
         if terminal.stdin_is_redirected():
             if self.args.stdin_files:  # --stdin-files
                 self.group_and_print_lines_from_files(sys.stdin)
