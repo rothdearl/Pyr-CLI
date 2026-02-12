@@ -23,7 +23,7 @@ class Seek(CLIProgram):
     A program that searches for files in a directory hierarchy.
 
     :cvar NO_MATCHES_EXIT_CODE: Exit code when no matches are found.
-    :ivar found_match: Whether a match was found.
+    :ivar found_any_match: Whether any match was found.
     :ivar name_patterns: Compiled name patterns to match.
     :ivar path_patterns: Compiled path patterns to match.
     """
@@ -34,7 +34,7 @@ class Seek(CLIProgram):
         """Initialize a new ``Seek`` instance."""
         super().__init__(name="seek", version="1.3.15", error_exit_code=2)
 
-        self.found_match: bool = False
+        self.found_any_match: bool = False
         self.name_patterns: CompiledPatterns = []
         self.path_patterns: CompiledPatterns = []
 
@@ -47,10 +47,12 @@ class Seek(CLIProgram):
         modified_group = parser.add_mutually_exclusive_group()
 
         parser.add_argument("directories", help="search starting points", metavar="DIRECTORIES", nargs="*")
-        parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when comparing")
-        parser.add_argument("-n", "--name", action="extend", help="print files with names matching PATTERN",
+        parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when matching")
+        parser.add_argument("-n", "--name", action="extend",
+                            help="print files with names matching PATTERN (repeat -n to require all patterns to match)",
                             metavar="PATTERN", nargs=1)
-        parser.add_argument("-p", "--path", action="extend", help="print files with paths matching PATTERN",
+        parser.add_argument("-p", "--path", action="extend",
+                            help="print files with paths matching PATTERN (repeat -p to require all patterns to match)",
                             metavar="PATTERN", nargs=1)
         parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress normal output")
         parser.add_argument("-s", "--no-messages", action="store_true", help="suppress file error messages")
@@ -81,7 +83,7 @@ class Seek(CLIProgram):
         """Raise ``SystemExit(NO_MATCHES_EXIT_CODE)`` if a match was not found."""
         super().check_for_errors()
 
-        if not self.found_match:
+        if not self.found_any_match:
             SystemExit(Seek.NO_MATCHES_EXIT_CODE)
 
     @override
@@ -89,6 +91,16 @@ class Seek(CLIProgram):
         """Validate and normalize parsed command-line arguments."""
         if self.args.max_depth < 1:  # --max-depth
             self.print_error_and_exit("--max-depth must be >= 1")
+
+    def compile_patterns(self) -> None:
+        """Compile search patterns."""
+        if self.args.name:  # --name
+            self.name_patterns = patterns.compile_patterns(self.args.name, ignore_case=self.args.ignore_case,
+                                                           on_error=self.print_error_and_exit)
+
+        if self.args.path:  # --path
+            self.path_patterns = patterns.compile_patterns(self.args.path, ignore_case=self.args.ignore_case,
+                                                           on_error=self.print_error_and_exit)
 
     def file_matches_filters(self, file: pathlib.Path) -> bool:
         """Check whether the file matches any of the filters."""
@@ -143,7 +155,7 @@ class Seek(CLIProgram):
     @override
     def main(self) -> None:
         """Run the program."""
-        self.precompile_patterns()
+        self.compile_patterns()
 
         if terminal.stdin_is_redirected():
             self.print_files(sys.stdin)
@@ -152,16 +164,6 @@ class Seek(CLIProgram):
                 self.print_files(self.args.directories)
         else:
             self.print_files(self.args.directories or [os.curdir])
-
-    def precompile_patterns(self) -> None:
-        """Pre-compile search patterns."""
-        if self.args.name:  # --name
-            self.name_patterns = patterns.compile_patterns(self.args.name, ignore_case=self.args.ignore_case,
-                                                           on_error=self.print_error_and_exit)
-
-        if self.args.path:  # --path
-            self.path_patterns = patterns.compile_patterns(self.args.path, ignore_case=self.args.ignore_case,
-                                                           on_error=self.print_error_and_exit)
 
     def print_file(self, file: pathlib.Path) -> None:
         """Print the file if it matches the specified search criteria."""
@@ -180,7 +182,7 @@ class Seek(CLIProgram):
         if matches == self.args.invert_match:  # --invert-match
             return
 
-        self.found_match = True
+        self.found_any_match = True
 
         # Exit early if --quiet.
         if self.args.quiet:

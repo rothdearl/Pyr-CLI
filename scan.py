@@ -25,7 +25,7 @@ class Scan(CLIProgram):
     A program that prints lines that match patterns in files.
 
     :cvar NO_MATCHES_EXIT_CODE: Exit code when no matches are found.
-    :ivar found_match: Whether a match was found in a file.
+    :ivar found_any_match: Whether any match was found.
     :ivar patterns: Compiled patterns to match.
     """
 
@@ -35,7 +35,7 @@ class Scan(CLIProgram):
         """Initialize a new ``Scan`` instance."""
         super().__init__(name="scan", version="1.3.15", error_exit_code=2)
 
-        self.found_match: bool = False
+        self.found_any_match: bool = False
         self.patterns: CompiledPatterns = []
 
     @override
@@ -49,10 +49,11 @@ class Scan(CLIProgram):
         count_group.add_argument("-c", "--count", action="store_true", help="print count of matching lines per file")
         count_group.add_argument("-C", "--count-nonzero", action="store_true",
                                  help="print count of matching lines only for files with a match")
-        parser.add_argument("-e", "--find", action="extend", help="print lines that match PATTERN", metavar="PATTERN",
-                            nargs=1)
+        parser.add_argument("-e", "--find", action="extend",
+                            help="print lines that match PATTERN (repeat -e to require all patterns to match)",
+                            metavar="PATTERN", nargs=1)
         parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
-        parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when comparing")
+        parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when matching")
         parser.add_argument("-n", "--line-number", action="store_true", help="show line number for each matching line")
         parser.add_argument("-q", "--quiet", "--silent", action="store_true",
                             help="suppress normal output (matches, counts, and file names)")
@@ -72,13 +73,21 @@ class Scan(CLIProgram):
         """Raise ``SystemExit(NO_MATCHES_EXIT_CODE)`` if a match was not found."""
         super().check_for_errors()
 
-        if not self.found_match:
+        if not self.found_any_match:
             raise SystemExit(Scan.NO_MATCHES_EXIT_CODE)
 
     @override
     def check_parsed_arguments(self) -> None:
         """Validate and normalize parsed command-line arguments."""
-        pass
+        # Set --no-file-name to True if there are no files and --stdin-files=False.
+        if not self.args.files and not self.args.stdin_files:
+            self.args.no_file_name = True
+
+    def compile_patterns(self) -> None:
+        """Compile search patterns."""
+        if self.args.find:
+            self.patterns = patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case,
+                                                      on_error=self.print_error_and_exit)
 
     def is_printing_counts(self) -> bool:
         """Return whether ``args.count`` or ``args.count_nonzero`` is set."""
@@ -87,13 +96,12 @@ class Scan(CLIProgram):
     @override
     def main(self) -> None:
         """Run the program."""
-        self.precompile_patterns()
+        self.compile_patterns()
 
         if terminal.stdin_is_redirected():
             if self.args.stdin_files:  # --stdin-files
                 self.print_matches_from_files(sys.stdin)
             elif standard_input := sys.stdin.readlines():
-                self.args.no_file_name = self.args.no_file_name or not self.args.files  # No file header if no files.
                 self.print_matches(standard_input, origin_file="")
 
             if self.args.files:  # Process any additional files.
@@ -104,14 +112,8 @@ class Scan(CLIProgram):
             self.args.no_file_name = True  # No file header if no files.
             self.print_matches_from_input()
 
-    def precompile_patterns(self) -> None:
-        """Pre-compile search patterns."""
-        if self.args.find:
-            self.patterns = patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case,
-                                                      on_error=self.print_error_and_exit)
-
     def print_matches(self, lines: Iterable[str], *, origin_file: str) -> None:
-        """Print matches found in lines."""
+        """Search lines and print matches or counts according to command-line options."""
         # Return early if no --find patterns are provided.
         if not self.args.find:
             return
@@ -121,7 +123,7 @@ class Scan(CLIProgram):
         # Find matches.
         for line_number, line in enumerate(io.normalize_input_lines(lines), start=1):
             if patterns.matches_all_patterns(line, self.patterns) != self.args.invert_match:  # --invert-match
-                self.found_match = True
+                self.found_any_match = True
 
                 # Exit early if --quiet.
                 if self.args.quiet:
