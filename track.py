@@ -51,7 +51,7 @@ class Track(CLIProgram):
 
     @override
     def check_parsed_arguments(self) -> None:
-        """Validate parsed command-line arguments."""
+        """Validate and normalize parsed command-line arguments."""
         # Set --no-file-name to True if there are no files and --stdin-files=False.
         if not self.args.files and not self.args.stdin_files:
             self.args.no_file_name = True

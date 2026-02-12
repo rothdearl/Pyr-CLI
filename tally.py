@@ -101,7 +101,7 @@ class Tally(CLIProgram):
 
     @override
     def check_parsed_arguments(self) -> None:
-        """Validate parsed command-line arguments."""
+        """Validate and normalize parsed command-line arguments."""
         if self.args.count_width < 1:  # --count-width
             self.print_error_and_exit("--count-width must be >= 1")
 

@@ -72,7 +72,7 @@ class Show(CLIProgram):
 
     @override
     def check_parsed_arguments(self) -> None:
-        """Validate parsed command-line arguments."""
+        """Validate and normalize parsed command-line arguments."""
         if self.args.max_lines < 1:  # --max-lines
             self.print_error_and_exit("--max-lines must be >= 1")
 

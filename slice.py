@@ -61,7 +61,7 @@ class Slice(CLIProgram):
 
     @override
     def check_parsed_arguments(self) -> None:
-        """Validate parsed command-line arguments."""
+        """Validate and normalize parsed command-line arguments."""
         self.fields_to_print = self.args.fields or []  # --fields
 
         # Validate --fields values.

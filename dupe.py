@@ -59,8 +59,8 @@ class Dupe(CLIProgram):
         parser.add_argument("--field-separator", default=" ",
                             help="split lines into fields using SEP (default: <space>; affects --skip-fields)",
                             metavar="SEP")
+        parser.add_argument("--ignore-blank", action="store_true", help="ignore blank lines")
         parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
-        parser.add_argument("--no-blank", action="store_true", help="suppress blank lines")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")
@@ -69,11 +69,11 @@ class Dupe(CLIProgram):
 
     def can_group_key(self, key: str) -> bool:
         """Return whether the key is non-empty, or if blank keys are allowed."""
-        return not self.args.no_blank or key.strip()  # --no-blank
+        return not self.args.ignore_blank or key.strip()  # --ignore-blank
 
     @override
     def check_parsed_arguments(self) -> None:
-        """Validate parsed command-line arguments."""
+        """Validate and normalize parsed command-line arguments."""
         if self.args.count_width < 1:  # --count-width
             self.print_error_and_exit("--count-width must be >= 1")
 
@@ -100,7 +100,7 @@ class Dupe(CLIProgram):
 
             line = self.args.field_separator.join(fields[self.args.skip_fields:])
 
-        if self.args.max_chars or self.args.skip_chars:  # --max_chars or --skip_chars
+        if self.args.max_chars or self.args.skip_chars:  # --max-chars or --skip-chars
             start_index = self.args.skip_chars or 0
             end_index = start_index + self.args.max_chars if self.args.max_chars else len(line)
 
@@ -112,28 +112,23 @@ class Dupe(CLIProgram):
         return line
 
     def group_adjacent_matching_lines(self, lines: Iterable[str]) -> list[list[str]]:
-        """Return a list of groups, where the first element is the group and the remaining elements are matches."""
-        group_index = 0
-        group_list = []
-        previous_line = None
+        """Return groups of adjacent lines that share the same comparison key, preserving input order."""
+        groups = []
+        previous_key = None
 
         for line in io.normalize_input_lines(lines):
-            next_line = self.get_compare_key(line)
+            next_key = self.get_compare_key(line)
 
-            if not self.can_group_key(next_line):
+            if not self.can_group_key(next_key):
                 continue
 
-            if previous_line is None:
-                group_list.append([line])
-            elif next_line == previous_line:
-                group_list[group_index].append(line)
-            else:
-                group_index += 1
-                group_list.append([line])
+            if next_key != previous_key:
+                groups.append([])
 
-            previous_line = next_line
+            groups[-1].append(line)
+            previous_key = next_key
 
-        return group_list
+        return groups
 
     def group_and_print_lines(self, lines: Iterable[str], *, origin_file: str) -> None:
         """Group and print lines to standard output according to command-line arguments."""
@@ -198,8 +193,8 @@ class Dupe(CLIProgram):
         self.group_and_print_lines(sys.stdin, origin_file="")
 
     def group_lines_by_key(self, lines: Iterable[str]) -> dict[str, list[str]]:
-        """Return a mapping of string groups, where the key is the group and the value is a list of matches."""
-        group_map = {}
+        """Return a mapping from comparison key to the lines that match that key."""
+        groups = {}
 
         for line in io.normalize_input_lines(lines):
             key = self.get_compare_key(line)
@@ -207,12 +202,12 @@ class Dupe(CLIProgram):
             if not self.can_group_key(key):
                 continue
 
-            if key in group_map:
-                group_map[key].append(line)
+            if key in groups:
+                groups[key].append(line)
             else:
-                group_map[key] = [line]
+                groups[key] = [line]
 
-        return group_map
+        return groups
 
     @override
     def main(self) -> None:

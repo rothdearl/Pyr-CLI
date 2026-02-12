@@ -77,7 +77,7 @@ class Order(CLIProgram):
 
     @override
     def check_parsed_arguments(self) -> None:
-        """Validate parsed command-line arguments."""
+        """Validate and normalize parsed command-line arguments."""
         if self.args.skip_fields is not None and self.args.skip_fields < 1:  # --skip-fields
             self.print_error_and_exit("--skip-fields must be >= 1")
 

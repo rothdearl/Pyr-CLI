@@ -72,7 +72,7 @@ class Glue(CLIProgram):
 
     @override
     def check_parsed_arguments(self) -> None:
-        """Validate parsed command-line arguments."""
+        """Validate and normalize parsed command-line arguments."""
         if self.args.number_width < 1:  # --number-width
             self.print_error_and_exit("--number-width must be >= 1")
 

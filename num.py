@@ -70,7 +70,7 @@ class Num(CLIProgram):
 
     @override
     def check_parsed_arguments(self) -> None:
-        """Validate parsed command-line arguments."""
+        """Validate and normalize parsed command-line arguments."""
         self.format_prefix = Num.FORMAT_PREFIXES[self.args.number_format]  # --number-format
 
         if self.args.number_start < 0:  # --number-start

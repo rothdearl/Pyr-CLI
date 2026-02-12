@@ -86,7 +86,7 @@ class Seek(CLIProgram):
 
     @override
     def check_parsed_arguments(self) -> None:
-        """Validate parsed command-line arguments."""
+        """Validate and normalize parsed command-line arguments."""
         if self.args.max_depth < 1:  # --max-depth
             self.print_error_and_exit("--max-depth must be >= 1")
 

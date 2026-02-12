@@ -77,7 +77,7 @@ class Scan(CLIProgram):
 
     @override
     def check_parsed_arguments(self) -> None:
-        """Validate parsed command-line arguments."""
+        """Validate and normalize parsed command-line arguments."""
         pass
 
     def is_printing_counts(self) -> bool:
