@@ -104,13 +104,26 @@ class Seek(CLIProgram):
             self.path_patterns = patterns.compile_patterns(self.args.path, ignore_case=self.args.ignore_case,
                                                            on_error=self.print_error_and_exit)
 
-    def file_matches_filters(self, file: pathlib.Path) -> bool:
-        """Return whether the file matches all enabled filters."""
+    @override
+    def main(self) -> None:
+        """Run the program."""
+        self.compile_patterns()
+
+        if terminal.stdin_is_redirected():
+            self.print_paths(sys.stdin)
+
+            if self.args.directories:  # Process any additional directories.
+                self.print_paths(self.args.directories)
+        else:
+            self.print_paths(self.args.directories or [os.curdir])
+
+    def path_matches_filters(self, path: pathlib.Path) -> bool:
+        """Return whether the path matches all enabled filters."""
         matches_all_filters = True
 
         try:
             if self.args.type:  # --type
-                is_dir = file.is_dir()
+                is_dir = path.is_dir()
 
                 if self.args.type == "d":
                     matches_all_filters = is_dir
@@ -118,10 +131,10 @@ class Seek(CLIProgram):
                     matches_all_filters = not is_dir
 
             if matches_all_filters and self.args.empty_only:  # --empty-only
-                if file.is_dir():
-                    matches_all_filters = not os.listdir(file)
+                if path.is_dir():
+                    matches_all_filters = not os.listdir(path)
                 else:
-                    matches_all_filters = not file.lstat().st_size
+                    matches_all_filters = not path.lstat().st_size
 
             # --mtime-days, --mtime-hours, or --mtime-mins
             if matches_all_filters and any((self.args.mtime_days, self.args.mtime_hours, self.args.mtime_mins)):
@@ -132,7 +145,7 @@ class Seek(CLIProgram):
                 else:
                     last_modified = self.args.mtime_mins * 60  # Convert minutes to seconds.
 
-                difference = time.time() - file.lstat().st_mtime
+                difference = time.time() - path.lstat().st_mtime
 
                 if last_modified < 0:
                     matches_all_filters = difference < abs(last_modified)
@@ -140,43 +153,30 @@ class Seek(CLIProgram):
                     matches_all_filters = difference > last_modified
         except PermissionError:
             matches_all_filters = False
-            self.print_error(f"{file}: permission denied")
+            self.print_error(f"{path}: permission denied")
 
         return matches_all_filters
 
-    def file_matches_patterns(self, file_name: str, file_path: str) -> bool:
-        """Return whether the ``file_name`` and ``file_path`` match all provided pattern groups."""
-        if not patterns.matches_all_patterns(file_name, self.name_patterns):  # --name
+    def path_matches_patterns(self, name_part: str, path_part: str) -> bool:
+        """Return whether the ``name_part`` and ``path_part`` match all provided pattern groups."""
+        if not patterns.matches_all_patterns(name_part, self.name_patterns):  # --name
             return False
 
-        if not patterns.matches_all_patterns(file_path, self.path_patterns):  # --path
+        if not patterns.matches_all_patterns(path_part, self.path_patterns):  # --path
             return False
 
         return True
 
-    @override
-    def main(self) -> None:
-        """Run the program."""
-        self.compile_patterns()
+    def print_path(self, path: pathlib.Path) -> None:
+        """Print the path if it matches the specified search criteria."""
+        name_part = path.name or os.curdir  # The dot file has no name component.
+        path_part = str(path.parent) if len(path.parts) > 1 else ""  # Do not use the dot file in the path.
 
-        if terminal.stdin_is_redirected():
-            self.print_files(sys.stdin)
-
-            if self.args.directories:  # Process any additional directories.
-                self.print_files(self.args.directories)
-        else:
-            self.print_files(self.args.directories or [os.curdir])
-
-    def print_file(self, file: pathlib.Path) -> None:
-        """Print the file if it matches the specified search criteria."""
-        file_name = file.name or os.curdir  # The dot file has no name component.
-        file_path = str(file.parent) if len(file.parts) > 1 else ""  # Do not use the dot file in the path.
-
-        if not file.name and not self.args.dot_prefix:  # Skip the root directory if not --dot-prefix.
+        if not path.name and not self.args.dot_prefix:  # Skip the root directory if not --dot-prefix.
             return
 
-        # Check if the file matches the search criteria and whether to invert the result.
-        matches = self.file_matches_patterns(file_name, file_path) and self.file_matches_filters(file)
+        # Check if the path matches the search criteria and whether to invert the result.
+        matches = self.path_matches_patterns(name_part, path_part) and self.path_matches_filters(path)
 
         if matches == self.args.invert_match:  # --invert-match
             return
@@ -188,31 +188,31 @@ class Seek(CLIProgram):
             raise SystemExit(0)
 
         if self.print_color and not self.args.invert_match:  # --invert-match
-            file_name = patterns.color_pattern_matches(file_name, self.name_patterns, color=Colors.MATCH)
-            file_path = patterns.color_pattern_matches(file_path, self.path_patterns, color=Colors.MATCH)
+            name_part = patterns.color_pattern_matches(name_part, self.name_patterns, color=Colors.MATCH)
+            path_part = patterns.color_pattern_matches(path_part, self.path_patterns, color=Colors.MATCH)
 
         if self.args.abs:  # --abs
-            if file.name:  # Do not join the current working directory with the dot file.
-                path = os.path.join(pathlib.Path.cwd(), file_path, file_name)
+            if path.name:  # Do not join the current working directory with the dot file.
+                path = os.path.join(pathlib.Path.cwd(), path_part, name_part)
             else:
-                path = os.path.join(pathlib.Path.cwd(), file_path)
-        elif self.args.dot_prefix and file.name:  # Do not join the current directory with the dot file.
-            path = os.path.join(os.curdir, file_path, file_name)
+                path = os.path.join(pathlib.Path.cwd(), path_part)
+        elif self.args.dot_prefix and path.name:  # Do not join the current directory with the dot file.
+            path = os.path.join(os.curdir, path_part, name_part)
         else:
-            path = os.path.join(file_path, file_name)
+            path = os.path.join(path_part, name_part)
 
         if self.args.quotes:  # --quotes
             path = f"\"{path}\""
 
         print(path)
 
-    def print_files(self, directories: Iterable[str]) -> None:
-        """Print files that match the specified search criteria in a directory hierarchy."""
+    def print_paths(self, directories: Iterable[str]) -> None:
+        """Traverse each starting directory up to --max-depth and print paths that match the search criteria."""
         for directory in io.normalize_input_lines(directories):
             if os.path.exists(directory):
                 root = pathlib.Path(directory)
 
-                self.print_file(root)
+                self.print_path(root)
 
                 try:
                     for path in root.rglob("*"):
@@ -220,7 +220,7 @@ class Seek(CLIProgram):
                         if self.args.max_depth < len(path.relative_to(root).parts):
                             break
 
-                        self.print_file(path)
+                        self.print_path(path)
                 except PermissionError as error:
                     self.print_error(f"{error.filename}: permission denied")
             else:
