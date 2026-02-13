@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""A program that replaces text in files."""
+"""A program that replaces matching text in files."""
 
 import argparse
 import os
@@ -21,7 +21,7 @@ class Colors:
 
 class Subs(CLIProgram):
     """
-    A program that replaces text in files.
+    A program that replaces matching text in files.
 
     :ivar pattern: Compiled pattern to match.
     """
@@ -35,12 +35,12 @@ class Subs(CLIProgram):
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
-        parser = argparse.ArgumentParser(allow_abbrev=False, description="replace text in FILES",
+        parser = argparse.ArgumentParser(allow_abbrev=False, description="replace matching text in FILES",
                                          epilog="read standard input when no FILES are specified", prog=self.name)
 
         parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
-        parser.add_argument("-e", "--find", action="extend", help="match PATTERN", metavar="PATTERN", nargs=1,
-                            required=True)
+        parser.add_argument("-e", "--find", action="extend", help="match PATTERN (repeat --find to match any pattern)",
+                            metavar="PATTERN", nargs=1, required=True)
         parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when matching")
         parser.add_argument("-r", "--replace", help="replace matches with literal STRING", metavar="STRING",
@@ -69,7 +69,7 @@ class Subs(CLIProgram):
             self.args.no_file_name = True
 
     def compile_patterns(self) -> None:
-        """Compile search patterns."""
+        """Compile search patterns and combine them into a single OR-pattern."""
         if compiled := patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case,
                                                  on_error=self.print_error_and_exit):
             self.pattern = patterns.compile_combined_patterns(compiled, ignore_case=self.args.ignore_case)

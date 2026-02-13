@@ -50,7 +50,7 @@ class Scan(CLIProgram):
         count_group.add_argument("-C", "--count-nonzero", action="store_true",
                                  help="print count of matching lines for files with a match")
         parser.add_argument("-e", "--find", action="extend",
-                            help="print lines that match PATTERN (repeat -e to require all patterns)",
+                            help="print lines that match PATTERN (repeat --find to require all patterns)",
                             metavar="PATTERN", nargs=1)
         parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when matching")

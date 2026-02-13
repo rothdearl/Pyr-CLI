@@ -50,10 +50,10 @@ class Seek(CLIProgram):
         parser.add_argument("directories", help="search starting points", metavar="DIRECTORIES", nargs="*")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when matching")
         parser.add_argument("-n", "--name", action="extend",
-                            help="print files whose names match PATTERN (repeat -n to require all patterns)",
+                            help="print files whose names match PATTERN (repeat --name to require all patterns)",
                             metavar="PATTERN", nargs=1)
         parser.add_argument("-p", "--path", action="extend",
-                            help="print files whose paths match PATTERN (repeat -p to require all patterns)",
+                            help="print files whose paths match PATTERN (repeat --path to require all patterns)",
                             metavar="PATTERN", nargs=1)
         parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress normal output")
         parser.add_argument("-s", "--no-messages", action="store_true", help="suppress file error messages")
