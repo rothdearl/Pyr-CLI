@@ -31,13 +31,13 @@ class Tally(CLIProgram):
     """
     A program that counts lines, words, and characters in files.
 
-    :cvar WORD_REGEX: Matches a whole word token.
+    :cvar WORD_PATTERN: Matches a whole word token.
     :ivar files_counted: Number of files counted.
     :ivar flags: Flags for determining if a count attribute will be printed.
     :ivar totals: Total counts across all files.
     """
 
-    WORD_REGEX: Final[str] = r"\b\w+\b"
+    WORD_PATTERN: Final[re.Pattern[str]] = re.compile(r"\b\w+\b")
 
     def __init__(self) -> None:
         """Initialize a new ``Tally`` instance."""
@@ -85,7 +85,7 @@ class Tally(CLIProgram):
         return parser
 
     def calculate_counts(self, text: Iterable[str]) -> Counts:
-        """Calculate counts for the lines, words, characters, and the maximum line length in the text."""
+        """Calculate counts for the lines, words, characters, and the maximum displayed line length in the text."""
         character_count, line_count, max_line_length, words = 0, 0, 0, 0
 
         for raw_line in text:
@@ -95,7 +95,7 @@ class Tally(CLIProgram):
             character_count += len(raw_line)
             line_count += 1
             max_line_length = max(max_display_width, max_line_length)
-            words += len(re.findall(pattern=Tally.WORD_REGEX, string=raw_line))
+            words += len(Tally.WORD_PATTERN.findall(display_line))
 
         return Counts(line_count, words, character_count, max_line_length)
 
