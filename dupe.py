@@ -108,27 +108,29 @@ class Dupe(CLIProgram):
 
     def get_compare_key(self, line: str) -> str:
         """Return a normalized comparison key derived from the line, applying rules according to command-line options."""
+        compare_key = line
+
         if self.args.skip_whitespace:  # --skip-whitespace
-            line = line.strip()
+            compare_key = compare_key.strip()
 
         if self.args.skip_fields:  # --skip-fields
             if self.use_csv_for_skip_fields:
-                fields = next(csv.reader([line], delimiter=self.args.field_separator))
+                fields = next(csv.reader([compare_key], delimiter=self.args.field_separator))
             else:
-                fields = line.split(self.args.field_separator)
+                fields = compare_key.split(self.args.field_separator)
 
-            line = self.args.field_separator.join(fields[self.args.skip_fields:])
+            compare_key = self.args.field_separator.join(fields[self.args.skip_fields:])
 
         if self.args.max_chars or self.args.skip_chars:  # --max-chars or --skip-chars
             start_index = self.args.skip_chars or 0
             end_index = start_index + self.args.max_chars if self.args.max_chars else len(line)
 
-            line = line[start_index:end_index]
+            compare_key = compare_key[start_index:end_index]
 
         if self.args.ignore_case:  # --ignore-case
-            line = line.casefold()
+            compare_key = compare_key.casefold()
 
-        return line
+        return compare_key
 
     def group_adjacent_matching_lines(self, lines: Iterable[str]) -> list[list[str]]:
         """Return groups of adjacent lines that share the same comparison key, preserving input order."""

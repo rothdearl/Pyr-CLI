@@ -191,17 +191,17 @@ class Order(CLIProgram):
 
     def get_sort_fields(self, line: str) -> list[str]:
         """Return the normalized fields used for sorting after applying ``--skip-fields``."""
-        line = self.normalize_line(line)
+        normalized = self.normalize_line(line)
 
         if self.args.skip_fields:  # --skip-fields
             if self.use_csv_for_skip_fields:
-                fields = next(csv.reader([line], delimiter=self.args.field_separator))
+                fields = next(csv.reader([normalized], delimiter=self.args.field_separator))
             else:
-                fields = line.split(self.args.field_separator)
+                fields = normalized.split(self.args.field_separator)
 
             return fields[self.args.skip_fields:]
 
-        return [line]
+        return [normalized]
 
     @override
     def main(self) -> None:
@@ -223,15 +223,15 @@ class Order(CLIProgram):
 
     def normalize_line(self, line: str) -> str:
         """Return the line with trailing whitespace removed and optional leading-blank and case normalization applied."""
-        line = line.rstrip()  # Remove trailing whitespace.
+        normalized = line.rstrip()  # Remove trailing whitespace.
 
         if self.args.ignore_leading_blanks:  # --ignore-leading-blanks
-            line = line.lstrip()
+            normalized = normalized.lstrip()
 
         if self.args.ignore_case:  # --ignore-case
-            line = line.casefold()
+            normalized = normalized.casefold()
 
-        return line
+        return normalized
 
     def normalize_number(self, number: str) -> str:
         """Return the number with a period "." as the decimal separator and no thousands separators."""
