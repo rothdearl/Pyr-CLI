@@ -169,10 +169,11 @@ class Seek(CLIProgram):
 
     def print_path(self, path: pathlib.Path) -> None:
         """Print the path if it matches the specified search criteria."""
-        name_part = path.name or os.curdir  # The '.' has no name component.
-        path_part = str(path.parent) if len(path.parts) > 1 else ""  # Do not use '.' in the path.
+        is_current_directory = not bool(path.name)
+        name_part = path.name or os.curdir  # The current directory has no name component.
+        path_part = str(path.parent) if len(path.parts) > 1 else ""  # Do not include '.' in the path part.
 
-        if not path.name and not self.args.dot_prefix:  # Skip '.' if not --dot-prefix.
+        if is_current_directory and not self.args.dot_prefix:  # Skip the current directory unless --dot-prefix is set.
             return
 
         # Check if the path matches the search criteria and whether to invert the result.
@@ -192,14 +193,15 @@ class Seek(CLIProgram):
             path_part = patterns.color_pattern_matches(path_part, self.path_patterns, color=Colors.MATCH)
 
         if self.args.abs:  # --abs
-            if path.name:  # Do not join the current working directory with '.'.
-                display_path = os.path.join(pathlib.Path.cwd(), path_part, name_part)
-            else:
+            if is_current_directory:  # Do not join the current working directory with '.'.
                 display_path = os.path.join(pathlib.Path.cwd(), path_part)
-        elif self.args.dot_prefix and path.name:  # Do not join the current directory with '.'.
-            display_path = os.path.join(os.curdir, path_part, name_part)
+            else:
+                display_path = os.path.join(pathlib.Path.cwd(), path_part, name_part)
         else:
-            display_path = os.path.join(path_part, name_part)
+            if self.args.dot_prefix and not is_current_directory:  # Do not join the current directory with '.'.
+                display_path = os.path.join(os.curdir, path_part, name_part)
+            else:
+                display_path = os.path.join(path_part, name_part)
 
         if self.args.quotes:  # --quotes
             display_path = f"\"{display_path}\""

@@ -111,7 +111,7 @@ class Slice(CLIProgram):
 
     def split_and_print_lines(self, lines: Iterable[str]) -> None:
         """Split lines into fields and print."""
-        quote = "\"" if self.args.quotes == "d" else "'" if self.args.quotes == "s" else ""  # --quotes
+        quote = '"' if self.args.quotes == "d" else "'" if self.args.quotes == "s" else ""  # --quotes
         separator = self.args.separator  # --separator
 
         for line in lines:
