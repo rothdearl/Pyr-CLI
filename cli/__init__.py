@@ -1,6 +1,4 @@
-"""
-Initialization file for the command-line interface package.
-"""
+"""Initialization file for the command-line interface package."""
 
 from .ansi import (
     BG_COLORS_256,
@@ -54,6 +52,12 @@ from .terminal import (
     stdin_is_terminal,
     stdout_is_redirected,
     stdout_is_terminal,
+)
+
+from .text import (
+    split_csv,
+    split_regex,
+    split_shell_style,
 )
 
 from .types import (

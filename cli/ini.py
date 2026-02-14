@@ -158,7 +158,7 @@ def read_options(path: str, *, clear_previous: bool = True, on_error: ErrorRepor
     except (configparser.Error, OSError) as error:
         match error:
             case FileNotFoundError():
-                visible_name = path or '""'  # Use a visible placeholder for empty file names in messages.
+                visible_name = path or "(empty)"  # Use a visible placeholder for empty file names in messages.
                 on_error(f"{visible_name}: no such file or directory")
             case PermissionError():
                 on_error(f"{path}: permission denied")

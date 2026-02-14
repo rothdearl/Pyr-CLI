@@ -46,7 +46,7 @@ def read_text_files(files: Iterable[str], encoding: str, *, on_error: ErrorRepor
             with open(file_name, mode="rt", encoding=encoding) as text_stream:
                 yield FileInfo(file_index, file_name, text_stream)
         except FileNotFoundError:
-            visible_name = file_name or '""'  # Use a visible placeholder for empty file names in messages.
+            visible_name = file_name or "(empty)"  # Use a visible placeholder for empty file names in messages.
             on_error(f"{visible_name}: no such file or directory")
         except PermissionError:
             on_error(f"{file_name}: permission denied")

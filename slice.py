@@ -5,12 +5,11 @@
 
 import argparse
 import os
-import shlex
 import sys
 from collections.abc import Iterable
 from typing import Final, override
 
-from cli import CLIProgram, ansi, io, terminal
+from cli import CLIProgram, ansi, io, terminal, text
 
 
 class Colors:
@@ -138,26 +137,11 @@ class Slice(CLIProgram):
 
     def split_line(self, line: str) -> list[str]:
         """Split the line into fields."""
-        lexer = shlex.shlex(line, posix=True, punctuation_chars=False)
+        fields = text.split_shell_style(line, literal_quotes=self.args.literal_quotes)  # --literal-quotes
 
-        # Configure the lexer.
-        lexer.whitespace_split = True  # Treat whitespace as the token separator.
-
-        if self.args.literal_quotes:  # --literal-quotes
-            lexer.quotes = ""  # Disables quotes.
-
-        # Parse the fields.
-        try:
-            fields = list(lexer)
-        except ValueError:
-            # Likely a "No closing quotation" error; strip the line and add it as a single field.
-            fields = [line.lstrip().rstrip()]
-
-        # If --print, collect just the specified fields.
+        # If --print, return just the specified fields.
         if self.fields_to_print:
-            max_fields = len(fields)
-
-            fields = [fields[i] for i in self.fields_to_print if i < max_fields]
+            return [fields[index] for index in self.fields_to_print if index < len(fields)]
 
         return fields
 

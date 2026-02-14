@@ -4,13 +4,12 @@
 """A program that filters duplicate or unique lines from files."""
 
 import argparse
-import csv
 import os
 import sys
 from collections.abc import Iterable
 from typing import Final, override
 
-from cli import CLIProgram, ansi, io, terminal
+from cli import CLIProgram, ansi, io, terminal, text
 
 
 class Colors:
@@ -21,17 +20,11 @@ class Colors:
 
 
 class Dupe(CLIProgram):
-    """
-    A program that filters duplicate or unique lines from files.
-
-    :ivar use_csv_for_skip_fields: Whether to use CSV when skipping fields.
-    """
+    """A program that filters duplicate or unique lines from files."""
 
     def __init__(self) -> None:
         """Initialize a new ``Dupe`` instance."""
         super().__init__(name="dupe", version="1.3.15")
-
-        self.use_csv_for_skip_fields: bool = False
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
@@ -50,9 +43,8 @@ class Dupe(CLIProgram):
         print_group.add_argument("-g", "--group", action="store_true",
                                  help="show all lines, separating each group with an empty line")
         print_group.add_argument("-u", "--unique", action="store_true", help="print unique lines only")
-        parser.add_argument("-f", "--skip-fields",
-                            help="skip the first N fields when comparing (empty fields count; N >= 1)", metavar="N",
-                            type=int)
+        parser.add_argument("-f", "--skip-fields", help="skip the first N non-empty fields when comparing (N >= 1)",
+                            metavar="N", type=int)
         parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when comparing")
         parser.add_argument("-m", "--max-chars", help="compare at most N characters (N >= 1)", metavar="N", type=int)
@@ -94,14 +86,6 @@ class Dupe(CLIProgram):
         if self.args.skip_fields is not None and self.args.skip_fields < 1:  # --skip-fields
             self.print_error_and_exit("--skip-fields must be >= 1")
 
-        # Decode escape sequences in --field-separator and determine whether to skip fields using CSV.
-        try:
-            self.args.field_separator = self.args.field_separator.encode().decode("unicode_escape")
-        except UnicodeDecodeError:
-            self.print_error_and_exit("--field-separator contains an invalid escape sequence")
-
-        self.use_csv_for_skip_fields = len(self.args.field_separator) == 1 and self.args.field_separator != '"'
-
         # Set --no-file-name to True if there are no files and --stdin-files=False.
         if not self.args.files and not self.args.stdin_files:
             self.args.no_file_name = True
@@ -114,12 +98,10 @@ class Dupe(CLIProgram):
             compare_key = compare_key.strip()
 
         if self.args.skip_fields:  # --skip-fields
-            if self.use_csv_for_skip_fields:
-                fields = next(csv.reader([compare_key], delimiter=self.args.field_separator))
-            else:
-                fields = compare_key.split(self.args.field_separator)
+            separator = self.args.field_separator  # --field-separator
 
-            compare_key = self.args.field_separator.join(fields[self.args.skip_fields:])
+            compare_key = text.split_csv(compare_key, separator=separator, on_error=self.print_error_and_exit)
+            compare_key = separator.join(compare_key[self.args.skip_fields:])
 
         if self.args.max_chars or self.args.skip_chars:  # --max-chars or --skip-chars
             start_index = self.args.skip_chars or 0
