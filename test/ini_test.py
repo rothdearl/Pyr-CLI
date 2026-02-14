@@ -6,9 +6,7 @@ from cli import ini
 
 @final
 class INITest(unittest.TestCase):
-    """
-    Tests the ini module.
-    """
+    """Tests the ini module."""
 
     def test_read(self) -> None:
         # File does not exist.

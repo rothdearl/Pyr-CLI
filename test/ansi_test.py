@@ -6,9 +6,7 @@ from cli import ansi
 
 @final
 class ANSITest(unittest.TestCase):
-    """
-    Tests the ansi module.
-    """
+    """Tests the ansi module."""
 
     def test_16_color_palette(self) -> None:
         # Verify lengths.
