@@ -26,10 +26,9 @@ def build_arguments() -> argparse.ArgumentParser:
 
     parser.add_argument("-c", "--calendar", choices=("m", "q", "y"), default="m",
                         help="print calendar as a month, quarter, or year (default: m)")
-    parser.add_argument("-d", "--datetime", action="store_true",
-                        help="print current date and time after calendar")
     parser.add_argument("-w", "--week-start", choices=("mon", "sun"), default="mon",
                         help="use monday or sunday as first day of the week (default: mon)")
+    parser.add_argument("-d", "--datetime", action="store_true", help="print current date and time after calendar")
     parser.add_argument("--datetime-format", help="use STRING as datetime format", metavar="STRING")
     parser.add_argument("--version", action="version", version=f"%(prog)s {When.VERSION}")
 
@@ -157,7 +156,7 @@ class When:
 
     DEFAULT_DATETIME_FORMAT: Final[str] = "%a %b %-d %-I:%M%p" if OS_IS_POSIX else "%a %b %d %I:%M%p"
     NAME: Final[str] = "when"
-    VERSION: Final[str] = "1.0.7"
+    VERSION: Final[str] = "1.0.8"
 
     def __init__(self) -> None:
         """Initialize a new ``When`` instance."""
