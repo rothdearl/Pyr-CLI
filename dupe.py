@@ -45,6 +45,9 @@ class Dupe(CLIProgram):
         print_group.add_argument("-u", "--unique", action="store_true", help="print unique lines only")
         parser.add_argument("-f", "--skip-fields", help="skip the first N non-empty fields when comparing (N >= 1)",
                             metavar="N", type=int)
+        parser.add_argument("--field-separator", default=" ",
+                            help="split lines into fields using SEP (default: <space>; use with --skip-fields)",
+                            metavar="SEP")
         parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when comparing")
         parser.add_argument("-m", "--max-chars", help="compare at most N characters (N >= 1)", metavar="N", type=int)
@@ -56,9 +59,6 @@ class Dupe(CLIProgram):
                             help="use color for file names and counts (default: on)")
         parser.add_argument("--count-width", default=4, help="pad occurrence counts to width N (default: 4; N >= 1)",
                             metavar="N", type=int)
-        parser.add_argument("--field-separator", default=" ",
-                            help="split lines into fields using SEP (default: <space>; used with --skip-fields)",
-                            metavar="SEP")
         parser.add_argument("--ignore-blank", action="store_true", help="ignore blank lines")
         parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true",

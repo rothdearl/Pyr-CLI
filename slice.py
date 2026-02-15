@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""A program that splits lines in files into shell-style fields."""
+"""A program that splits lines in files into fields."""
 
 import argparse
 import os
@@ -20,7 +20,7 @@ class Colors:
 
 class Slice(CLIProgram):
     """
-    A program that splits lines in files into shell-style fields.
+    A program that splits lines in files into fields.
 
     :ivar fields_to_print: Fields to print.
     """
@@ -34,11 +34,21 @@ class Slice(CLIProgram):
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
-        parser = argparse.ArgumentParser(allow_abbrev=False, description="split lines in FILES into shell-style fields",
+        parser = argparse.ArgumentParser(allow_abbrev=False, description="split lines in FILES into fields",
                                          epilog="read standard input when no FILES are specified", prog=self.name)
+        mode_modifiers = parser.add_mutually_exclusive_group()
 
         parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
         parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
+        parser.add_argument("-m", "--mode", choices=("csv", "regex", "shell"), default="csv",
+                            help="set field parsing mode (default: csv)")
+        mode_modifiers.add_argument("--field-pattern", help="split fields using PATTERN (use with --mode regex)",
+                                    metavar="PATTERN")
+        mode_modifiers.add_argument("--field-separator", default=" ",
+                                    help="split fields using SEP (default: <space>; use with --mode csv)",
+                                    metavar="SEP")
+        mode_modifiers.add_argument("--literal-quotes", action="store_true",
+                                    help="treat quotes as ordinary characters (use with --mode shell)")
         parser.add_argument("-s", "--separator", default="\t", help="separate output fields with SEP (default: <tab>)",
                             metavar="SEP")
         parser.add_argument("-u", "--unique", action="store_true",
@@ -49,8 +59,6 @@ class Slice(CLIProgram):
                             help="print only the specified fields (numbered from 1; order preserved; duplicates allowed)",
                             metavar="N", nargs="+", type=int)
         parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
-        parser.add_argument("--literal-quotes", action="store_true",
-                            help="treat quotes as ordinary characters (disable shell-style parsing)")
         parser.add_argument("--quotes", choices=("d", "s"), help="wrap fields in double (d) or single (s) quotes")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
