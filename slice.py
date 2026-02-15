@@ -38,7 +38,6 @@ class Slice(CLIProgram):
                                          epilog="read standard input when no FILES are specified", prog=self.name)
 
         parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
-        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("-f", "--fields", action="extend",
                             help="print only the specified fields (numbered from 1; order preserved; duplicates allowed)",
                             metavar="N", nargs="+", type=int)
@@ -58,10 +57,11 @@ class Slice(CLIProgram):
                             metavar="SEP")
         parser.add_argument("-u", "--unique", action="store_true",
                             help="normalize field selection to unique field numbers in ascending order (use with --fields)")
+        parser.add_argument("--quotes", choices=("d", "s"), help="wrap fields in double (d) or single (s) quotes")
+        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
-        parser.add_argument("--quotes", choices=("d", "s"), help="wrap fields in double (d) or single (s) quotes")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")

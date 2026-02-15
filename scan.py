@@ -46,19 +46,19 @@ class Scan(CLIProgram):
         count_group = parser.add_mutually_exclusive_group()
 
         parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
-        count_group.add_argument("-c", "--count", action="store_true", help="print count of matching lines per file")
-        count_group.add_argument("-C", "--count-nonzero", action="store_true",
-                                 help="print count of matching lines for files with a match")
         parser.add_argument("-e", "--find", action="extend",
                             help="print lines that match PATTERN (repeat --find to require all patterns)",
                             metavar="PATTERN", nargs=1)
-        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when matching")
+        parser.add_argument("-v", "--invert-match", action="store_true", help="print lines that do not match")
+        count_group.add_argument("-c", "--count", action="store_true", help="print count of matching lines per file")
+        count_group.add_argument("-C", "--count-nonzero", action="store_true",
+                                 help="print count of matching lines for files with a match")
         parser.add_argument("-n", "--line-number", action="store_true", help="show line number for each matching line")
+        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("-q", "--quiet", "--silent", action="store_true",
                             help="suppress normal output (matches, counts, and file names)")
         parser.add_argument("-s", "--no-messages", action="store_true", help="suppress file error messages")
-        parser.add_argument("-v", "--invert-match", action="store_true", help="print lines that do not match")
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names, matches, and line numbers (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")

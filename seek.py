@@ -48,19 +48,15 @@ class Seek(CLIProgram):
         modified_group = parser.add_mutually_exclusive_group()
 
         parser.add_argument("directories", help="search starting points", metavar="DIRECTORIES", nargs="*")
-        parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when matching")
         parser.add_argument("-n", "--name", action="extend",
                             help="print files whose names match PATTERN (repeat --name to require all patterns)",
                             metavar="PATTERN", nargs=1)
         parser.add_argument("-p", "--path", action="extend",
                             help="print files whose paths match PATTERN (repeat --path to require all patterns)",
                             metavar="PATTERN", nargs=1)
-        parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress normal output")
-        parser.add_argument("-s", "--no-messages", action="store_true", help="suppress file error messages")
+        parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when matching")
         parser.add_argument("-v", "--invert-match", action="store_true", help="print files that do not match")
-        parser.add_argument("--abs", action="store_true", help="print absolute paths")
-        parser.add_argument("--dot-prefix", action="store_true",
-                            help="prefix relative paths with './' (print '.' for current directory)")
+        parser.add_argument("--type", choices=("d", "f"), help="print only directories (d) or regular files (f)")
         parser.add_argument("--empty-only", action="store_true", help="print only empty files")
         modified_group.add_argument("--mtime-days",
                                     help="print files modified within N days or older than N days ago (use N or -N)",
@@ -73,8 +69,12 @@ class Seek(CLIProgram):
                                     metavar="N", type=int)
         parser.add_argument("--max-depth", default=sys.maxsize,
                             help="descend at most N levels below the starting points (N >= 1)", metavar="N", type=int)
+        parser.add_argument("--abs", action="store_true", help="print absolute paths")
+        parser.add_argument("--dot-prefix", action="store_true",
+                            help="prefix relative paths with './' (print '.' for current directory)")
         parser.add_argument("--quotes", action="store_true", help="print file paths in double quotes")
-        parser.add_argument("--type", choices=("d", "f"), help="print only directories (d) or regular files (f)")
+        parser.add_argument("-q", "--quiet", "--silent", action="store_true", help="suppress normal output")
+        parser.add_argument("-s", "--no-messages", action="store_true", help="suppress file error messages")
         parser.add_argument("--color", choices=("on", "off"), default="on", help="use color for matches (default: on)")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")
 

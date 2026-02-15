@@ -71,15 +71,15 @@ class Tally(CLIProgram):
                             help="use N spaces per tab when computing line length (default: 8; N >= 1)", metavar="N",
                             type=int)
         parser.add_argument("-w", "--words", action="store_true", help="print word counts")
-        parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="use color for counts and file names (default: on)")
         parser.add_argument("--count-width", default=8, help="pad counts to width N (default: 8; N >= 1)", metavar="N",
                             type=int)
+        parser.add_argument("--total", choices=("auto", "on", "off"), default="auto",
+                            help="print total counts in an extra line (default: auto)")
+        parser.add_argument("--color", choices=("on", "off"), default="on",
+                            help="use color for counts and file names (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
-        parser.add_argument("--total", choices=("auto", "on", "off"), default="auto",
-                            help="print total counts in an extra line (default: auto)")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")
 
         return parser

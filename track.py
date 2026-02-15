@@ -35,11 +35,11 @@ class Track(CLIProgram):
                                          epilog="read standard input when no FILES are specified", prog=self.name)
 
         parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
-        parser.add_argument("-f", "--follow", action="store_true", help="output appended lines as the file grows")
-        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("-n", "--lines", default=10,
                             help="print the last N lines, or all but the first N if N < 0 (default: 10)", metavar="N",
                             type=int)
+        parser.add_argument("-f", "--follow", action="store_true", help="output appended lines as the file grows")
+        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")

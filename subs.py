@@ -41,17 +41,17 @@ class Subs(CLIProgram):
         parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
         parser.add_argument("-e", "--find", action="extend", help="match PATTERN (repeat --find to match any pattern)",
                             metavar="PATTERN", nargs=1, required=True)
-        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when matching")
         parser.add_argument("-r", "--replace", help="replace matches with literal STRING", metavar="STRING",
                             required=True)
-        parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="use color for file names (default: on)")
         parser.add_argument("--in-place", action="store_true",
                             help="write changes back to FILES instead of standard output")
-        parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
         parser.add_argument("--max-replacements", default=sys.maxsize, help="limit replacements to N per line (N >= 1)",
                             metavar="N", type=int)
+        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
+        parser.add_argument("--color", choices=("on", "off"), default="on",
+                            help="use color for file names (default: on)")
+        parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")

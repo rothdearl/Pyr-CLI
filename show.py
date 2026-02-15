@@ -44,22 +44,22 @@ class Show(CLIProgram):
                                          epilog="read standard input when no FILES are specified", prog=self.name)
 
         parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
-        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
         parser.add_argument("-l", "--max-lines", default=sys.maxsize, help="print first N lines (N >= 1)", metavar="N",
                             type=int)
         parser.add_argument("-n", "--line-numbers", action="store_true", help="number lines")
         parser.add_argument("-s", "--start", default=1, help="start at line N (N < 0 counts from end; N != 0)",
                             metavar="N", type=int)
-        parser.add_argument("--color", choices=("on", "off"), default="on",
-                            help="use color for file names, line numbers, and whitespace (default: on)")
         parser.add_argument("--ends", action="store_true",
                             help=f"display '{Whitespace.END_MARKER}' at end of each line")
-        parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
         parser.add_argument("--spaces", action="store_true",
                             help=f"display spaces as '{Whitespace.SPACE_MARKER}' and trailing spaces as '{Whitespace.TRAILING_SPACE_MARKER}'")
+        parser.add_argument("--tabs", action="store_true", help=f"display tab characters as '{Whitespace.TAB_MARKER}'")
+        parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
+        parser.add_argument("--color", choices=("on", "off"), default="on",
+                            help="use color for file names, line numbers, and whitespace (default: on)")
+        parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
         parser.add_argument("--stdin-files", action="store_true",
                             help="treat standard input as a list of FILES (one per line)")
-        parser.add_argument("--tabs", action="store_true", help=f"display tab characters as '{Whitespace.TAB_MARKER}'")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")
 
         return parser
