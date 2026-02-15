@@ -22,42 +22,42 @@ class Slice(CLIProgram):
     """
     A program that splits lines in files into fields.
 
-    :ivar fields_to_print: Fields to print.
+    :ivar selected_fields: Selected fields to print.
     """
 
     def __init__(self) -> None:
         """Initialize a new ``Slice`` instance."""
         super().__init__(name="slice", version="1.3.16")
 
-        self.fields_to_print: list[int] = []
+        self.selected_fields: list[int] = []
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
         parser = argparse.ArgumentParser(allow_abbrev=False, description="split lines in FILES into fields",
                                          epilog="read standard input when no FILES are specified", prog=self.name)
-        mode_modifiers = parser.add_mutually_exclusive_group()
 
         parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
         parser.add_argument("-H", "--no-file-name", action="store_true", help="suppress file name prefixes")
+        parser.add_argument("-f", "--fields", action="extend",
+                            help="print only the specified fields (numbered from 1; order preserved; duplicates allowed)",
+                            metavar="N", nargs="+", type=int)
         parser.add_argument("-m", "--mode", choices=("csv", "regex", "shell"), default="csv",
                             help="set field parsing mode (default: csv)")
-        mode_modifiers.add_argument("--field-pattern", help="split fields using PATTERN (use with --mode regex)",
-                                    metavar="PATTERN")
-        mode_modifiers.add_argument("--field-separator", default=" ",
-                                    help="split fields using SEP (default: <space>; use with --mode csv)",
-                                    metavar="SEP")
-        mode_modifiers.add_argument("--literal-quotes", action="store_true",
-                                    help="treat quotes as ordinary characters (use with --mode shell)")
+        parser.add_argument("--field-pattern",
+                            help="split fields using PATTERN (default: <whitespace>; use with --mode regex)",
+                            metavar="PATTERN")
+        parser.add_argument("--field-separator", help="split fields using SEP (default: <space>; use with --mode csv)",
+                            metavar="SEP")
+        parser.add_argument("--literal-quotes", action="store_true",
+                            help="treat quotes as ordinary characters (use with --mode shell)")
+        parser.add_argument("--keep-empty", action="store_true", help="keep empty fields (default: drop)")
         parser.add_argument("-s", "--separator", default="\t", help="separate output fields with SEP (default: <tab>)",
                             metavar="SEP")
         parser.add_argument("-u", "--unique", action="store_true",
                             help="normalize field selection to unique field numbers in ascending order (overrides --fields)")
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names (default: on)")
-        parser.add_argument("--fields", action="extend",
-                            help="print only the specified fields (numbered from 1; order preserved; duplicates allowed)",
-                            metavar="N", nargs="+", type=int)
         parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
         parser.add_argument("--quotes", choices=("d", "s"), help="wrap fields in double (d) or single (s) quotes")
         parser.add_argument("--stdin-files", action="store_true",
@@ -66,21 +66,43 @@ class Slice(CLIProgram):
 
         return parser
 
+    def check_mode_options(self) -> None:
+        """Validate mode option arguments."""
+        allowed_option_by_mode = {
+            "csv": "--field-separator",
+            "regex": "--field-pattern",
+            "shell": "--literal-quotes"
+        }
+        provided_options = {
+            "--field-pattern": self.args.field_pattern is not None,
+            "--field-separator": self.args.field_separator is not None,
+            "--literal-quotes": self.args.literal_quotes
+        }
+
+        # Any mismatched option is an error.
+        allowed = allowed_option_by_mode[self.args.mode]
+        mismatched = [name for name, is_set in provided_options.items() if is_set and name != allowed]
+
+        if mismatched:
+            self.print_error_and_exit(f"{', '.join(mismatched)} not valid with --mode={self.args.mode}")
+
     @override
     def check_parsed_arguments(self) -> None:
         """Validate and normalize parsed command-line arguments."""
-        self.fields_to_print = self.args.fields or []  # --fields
+        self.check_mode_options()
 
-        # Validate --fields values.
-        for field in self.fields_to_print:
+        # Validate --fields values and optionally normalize.
+        self.selected_fields = self.args.fields or []  # --fields
+
+        for field in self.selected_fields:
             if field < 1:
-                self.print_error_and_exit("--fields must contain fields >= 1")
+                self.print_error_and_exit("--fields must contain numbers >= 1")
 
         if self.args.unique:  # --unique
-            self.fields_to_print = sorted(set(self.fields_to_print))
+            self.selected_fields = sorted(set(self.selected_fields))
 
         # Convert one-based input to zero-based.
-        self.fields_to_print = [i - 1 for i in self.fields_to_print]
+        self.selected_fields = [i - 1 for i in self.selected_fields]
 
         # Set --no-file-name to True if there are no files and --stdin-files=False.
         if not self.args.files and not self.args.stdin_files:
@@ -121,7 +143,7 @@ class Slice(CLIProgram):
         quote = '"' if self.args.quotes == "d" else "'" if self.args.quotes == "s" else ""  # --quotes
         separator = self.args.separator  # --separator
 
-        for line in lines:
+        for line in io.normalize_input_lines(lines):
             fields = self.split_line(line)
 
             # Do not print blank lines when there are no fields to print.
@@ -144,12 +166,28 @@ class Slice(CLIProgram):
         self.split_and_print_lines(sys.stdin)
 
     def split_line(self, line: str) -> list[str]:
-        """Split the line into fields."""
-        fields = text.split_shell_style(line, literal_quotes=self.args.literal_quotes)  # --literal-quotes
+        """Split the line into fields, optionally filter empty fields, and apply field selection if configured."""
+        fields = []
 
-        # If --print, return just the specified fields.
-        if self.fields_to_print:
-            return [fields[index] for index in self.fields_to_print if index < len(fields)]
+        match self.args.mode:  # --mode
+            case "csv":
+                field_separator = self.args.field_separator or " "  # --field-separator
+
+                fields = text.split_csv(line, separator=field_separator, on_error=self.print_error_and_exit)
+            case "regex":
+                field_pattern = self.args.field_pattern or r"\s+"  # --field-pattern
+
+                fields = text.split_regex(line, pattern=field_pattern, on_error=self.print_error_and_exit)
+            case _:
+                fields = text.split_shell_style(line, literal_quotes=self.args.literal_quotes)
+
+        # Filter empty fields unless --keep-empty=True.
+        if not self.args.keep_empty:
+            fields = [field for field in fields if field]
+
+        # If --fields, collect the selected fields.
+        if self.selected_fields:
+            fields = [fields[index] for index in self.selected_fields if index < len(fields)]
 
         return fields
 

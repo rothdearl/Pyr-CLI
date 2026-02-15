@@ -204,7 +204,7 @@ class Seek(CLIProgram):
                 display_path = os.path.join(path_part, name_part)
 
         if self.args.quotes:  # --quotes
-            display_path = f"\"{display_path}\""
+            display_path = f'"{display_path}"'
 
         print(display_path)
 
