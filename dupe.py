@@ -38,7 +38,7 @@ class Dupe(CLIProgram):
         print_group.add_argument("-D", "--all-repeated", action="store_true",
                                  help="print all duplicate lines per group")
         print_group.add_argument("-g", "--group", action="store_true",
-                                 help="show all lines, separating each group with an empty line")
+                                 help="print all lines, grouping identical lines and separating groups with an empty line")
         print_group.add_argument("-u", "--unique", action="store_true", help="print unique lines only")
         parser.add_argument("-c", "--count", action="store_true", help="prefix lines with the number of occurrences")
         parser.add_argument("--count-width", default=4, help="pad occurrence counts to width N (default: 4; N >= 1)",
