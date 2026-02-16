@@ -54,10 +54,10 @@ class Order(CLIProgram):
         sort_group.add_argument("-n", "--natural-sort", action="store_true",
                                 help="sort lines in natural order (numbers numeric)")
         sort_group.add_argument("-R", "--random-sort", action="store_true", help="sort lines in random order")
+        parser.add_argument("--decimal-comma", action="store_true",
+                            help="interpret comma as the decimal separator (use with --currency-sort or --natural-sort)")
         parser.add_argument("-b", "--ignore-leading-blanks", action="store_true", help="ignore leading whitespace")
         parser.add_argument("-i", "--ignore-case", action="store_true", help="ignore case when comparing")
-        parser.add_argument("--decimal-separator", choices=("period", "comma"), default="period",
-                            help="interpret numbers using period or comma as the decimal separator (default: period)")
         parser.add_argument("-f", "--skip-fields", help="skip the first N non-empty fields when comparing (N >= 1)",
                             metavar="N", type=int)
         parser.add_argument("--field-separator",
@@ -79,9 +79,13 @@ class Order(CLIProgram):
     def check_parsed_arguments(self) -> None:
         """Enforce option dependencies, validate ranges, normalize defaults, and derive internal state."""
         # Option dependencies:
-        # --field-separator requires --skip-fields.
+        # --field-separator is only meaningful with --skip-fields.
         if self.args.field_separator and self.args.skip_fields is None:
             self.print_error_and_exit("--field-separator is only used with --skip-fields")
+
+        # --decimal-comma is only meaningful with --currency-sort or --natural-sort.
+        if self.args.decimal_comma and not any((self.args.currency_sort, self.args.natural_sort)):
+            self.print_error_and_exit("--decimal-comma is only used with --currency-sort or --natural-sort")
 
         # Ranges:
         if self.args.skip_fields is not None and self.args.skip_fields < 1:
@@ -224,12 +228,12 @@ class Order(CLIProgram):
 
     def normalize_number(self, number: str) -> str:
         """Return the number with a period "." as the decimal separator and no thousands separators."""
-        if self.args.decimal_separator == "period":  # --decimal-separator
-            # Remove thousands separator.
-            return number.replace(",", "")
+        if self.args.decimal_comma:  # --decimal-comma
+            # Remove thousands separator, then replace commas with decimals.
+            return number.replace(".", "").replace(",", ".")
 
-        # Remove thousands separator, then replace commas with decimals.
-        return number.replace(".", "").replace(",", ".")
+        # Remove thousands separator.
+        return number.replace(",", "")
 
     def print_file_header(self, file_name: str) -> None:
         """Print the file name (or "(standard input)" if empty), followed by a colon, unless ``args.no_file_name`` is set."""
