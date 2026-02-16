@@ -14,7 +14,6 @@ class CLIProgram(ABC):
     Abstract base class (ABC) for command-line programs, defining a standard program lifecycle.
 
     :ivar args: Parsed command-line arguments.
-    :ivar encoding: Encoding for reading and writing to files.
     :ivar error_exit_code: Exit code when an error occurs (default: ``1``).
     :ivar has_errors: Whether the program has encountered errors.
     :ivar name: Name of the program.
@@ -31,7 +30,6 @@ class CLIProgram(ABC):
         :param error_exit_code: Exit code when an error occurs (default: ``1``).
         """
         self.args: argparse.Namespace | None = None
-        self.encoding: str | None = None
         self.error_exit_code: int = error_exit_code
         self.has_errors: bool = False
         self.name: str = name
@@ -48,24 +46,37 @@ class CLIProgram(ABC):
         if self.has_errors:
             raise SystemExit(self.error_exit_code)
 
-    @abstractmethod
+    def check_option_dependencies(self) -> None:
+        """Enforce relationships and mutual constraints between command-line options."""
+        pass
+
+    @final
     def check_parsed_arguments(self) -> None:
-        """Enforce option dependencies, validate ranges, normalize defaults, and derive internal state."""
-        ...
+        """Check option dependencies, validate ranges, normalize options, and initialize runtime state."""
+        assert self.args is not None  # Guaranteed by run() calling parse_arguments() first.
+        self.check_option_dependencies()
+        self.validate_option_ranges()
+        self.normalize_options()
+        self.initialize_runtime_state()
+
+    def initialize_runtime_state(self) -> None:
+        """Initialize internal state derived from parsed options."""
+        # Disable color if standard output is redirected.
+        self.print_color = self.args.color == "on" and stdout_is_terminal()
 
     @abstractmethod
     def main(self) -> None:
         """Run the program."""
         ...
 
+    def normalize_options(self) -> None:
+        """Apply derived defaults and adjust option values for consistent internal use."""
+        pass
+
     @final
     def parse_arguments(self) -> None:
         """Parse command-line arguments to initialize program options."""
         self.args = self.build_arguments().parse_args()
-
-        # Set default values for encoding and print_color.
-        self.encoding = "iso-8859-1" if getattr(self.args, "latin1", False) else "utf-8"  # --latin1
-        self.print_color = getattr(self.args, "color", "off") == "on" and stdout_is_terminal()  # --color
 
     @final
     def print_error(self, error_message: str) -> None:
@@ -87,7 +98,7 @@ class CLIProgram(ABC):
         Run the full program lifecycle and normalize process termination and exit codes.
 
         - Configure the environment.
-        - Parse and validate arguments.
+        - Parse arguments and prepare runtime state.
         - Run the program.
         - Handle errors.
         """
@@ -111,10 +122,18 @@ class CLIProgram(ABC):
         except BrokenPipeError:
             raise SystemExit(self.error_exit_code if OS_IS_WINDOWS else sigpipe_exit_code)
         except KeyboardInterrupt:
-            print()  # Add a newline after Ctrl-C.
+            # Add a newline after Ctrl-C if standard output is attached to a terminal.
+            if stdout_is_terminal():
+                print()
+
             raise SystemExit(self.error_exit_code if OS_IS_WINDOWS else keyboard_interrupt_error_code)
         except OSError as error:
+            # Normalize unexpected OS errors to a clean exit code.
             raise SystemExit(self.error_exit_code) from error
+
+    def validate_option_ranges(self) -> None:
+        """Validate that option values fall within their allowed numeric or logical ranges."""
+        pass
 
 
 __all__ = ["CLIProgram"]

@@ -60,6 +60,8 @@ from .text import (
     split_shell_style,
 )
 
+from .text_program import TextProgram
+
 from .types import (
     CompiledPatterns,
     ErrorReporter,
