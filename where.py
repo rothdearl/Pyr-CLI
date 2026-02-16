@@ -74,8 +74,7 @@ class Where:
         """Initialize a new ``Where`` instance."""
         self.args: argparse.Namespace = build_arguments().parse_args()
 
-        # Option dependencies:
-        # --cardinal is only meaningful with --coordinates.
+        # Check option dependencies: --cardinal is only meaningful with --coordinates.
         if self.args.cardinal and not self.args.coordinates:
             print_error_and_exit("--cardinal is only used with --coordinates")
 
@@ -99,7 +98,7 @@ class Where:
                 print(f"{key}: {get_json_value(data=data, key=key)}")
 
             # Optionally print geographic coordinates and public IP address.
-            if self.args.coordinates:  # --coordinates
+            if self.args.coordinates:
                 coordinates = get_json_value(data=data, key='loc')
 
                 if self.args.cardinal:
@@ -107,7 +106,7 @@ class Where:
                 else:
                     print(f"coordinates: {coordinates}")
 
-            if self.args.ip:  # --ip
+            if self.args.ip:
                 print(f"ip: {get_json_value(data=data, key='ip')}")
         except (ValueError, requests.RequestException):
             print_error_and_exit("unable to retrieve location")

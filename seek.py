@@ -88,20 +88,13 @@ class Seek(CLIProgram):
         if not self.found_any_match:
             raise SystemExit(Seek.NO_MATCHES_EXIT_CODE)
 
-    @override
-    def check_parsed_arguments(self) -> None:
-        """Enforce option dependencies, validate ranges, normalize defaults, and derive internal state."""
-        # Ranges:
-        if self.args.max_depth < 1:
-            self.print_error_and_exit("--max-depth must be >= 1")
-
     def compile_patterns(self) -> None:
         """Compile search patterns."""
-        if self.args.name:  # --name
+        if self.args.name:
             self.name_patterns = patterns.compile_patterns(self.args.name, ignore_case=self.args.ignore_case,
                                                            on_error=self.print_error_and_exit)
 
-        if self.args.path:  # --path
+        if self.args.path:
             self.path_patterns = patterns.compile_patterns(self.args.path, ignore_case=self.args.ignore_case,
                                                            on_error=self.print_error_and_exit)
 
@@ -123,7 +116,7 @@ class Seek(CLIProgram):
         matches_all_filters = True
 
         try:
-            if self.args.type:  # --type
+            if self.args.type:
                 is_dir = path.is_dir()
 
                 if self.args.type == "d":
@@ -131,13 +124,12 @@ class Seek(CLIProgram):
                 else:
                     matches_all_filters = not is_dir
 
-            if matches_all_filters and self.args.empty_only:  # --empty-only
+            if matches_all_filters and self.args.empty_only:
                 if path.is_dir():
                     matches_all_filters = not os.listdir(path)
                 else:
                     matches_all_filters = not path.lstat().st_size
 
-            # --mtime-days, --mtime-hours, or --mtime-mins
             if matches_all_filters and any((self.args.mtime_days, self.args.mtime_hours, self.args.mtime_mins)):
                 if self.args.mtime_days:
                     last_modified = self.args.mtime_days * 86400  # Convert days to seconds.
@@ -160,10 +152,10 @@ class Seek(CLIProgram):
 
     def path_matches_patterns(self, name_part: str, path_part: str) -> bool:
         """Return whether the ``name_part`` and ``path_part`` match all provided pattern groups."""
-        if not patterns.matches_all_patterns(name_part, self.name_patterns):  # --name
+        if not patterns.matches_all_patterns(name_part, self.name_patterns):
             return False
 
-        if not patterns.matches_all_patterns(path_part, self.path_patterns):  # --path
+        if not patterns.matches_all_patterns(path_part, self.path_patterns):
             return False
 
         return True
@@ -180,7 +172,7 @@ class Seek(CLIProgram):
         # Check if the path matches the search criteria and whether to invert the result.
         matches = self.path_matches_patterns(name_part, path_part) and self.path_matches_filters(path)
 
-        if matches == self.args.invert_match:  # --invert-match
+        if matches == self.args.invert_match:
             return
 
         self.found_any_match = True
@@ -189,11 +181,11 @@ class Seek(CLIProgram):
         if self.args.quiet:
             raise SystemExit(0)
 
-        if self.print_color and not self.args.invert_match:  # --invert-match
+        if self.print_color and not self.args.invert_match:
             name_part = patterns.color_pattern_matches(name_part, self.name_patterns, color=Colors.MATCH)
             path_part = patterns.color_pattern_matches(path_part, self.path_patterns, color=Colors.MATCH)
 
-        if self.args.abs:  # --abs
+        if self.args.abs:
             if is_current_directory:  # Do not join the current working directory with '.'.
                 display_path = os.path.join(pathlib.Path.cwd(), path_part)
             else:
@@ -204,7 +196,7 @@ class Seek(CLIProgram):
             else:
                 display_path = os.path.join(path_part, name_part)
 
-        if self.args.quotes:  # --quotes
+        if self.args.quotes:
             display_path = f'"{display_path}"'
 
         print(display_path)
@@ -231,6 +223,12 @@ class Seek(CLIProgram):
             else:
                 visible_name = directory or "(empty)"  # Use a visible placeholder for empty file names in messages.
                 self.print_error(f"{visible_name}: no such file or directory")
+
+    @override
+    def validate_option_ranges(self) -> None:
+        """Validate that option values fall within their allowed numeric or logical ranges."""
+        if self.args.max_depth < 1:
+            self.print_error_and_exit("--max-depth must be >= 1")
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ import sys
 from collections.abc import Iterable
 from typing import Final, override
 
-from cli import CLIProgram, ansi, io, terminal
+from cli import TextProgram, ansi, io, terminal
 
 
 class Colors:
@@ -19,12 +19,11 @@ class Colors:
     LINE_NUMBER: Final[str] = ansi.Colors.BRIGHT_GREEN
 
 
-class Num(CLIProgram):
+class Num(TextProgram):
     """
     A program that numbers lines from files and prints them to standard output.
 
     :cvar FORMAT_PREFIXES: Mapping of short format keys to format-spec prefixes used when formatting line numbers.
-    :ivar format_prefix: Format-spec prefix used when formatting line numbers.
     """
 
     FORMAT_PREFIXES: Final[dict[str, str]] = {
@@ -36,8 +35,6 @@ class Num(CLIProgram):
     def __init__(self) -> None:
         """Initialize a new ``Num`` instance."""
         super().__init__(name="num", version="1.3.18")
-
-        self.format_prefix: str = ""
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
@@ -69,33 +66,10 @@ class Num(CLIProgram):
         return parser
 
     @override
-    def check_parsed_arguments(self) -> None:
-        """Enforce option dependencies, validate ranges, normalize defaults, and derive internal state."""
-        self.format_prefix = Num.FORMAT_PREFIXES[self.args.number_format]  # --number-format
-
-        # Ranges:
-        if self.args.number_start < 0:
-            self.print_error_and_exit("--number-start must be >= 0")
-
-        if self.args.number_width < 1:
-            self.print_error_and_exit("--number-width must be >= 1")
-
-        # Decode escape sequences in --number-separator.
-        try:
-            self.args.number_separator = self.args.number_separator.encode().decode("unicode_escape")
-        except UnicodeDecodeError:
-            self.print_error_and_exit("--number-separator contains an invalid escape sequence")
-
-        # Defaults:
-        # Set --no-file-name to True if there are no files and --stdin-files=False.
-        if not self.args.files and not self.args.stdin_files:
-            self.args.no_file_name = True
-
-    @override
     def main(self) -> None:
         """Run the program."""
         if terminal.stdin_is_redirected():
-            if self.args.stdin_files:  # --stdin-files
+            if self.args.stdin_files:
                 self.number_lines_from_files(sys.stdin)
             else:
                 if standard_input := sys.stdin.readlines():
@@ -109,10 +83,18 @@ class Num(CLIProgram):
         else:
             self.number_lines_from_input()
 
+    @override
+    def normalize_options(self) -> None:
+        """Apply derived defaults and adjust option values for consistent internal use."""
+        # Set --no-file-name to True if there are no files and --stdin-files=False.
+        if not self.args.files and not self.args.stdin_files:
+            self.args.no_file_name = True
+
     def number_lines(self, lines: Iterable[str]) -> None:
         """Number and print lines to standard output according to command-line arguments."""
         blank_line_count = 0
-        line_number = self.args.number_start - 1  # --number-start
+        format_prefix = Num.FORMAT_PREFIXES[self.args.number_format]
+        line_number = self.args.number_start - 1
 
         for line in io.normalize_input_lines(lines):
             print_number = True
@@ -123,14 +105,14 @@ class Num(CLIProgram):
                 if self.should_suppress_blank_line(blank_line_count):
                     continue
 
-                if self.args.number_nonblank:  # --number-nonblank
+                if self.args.number_nonblank:
                     print_number = False
             else:
                 blank_line_count = 0
 
             if print_number:
                 line_number += 1
-                line = self.render_line_number(line, line_number)
+                line = self.render_line_number(line, line_number, format_prefix=format_prefix)
 
             print(line)
 
@@ -149,7 +131,7 @@ class Num(CLIProgram):
 
     def print_file_header(self, file_name: str) -> None:
         """Print the file name (or "(standard input)" if empty), followed by a colon, unless ``args.no_file_name`` is set."""
-        if not self.args.no_file_name:  # --no-file-name
+        if not self.args.no_file_name:
             file_header = os.path.relpath(file_name) if file_name else "(standard input)"
 
             if self.print_color:
@@ -159,22 +141,37 @@ class Num(CLIProgram):
 
             print(file_header)
 
-    def render_line_number(self, line: str, line_number: int) -> str:
+    def render_line_number(self, line: str, line_number: int, *, format_prefix: str) -> str:
         """Prefix a formatted line number to the line."""
         if self.print_color:
-            return f"{Colors.LINE_NUMBER}{line_number:{self.format_prefix}{self.args.number_width}}{ansi.RESET}{self.args.number_separator}{line}"
+            return f"{Colors.LINE_NUMBER}{line_number:{format_prefix}{self.args.number_width}}{ansi.RESET}{self.args.number_separator}{line}"
 
-        return f"{line_number:{self.format_prefix}{self.args.number_width}}{self.args.number_separator}{line}"
+        return f"{line_number:{format_prefix}{self.args.number_width}}{self.args.number_separator}{line}"
 
     def should_suppress_blank_line(self, blank_line_count: int) -> bool:
         """Return whether a blank line should be suppressed."""
-        if self.args.no_blank:  # --no-blank
+        if self.args.no_blank:
             return True
 
-        if self.args.squeeze_blank and blank_line_count > 1:  # --squeeze-blank
+        if self.args.squeeze_blank and blank_line_count > 1:
             return True
 
         return False
+
+    @override
+    def validate_option_ranges(self) -> None:
+        """Validate that option values fall within their allowed numeric or logical ranges."""
+        if self.args.number_start < 0:
+            self.print_error_and_exit("--number-start must be >= 0")
+
+        if self.args.number_width < 1:
+            self.print_error_and_exit("--number-width must be >= 1")
+
+        # Decode escape sequences in --number-separator.
+        try:
+            self.args.number_separator = self.args.number_separator.encode().decode("unicode_escape")
+        except UnicodeDecodeError:
+            self.print_error_and_exit("--number-separator contains an invalid escape sequence")
 
 
 if __name__ == "__main__":

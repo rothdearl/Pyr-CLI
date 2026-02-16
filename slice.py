@@ -9,7 +9,7 @@ import sys
 from collections.abc import Iterable
 from typing import Final, override
 
-from cli import CLIProgram, ansi, io, terminal, text
+from cli import TextProgram, ansi, io, terminal, text
 
 
 class Colors:
@@ -18,7 +18,7 @@ class Colors:
     FILE_NAME: Final[str] = ansi.Colors.BRIGHT_MAGENTA
 
 
-class Slice(CLIProgram):
+class Slice(TextProgram):
     """
     A program that splits lines in files into fields.
 
@@ -89,38 +89,19 @@ class Slice(CLIProgram):
             self.print_error_and_exit(f"{', '.join(mismatched)} not valid with --mode={self.args.mode}")
 
     @override
-    def check_parsed_arguments(self) -> None:
-        """Enforce option dependencies, validate ranges, normalize defaults, and derive internal state."""
-        # Option dependencies:
+    def check_option_dependencies(self) -> None:
+        """Enforce relationships and mutual constraints between command-line options."""
         self.check_mode_options()
 
         # --unique is only meaningful with --fields.
         if self.args.unique and self.args.fields is None:
             self.print_error_and_exit("--unique is only used with --fields")
 
-        # Ranges:
-        self.selected_fields = self.args.fields or []  # --fields
-
-        for field in self.selected_fields:
-            if field < 1:
-                self.print_error_and_exit("--fields must contain numbers >= 1")
-
-        # Defaults:
-        if self.args.unique:
-            self.selected_fields = sorted(set(self.selected_fields))
-
-        # Convert one-based input to zero-based.
-        self.selected_fields = [i - 1 for i in self.selected_fields]
-
-        # Set --no-file-name to True if there are no files and --stdin-files=False.
-        if not self.args.files and not self.args.stdin_files:
-            self.args.no_file_name = True
-
     @override
     def main(self) -> None:
         """Run the program."""
         if terminal.stdin_is_redirected():
-            if self.args.stdin_files:  # --stdin-files
+            if self.args.stdin_files:
                 self.split_and_print_lines_from_files(sys.stdin)
             else:
                 if standard_input := sys.stdin.readlines():
@@ -134,9 +115,22 @@ class Slice(CLIProgram):
         else:
             self.split_and_print_lines_from_input()
 
+    @override
+    def normalize_options(self) -> None:
+        """Apply derived defaults and adjust option values for consistent internal use."""
+        if self.args.unique:
+            self.selected_fields = sorted(set(self.selected_fields))
+
+        # Convert one-based input to zero-based.
+        self.selected_fields = [i - 1 for i in self.selected_fields]
+
+        # Set --no-file-name to True if there are no files and --stdin-files=False.
+        if not self.args.files and not self.args.stdin_files:
+            self.args.no_file_name = True
+
     def print_file_header(self, file_name: str) -> None:
         """Print the file name (or "(standard input)" if empty), followed by a colon, unless ``args.no_file_name`` is set."""
-        if not self.args.no_file_name:  # --no-file-name
+        if not self.args.no_file_name:
             file_header = os.path.relpath(file_name) if file_name else "(standard input)"
 
             if self.print_color:
@@ -148,8 +142,7 @@ class Slice(CLIProgram):
 
     def split_and_print_lines(self, lines: Iterable[str]) -> None:
         """Split lines into fields and print them."""
-        quote = '"' if self.args.quotes == "d" else "'" if self.args.quotes == "s" else ""  # --quotes
-        separator = self.args.separator  # --separator
+        quote = '"' if self.args.quotes == "d" else "'" if self.args.quotes == "s" else ""
 
         for line in io.normalize_input_lines(lines):
             fields = self.split_line(line)
@@ -158,7 +151,7 @@ class Slice(CLIProgram):
             if not fields and not self.args.keep_empty_lines:
                 continue
 
-            print(separator.join(f"{quote}{field}{quote}" for field in fields))
+            print(self.args.separator.join(f"{quote}{field}{quote}" for field in fields))
 
     def split_and_print_lines_from_files(self, files: Iterable[str]) -> None:
         """Read, split, and print lines from each file."""
@@ -177,13 +170,13 @@ class Slice(CLIProgram):
         """Split the line into fields, optionally filter empty fields, and apply field selection if configured."""
         fields = []
 
-        match self.args.mode:  # --mode
+        match self.args.mode:
             case "csv":
-                field_separator = self.args.field_separator or " "  # --field-separator
+                field_separator = self.args.field_separator or " "
 
                 fields = text.split_csv(line, separator=field_separator, on_error=self.print_error_and_exit)
             case "regex":
-                field_pattern = self.args.field_pattern or r"\s+"  # --field-pattern
+                field_pattern = self.args.field_pattern or r"\s+"
 
                 fields = text.split_regex(line, pattern=field_pattern, on_error=self.print_error_and_exit)
             case _:
@@ -198,6 +191,15 @@ class Slice(CLIProgram):
             fields = [fields[index] for index in self.selected_fields if index < len(fields)]
 
         return fields
+
+    @override
+    def validate_option_ranges(self) -> None:
+        """Validate that option values fall within their allowed numeric or logical ranges."""
+        self.selected_fields = self.args.fields or []
+
+        for field in self.selected_fields:
+            if field < 1:
+                self.print_error_and_exit("--fields must contain numbers >= 1")
 
 
 if __name__ == "__main__":

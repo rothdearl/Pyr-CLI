@@ -10,7 +10,7 @@ from collections import deque
 from collections.abc import Iterable
 from typing import Final, override
 
-from cli import CLIProgram, ansi, io, terminal
+from cli import TextProgram, ansi, io, terminal
 
 
 class Colors:
@@ -19,7 +19,7 @@ class Colors:
     FILE_NAME: Final[str] = ansi.Colors.BRIGHT_MAGENTA
 
 
-class Peek(CLIProgram):
+class Peek(TextProgram):
     """A program that prints the first part of files."""
 
     def __init__(self) -> None:
@@ -47,18 +47,10 @@ class Peek(CLIProgram):
         return parser
 
     @override
-    def check_parsed_arguments(self) -> None:
-        """Enforce option dependencies, validate ranges, normalize defaults, and derive internal state."""
-        # Defaults:
-        # Set --no-file-name to True if there are no files and --stdin-files=False.
-        if not self.args.files and not self.args.stdin_files:
-            self.args.no_file_name = True
-
-    @override
     def main(self) -> None:
         """Run the program."""
         if terminal.stdin_is_redirected():
-            if self.args.stdin_files:  # --stdin-files
+            if self.args.stdin_files:
                 self.print_lines_from_files(sys.stdin)
             else:
                 if standard_input := sys.stdin.readlines():
@@ -72,9 +64,16 @@ class Peek(CLIProgram):
         else:
             self.print_lines_from_input()
 
+    @override
+    def normalize_options(self) -> None:
+        """Apply derived defaults and adjust option values for consistent internal use."""
+        # Set --no-file-name to True if there are no files and --stdin-files=False.
+        if not self.args.files and not self.args.stdin_files:
+            self.args.no_file_name = True
+
     def print_file_header(self, file_name: str) -> None:
         """Print the file name (or "(standard input)" if empty), followed by a colon, unless ``args.no_file_name`` is set."""
-        if not self.args.no_file_name:  # --no-file-name
+        if not self.args.no_file_name:
             file_header = os.path.relpath(file_name) if file_name else "(standard input)"
 
             if self.print_color:

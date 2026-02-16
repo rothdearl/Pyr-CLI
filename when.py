@@ -168,8 +168,7 @@ class When:
         """Initialize a new ``When`` instance."""
         self.args: argparse.Namespace = build_arguments().parse_args()
 
-        # Option dependencies:
-        # --datetime-format is only meaningful with --datetime.
+        # Check option dependencies: --datetime-format is only meaningful with --datetime.
         if self.args.datetime_format is not None and not self.args.datetime:
             print_error_and_exit("--datetime-format is only used with --datetime")
 
@@ -177,7 +176,7 @@ class When:
         """Run the program."""
         text_calendar = calendar.TextCalendar(calendar.SUNDAY if self.args.week_start == "sun" else calendar.MONDAY)
 
-        match self.args.calendar:  # --calendar
+        match self.args.calendar:
             case "m":
                 print_month(text_calendar)
             case "q":
@@ -185,8 +184,8 @@ class When:
             case _:
                 print_year(text_calendar)
 
-        if self.args.datetime:  # --datetime
-            date_format = self.args.datetime_format or When.DEFAULT_DATETIME_FORMAT  # --datetime-format
+        if self.args.datetime:
+            date_format = self.args.datetime_format or When.DEFAULT_DATETIME_FORMAT
             now = datetime.datetime.now()
 
             try:

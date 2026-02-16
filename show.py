@@ -9,7 +9,7 @@ import sys
 from collections.abc import Iterable, Sequence
 from typing import Final, override
 
-from cli import CLIProgram, ansi, io, terminal
+from cli import TextProgram, ansi, io, terminal
 
 
 class Colors:
@@ -30,7 +30,7 @@ class Whitespace:
     TRAILING_SPACE_MARKER: Final[str] = "~"
 
 
-class Show(CLIProgram):
+class Show(TextProgram):
     """A program that prints files to standard output."""
 
     def __init__(self) -> None:
@@ -65,25 +65,10 @@ class Show(CLIProgram):
         return parser
 
     @override
-    def check_parsed_arguments(self) -> None:
-        """Enforce option dependencies, validate ranges, normalize defaults, and derive internal state."""
-        # Ranges:
-        if self.args.max_lines < 1:
-            self.print_error_and_exit("--max-lines must be >= 1")
-
-        if self.args.start == 0:
-            self.print_error_and_exit("--start cannot be 0")
-
-        # Defaults:
-        # Set --no-file-name to True if there are no files and --stdin-files=False.
-        if not self.args.files and not self.args.stdin_files:
-            self.args.no_file_name = True
-
-    @override
     def main(self) -> None:
         """Run the program."""
         if terminal.stdin_is_redirected():
-            if self.args.stdin_files:  # --stdin-files
+            if self.args.stdin_files:
                 self.print_lines_from_files(sys.stdin)
             else:
                 if standard_input := sys.stdin.readlines():
@@ -97,9 +82,16 @@ class Show(CLIProgram):
         else:
             self.print_lines_from_input()
 
+    @override
+    def normalize_options(self) -> None:
+        """Apply derived defaults and adjust option values for consistent internal use."""
+        # Set --no-file-name to True if there are no files and --stdin-files=False.
+        if not self.args.files and not self.args.stdin_files:
+            self.args.no_file_name = True
+
     def print_file_header(self, file_name: str) -> None:
         """Print the file name (or "(standard input)" if empty), followed by a colon, unless ``args.no_file_name`` is set."""
-        if not self.args.no_file_name:  # --no-file-name
+        if not self.args.no_file_name:
             file_header = os.path.relpath(file_name) if file_name else "(standard input)"
 
             if self.print_color:
@@ -119,16 +111,16 @@ class Show(CLIProgram):
             if line_start <= line_number <= line_end:
                 rendered = line
 
-                if self.args.spaces:  # --spaces
+                if self.args.spaces:
                     rendered = self.render_spaces(rendered)
 
-                if self.args.tabs:  # --tabs
+                if self.args.tabs:
                     rendered = self.render_tabs(rendered)
 
-                if self.args.ends:  # --ends
+                if self.args.ends:
                     rendered = self.render_ends(rendered)
 
-                if self.args.line_numbers:  # --line-numbers
+                if self.args.line_numbers:
                     rendered = self.render_line_number(rendered, line_number, padding)
 
                 print(rendered)
@@ -183,6 +175,15 @@ class Show(CLIProgram):
             return line.replace("\t", f"{Colors.TAB_MARKER}{Whitespace.TAB_MARKER}{ansi.RESET}")
 
         return line.replace("\t", Whitespace.TAB_MARKER)
+
+    @override
+    def validate_option_ranges(self) -> None:
+        """Validate that option values fall within their allowed numeric or logical ranges."""
+        if self.args.max_lines < 1:
+            self.print_error_and_exit("--max-lines must be >= 1")
+
+        if self.args.start == 0:
+            self.print_error_and_exit("--start cannot be 0")
 
 
 if __name__ == "__main__":

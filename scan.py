@@ -9,7 +9,7 @@ import sys
 from collections.abc import Iterable
 from typing import Final, override
 
-from cli import CLIProgram, CompiledPatterns, ansi, io, patterns, terminal
+from cli import CompiledPatterns, TextProgram, ansi, io, patterns, terminal
 
 
 class Colors:
@@ -20,7 +20,7 @@ class Colors:
     MATCH: Final[str] = ansi.Colors.BRIGHT_RED
 
 
-class Scan(CLIProgram):
+class Scan(TextProgram):
     """
     A program that prints lines matching patterns in files.
 
@@ -76,14 +76,6 @@ class Scan(CLIProgram):
         if not self.found_any_match:
             raise SystemExit(Scan.NO_MATCHES_EXIT_CODE)
 
-    @override
-    def check_parsed_arguments(self) -> None:
-        """Enforce option dependencies, validate ranges, normalize defaults, and derive internal state."""
-        # Defaults:
-        # Set --no-file-name to True if there are no files and --stdin-files=False.
-        if not self.args.files and not self.args.stdin_files:
-            self.args.no_file_name = True
-
     def compile_patterns(self) -> None:
         """Compile search patterns."""
         if self.args.find:
@@ -92,7 +84,7 @@ class Scan(CLIProgram):
 
     def is_printing_counts(self) -> bool:
         """Return whether ``args.count`` or ``args.count_nonzero`` is set."""
-        return self.args.count or self.args.count_nonzero  # --count or --count-nonzero
+        return self.args.count or self.args.count_nonzero
 
     @override
     def main(self) -> None:
@@ -100,7 +92,7 @@ class Scan(CLIProgram):
         self.compile_patterns()
 
         if terminal.stdin_is_redirected():
-            if self.args.stdin_files:  # --stdin-files
+            if self.args.stdin_files:
                 self.print_matches_from_files(sys.stdin)
             elif standard_input := sys.stdin.readlines():
                 self.print_matches(standard_input, origin_file="")
@@ -113,6 +105,13 @@ class Scan(CLIProgram):
             self.args.no_file_name = True  # No file header if no files.
             self.print_matches_from_input()
 
+    @override
+    def normalize_options(self) -> None:
+        """Apply derived defaults and adjust option values for consistent internal use."""
+        # Set --no-file-name to True if there are no files and --stdin-files=False.
+        if not self.args.files and not self.args.stdin_files:
+            self.args.no_file_name = True
+
     def print_matches(self, lines: Iterable[str], *, origin_file: str) -> None:
         """Search lines and print matches or counts according to command-line options."""
         # Return early if no --find patterns are provided.
@@ -123,14 +122,14 @@ class Scan(CLIProgram):
 
         # Find matches.
         for line_number, line in enumerate(io.normalize_input_lines(lines), start=1):
-            if patterns.matches_all_patterns(line, self.patterns) != self.args.invert_match:  # --invert-match
+            if patterns.matches_all_patterns(line, self.patterns) != self.args.invert_match:
                 self.found_any_match = True
 
                 # Exit early if --quiet.
                 if self.args.quiet:
                     raise SystemExit(0)
 
-                if self.print_color and not self.args.invert_match:  # --invert-match
+                if self.print_color and not self.args.invert_match:
                     line = patterns.color_pattern_matches(line, self.patterns, color=Colors.MATCH)
 
                 matches.append((line_number, line))
@@ -138,10 +137,10 @@ class Scan(CLIProgram):
         # Print matches.
         file_name = ""
 
-        if self.args.count_nonzero and not matches:  # --count-nonzero
+        if self.args.count_nonzero and not matches:
             return
 
-        if not self.args.no_file_name:  # --no-file-name
+        if not self.args.no_file_name:
             file_name = os.path.relpath(origin_file) if origin_file else "(standard input)"
 
             if self.print_color:
@@ -158,7 +157,7 @@ class Scan(CLIProgram):
                 print(file_name)
 
             for line_number, line in matches:
-                if self.args.line_number:  # --line-number
+                if self.args.line_number:
                     if self.print_color:
                         print(f"{Colors.LINE_NUMBER}{line_number:>{padding}}{Colors.COLON}:{ansi.RESET}", end="")
                     else:

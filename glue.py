@@ -8,7 +8,7 @@ import sys
 from collections.abc import Iterable
 from typing import Final, override
 
-from cli import CLIProgram, ansi, io, terminal
+from cli import TextProgram, ansi, io, terminal
 
 
 class Colors:
@@ -24,7 +24,7 @@ class Whitespace:
     TAB_MARKER: Final[str] = ">···"
 
 
-class Glue(CLIProgram):
+class Glue(TextProgram):
     """
     A program that concatenates files and standard input to standard output.
 
@@ -66,17 +66,10 @@ class Glue(CLIProgram):
         return parser
 
     @override
-    def check_parsed_arguments(self) -> None:
-        """Enforce option dependencies, validate ranges, normalize defaults, and derive internal state."""
-        # Ranges:
-        if self.args.number_width < 1:
-            self.print_error_and_exit("--number-width must be >= 1")
-
-    @override
     def main(self) -> None:
         """Run the program."""
         if terminal.stdin_is_redirected():
-            if self.args.stdin_files:  # --stdin-files
+            if self.args.stdin_files:
                 self.print_lines_from_files(sys.stdin)
             else:
                 self.print_lines(sys.stdin)
@@ -91,7 +84,7 @@ class Glue(CLIProgram):
     def print_lines(self, lines: Iterable[str]) -> None:
         """Print lines to standard output, applying numbering, whitespace rendering, and blank-line handling."""
         blank_line_count = 0
-        number_lines = self.args.number or self.args.number_nonblank  # --number or --number-nonblank
+        number_lines = self.args.number or self.args.number_nonblank
 
         for line in io.normalize_input_lines(lines):
             print_number = number_lines
@@ -102,7 +95,7 @@ class Glue(CLIProgram):
                 if self.should_suppress_blank_line(blank_line_count):
                     continue
 
-                if self.args.number_nonblank:  # --number-nonblank
+                if self.args.number_nonblank:
                     print_number = False
             else:
                 blank_line_count = 0
@@ -138,13 +131,13 @@ class Glue(CLIProgram):
         """Render visible representations of tabs and end-of-line markers."""
         rendered = line
 
-        if self.args.show_tabs:  # --show-tabs
+        if self.args.show_tabs:
             if self.print_color:
                 rendered = rendered.replace("\t", f"{Colors.TAB_MARKER}{Whitespace.TAB_MARKER}{ansi.RESET}")
             else:
                 rendered = rendered.replace("\t", Whitespace.TAB_MARKER)
 
-        if self.args.show_ends:  # --show-ends
+        if self.args.show_ends:
             if self.print_color:
                 rendered = f"{rendered}{Colors.END_MARKER}{Whitespace.END_MARKER}{ansi.RESET}"
             else:
@@ -154,13 +147,19 @@ class Glue(CLIProgram):
 
     def should_suppress_blank_line(self, blank_line_count: int) -> bool:
         """Return whether a blank line should be suppressed."""
-        if self.args.no_blank:  # --no-blank
+        if self.args.no_blank:
             return True
 
-        if self.args.squeeze_blank and blank_line_count > 1:  # --squeeze-blank
+        if self.args.squeeze_blank and blank_line_count > 1:
             return True
 
         return False
+
+    @override
+    def validate_option_ranges(self) -> None:
+        """Validate that option values fall within their allowed numeric or logical ranges."""
+        if self.args.number_width < 1:
+            self.print_error_and_exit("--number-width must be >= 1")
 
 
 if __name__ == "__main__":

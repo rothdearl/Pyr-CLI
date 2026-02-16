@@ -9,7 +9,7 @@ import sys
 from collections.abc import Iterable
 from typing import Final, NamedTuple, override
 
-from cli import CLIProgram, ansi, io, terminal
+from cli import TextProgram, ansi, io, terminal
 
 
 class Colors:
@@ -27,7 +27,7 @@ class Counts(NamedTuple):
     max_line_length: int
 
 
-class Tally(CLIProgram):
+class Tally(TextProgram):
     """
     A program that counts lines, words, and characters in files.
 
@@ -100,16 +100,10 @@ class Tally(CLIProgram):
         return Counts(line_count, words, character_count, max_line_length)
 
     @override
-    def check_parsed_arguments(self) -> None:
-        """Enforce option dependencies, validate ranges, normalize defaults, and derive internal state."""
-        # Ranges:
-        if self.args.count_width < 1:
-            self.print_error_and_exit("--count-width must be >= 1")
+    def initialize_runtime_state(self) -> None:
+        """Initialize internal state derived from parsed options."""
+        super().initialize_runtime_state()
 
-        if self.args.tab_width < 1:
-            self.print_error_and_exit("--tab-width must be >= 1")
-
-        # Derive internal state:
         # Check which count flags were provided: --lines, --words, --chars, or --max-line-length
         for index, flag in enumerate((self.args.lines, self.args.words, self.args.chars, self.args.max_line_length)):
             if flag:
@@ -124,7 +118,7 @@ class Tally(CLIProgram):
     def main(self) -> None:
         """Run the program."""
         if terminal.stdin_is_redirected():
-            if self.args.stdin_files:  # --stdin-files
+            if self.args.stdin_files:
                 self.print_counts_from_files(sys.stdin)
             else:
                 if standard_input := sys.stdin.readlines():
@@ -141,7 +135,7 @@ class Tally(CLIProgram):
         else:
             self.print_counts_from_input()
 
-        if self.args.total == "on" or (self.args.total == "auto" and self.files_counted > 1):  # --total
+        if self.args.total == "on" or (self.args.total == "auto" and self.files_counted > 1):
             self.print_counts(self.totals, origin_file="total")
 
     def print_counts(self, counts: Counts, *, origin_file: str) -> None:
@@ -183,6 +177,15 @@ class Tally(CLIProgram):
 
         self.add_counts_to_totals(counts)
         self.print_counts(counts, origin_file="")
+
+    @override
+    def validate_option_ranges(self) -> None:
+        """Validate that option values fall within their allowed numeric or logical ranges."""
+        if self.args.count_width < 1:
+            self.print_error_and_exit("--count-width must be >= 1")
+
+        if self.args.tab_width < 1:
+            self.print_error_and_exit("--tab-width must be >= 1")
 
 
 if __name__ == "__main__":

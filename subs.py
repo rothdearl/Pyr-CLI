@@ -10,7 +10,7 @@ import sys
 from collections.abc import Iterable, Iterator
 from typing import Final, override
 
-from cli import CLIProgram, ansi, io, patterns, terminal
+from cli import TextProgram, ansi, io, patterns, terminal
 
 
 class Colors:
@@ -19,7 +19,7 @@ class Colors:
     FILE_NAME: Final[str] = ansi.Colors.BRIGHT_MAGENTA
 
 
-class Subs(CLIProgram):
+class Subs(TextProgram):
     """
     A program that replaces matching text in files.
 
@@ -58,18 +58,6 @@ class Subs(CLIProgram):
 
         return parser
 
-    @override
-    def check_parsed_arguments(self) -> None:
-        """Enforce option dependencies, validate ranges, normalize defaults, and derive internal state."""
-        # Ranges:
-        if self.args.max_replacements < 1:
-            self.print_error_and_exit("--max-replacements must be >= 1")
-
-        # Defaults:
-        # Set --no-file-name to True if there are no files and --stdin-files=False.
-        if not self.args.files and not self.args.stdin_files:
-            self.args.no_file_name = True
-
     def compile_patterns(self) -> None:
         """Compile search patterns and combine them into a single OR-pattern."""
         if compiled := patterns.compile_patterns(self.args.find, ignore_case=self.args.ignore_case,
@@ -90,7 +78,7 @@ class Subs(CLIProgram):
         self.compile_patterns()
 
         if terminal.stdin_is_redirected():
-            if self.args.stdin_files:  # --stdin-files
+            if self.args.stdin_files:
                 self.process_files(sys.stdin)
             else:
                 if standard_input := sys.stdin.readlines():
@@ -104,9 +92,16 @@ class Subs(CLIProgram):
         else:
             self.print_replaced_lines_from_input()
 
+    @override
+    def normalize_options(self) -> None:
+        """Apply derived defaults and adjust option values for consistent internal use."""
+        # Set --no-file-name to True if there are no files and --stdin-files=False.
+        if not self.args.files and not self.args.stdin_files:
+            self.args.no_file_name = True
+
     def print_file_header(self, file_name: str) -> None:
         """Print the file name (or "(standard input)" if empty), followed by a colon, unless ``args.no_file_name`` is set."""
-        if not self.args.no_file_name:  # --no-file-name
+        if not self.args.no_file_name:
             file_header = os.path.relpath(file_name) if file_name else "(standard input)"
 
             if self.print_color:
@@ -128,7 +123,7 @@ class Subs(CLIProgram):
     def process_files(self, files: Iterable[str]) -> None:
         """Process files by replacing matches and printing results or writing changes in place."""
         for file_info in io.read_text_files(files, self.encoding, on_error=self.print_error):
-            if self.args.in_place:  # --in-place
+            if self.args.in_place:
                 io.write_text_to_file(file_info.file_name,
                                       self.iterate_replaced_lines(file_info.text_stream.readlines()), self.encoding,
                                       on_error=self.print_error)
@@ -138,6 +133,12 @@ class Subs(CLIProgram):
                     self.print_replaced_lines(file_info.text_stream.readlines())
                 except UnicodeDecodeError:
                     self.print_error(f"{file_info.file_name}: unable to read with {self.encoding}")
+
+    @override
+    def validate_option_ranges(self) -> None:
+        """Validate that option values fall within their allowed numeric or logical ranges."""
+        if self.args.max_replacements < 1:
+            self.print_error_and_exit("--max-replacements must be >= 1")
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ from typing import Final, override
 
 from dateutil.parser import ParserError, parse
 
-from cli import CLIProgram, ansi, io, terminal, text
+from cli import TextProgram, ansi, io, terminal, text
 
 
 class Colors:
@@ -23,7 +23,7 @@ class Colors:
     FILE_NAME: Final[str] = ansi.Colors.BRIGHT_MAGENTA
 
 
-class Order(CLIProgram):
+class Order(TextProgram):
     """
     A program that sorts files and prints them to standard output.
 
@@ -76,29 +76,15 @@ class Order(CLIProgram):
         return parser
 
     @override
-    def check_parsed_arguments(self) -> None:
-        """Enforce option dependencies, validate ranges, normalize defaults, and derive internal state."""
-        # Option dependencies:
+    def check_option_dependencies(self) -> None:
+        """Enforce relationships and mutual constraints between command-line options."""
         # --field-separator is only meaningful with --skip-fields.
-        if self.args.field_separator and self.args.skip_fields is None:
+        if self.args.field_separator is not None and self.args.skip_fields is None:
             self.print_error_and_exit("--field-separator is only used with --skip-fields")
 
         # --decimal-comma is only meaningful with --currency-sort or --natural-sort.
         if self.args.decimal_comma and not any((self.args.currency_sort, self.args.natural_sort)):
             self.print_error_and_exit("--decimal-comma is only used with --currency-sort or --natural-sort")
-
-        # Ranges:
-        if self.args.skip_fields is not None and self.args.skip_fields < 1:
-            self.print_error_and_exit("--skip-fields must be >= 1")
-
-        # Defaults:
-        # Set --ignore-case to True if --dictionary-order=True or --natural-sort=True.
-        if self.args.dictionary_order or self.args.natural_sort:
-            self.args.ignore_case = True
-
-        # Set --no-file-name to True if there are no files and --stdin-files=False.
-        if not self.args.files and not self.args.stdin_files:
-            self.args.no_file_name = True
 
     def generate_currency_sort_key(self, line: str) -> list[tuple[int, float | str]]:
         """
@@ -181,8 +167,8 @@ class Order(CLIProgram):
     def get_sort_fields(self, line: str, filter_empty_fields: bool = False) -> list[str]:
         """Return normalized sort fields after optional empty-field filtering and applying ``--skip-fields``."""
         normalized = self.normalize_line(line)
-        separator = self.args.field_separator or " "  # --field-separator
-        skip = self.args.skip_fields  # --skip-fields
+        separator = self.args.field_separator or " "
+        skip = self.args.skip_fields
 
         # Split line into fields, optionally filter empty fields, and apply --skip-fields.
         fields = text.split_csv(normalized, separator=separator, on_error=self.print_error_and_exit)
@@ -200,7 +186,7 @@ class Order(CLIProgram):
     def main(self) -> None:
         """Run the program."""
         if terminal.stdin_is_redirected():
-            if self.args.stdin_files:  # --stdin-files
+            if self.args.stdin_files:
                 self.sort_and_print_lines_from_files(sys.stdin)
             else:
                 if standard_input := sys.stdin.readlines():
@@ -218,26 +204,37 @@ class Order(CLIProgram):
         """Return the line with trailing whitespace removed and optional leading-blank and case normalization applied."""
         normalized = line.rstrip()  # Remove trailing whitespace.
 
-        if self.args.ignore_leading_blanks:  # --ignore-leading-blanks
+        if self.args.ignore_leading_blanks:
             normalized = normalized.lstrip()
 
-        if self.args.ignore_case:  # --ignore-case
+        if self.args.ignore_case:
             normalized = normalized.casefold()
 
         return normalized
 
     def normalize_number(self, number: str) -> str:
         """Return the number with a period "." as the decimal separator and no thousands separators."""
-        if self.args.decimal_comma:  # --decimal-comma
+        if self.args.decimal_comma:
             # Remove thousands separator, then replace commas with decimals.
             return number.replace(".", "").replace(",", ".")
 
         # Remove thousands separator.
         return number.replace(",", "")
 
+    @override
+    def normalize_options(self) -> None:
+        """Apply derived defaults and adjust option values for consistent internal use."""
+        # Set --ignore-case to True if --dictionary-order=True or --natural-sort=True.
+        if self.args.dictionary_order or self.args.natural_sort:
+            self.args.ignore_case = True
+
+        # Set --no-file-name to True if there are no files and --stdin-files=False.
+        if not self.args.files and not self.args.stdin_files:
+            self.args.no_file_name = True
+
     def print_file_header(self, file_name: str) -> None:
         """Print the file name (or "(standard input)" if empty), followed by a colon, unless ``args.no_file_name`` is set."""
-        if not self.args.no_file_name:  # --no-file-name
+        if not self.args.no_file_name:
             file_header = os.path.relpath(file_name) if file_name else "(standard input)"
 
             if self.print_color:
@@ -249,23 +246,23 @@ class Order(CLIProgram):
 
     def sort_and_print_lines(self, lines: list[str]) -> None:
         """Sort lines in place and print them to standard output according to command-line arguments."""
-        if self.args.random_sort:  # --random-sort
+        if self.args.random_sort:
             random.shuffle(lines)
         else:
             key_function = (
-                self.generate_currency_sort_key if self.args.currency_sort else  # --currency-sort
-                self.generate_date_sort_key if self.args.date_sort else  # --date-sort
-                self.generate_dictionary_sort_key if self.args.dictionary_order else  # --dictionary-order
-                self.generate_natural_sort_key if self.args.natural_sort else  # --natural-sort
+                self.generate_currency_sort_key if self.args.currency_sort else
+                self.generate_date_sort_key if self.args.date_sort else
+                self.generate_dictionary_sort_key if self.args.dictionary_order else
+                self.generate_natural_sort_key if self.args.natural_sort else
                 self.generate_default_sort_key
             )
-            reverse = self.args.reverse  # --reverse
+            reverse = self.args.reverse
 
             lines.sort(key=key_function, reverse=reverse)
 
         # Print lines.
         for line in io.normalize_input_lines(lines):
-            if self.args.no_blank and not line.rstrip():  # --no-blank
+            if self.args.no_blank and not line.rstrip():
                 continue
 
             print(line)
@@ -282,6 +279,12 @@ class Order(CLIProgram):
     def sort_and_print_lines_from_input(self) -> None:
         """Read, sort, and print lines from standard input until EOF."""
         self.sort_and_print_lines(sys.stdin.readlines())
+
+    @override
+    def validate_option_ranges(self) -> None:
+        """Validate that option values fall within their allowed numeric or logical ranges."""
+        if self.args.skip_fields is not None and self.args.skip_fields < 1:
+            self.print_error_and_exit("--skip-fields must be >= 1")
 
 
 if __name__ == "__main__":

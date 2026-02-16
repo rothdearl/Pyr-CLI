@@ -11,7 +11,7 @@ from collections.abc import Iterable, Sequence
 from threading import Thread
 from typing import Final, override
 
-from cli import CLIProgram, ansi, io, terminal
+from cli import TextProgram, ansi, io, terminal
 
 
 class Colors:
@@ -20,7 +20,7 @@ class Colors:
     FILE_NAME: Final[str] = ansi.Colors.BRIGHT_MAGENTA
 
 
-class Track(CLIProgram):
+class Track(TextProgram):
     """A program that prints the last part of files, optionally following new lines."""
 
     def __init__(self) -> None:
@@ -48,14 +48,6 @@ class Track(CLIProgram):
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")
 
         return parser
-
-    @override
-    def check_parsed_arguments(self) -> None:
-        """Enforce option dependencies, validate ranges, normalize defaults, and derive internal state."""
-        # Defaults:
-        # Set --no-file-name to True if there are no files and --stdin-files=False.
-        if not self.args.files and not self.args.stdin_files:
-            self.args.no_file_name = True
 
     def follow_file(self, file_name: str, print_file_name_on_update) -> None:
         """Follow the file for new lines."""
@@ -101,7 +93,7 @@ class Track(CLIProgram):
         printed_files = []
 
         if terminal.stdin_is_redirected():
-            if self.args.stdin_files:  # --stdin-files
+            if self.args.stdin_files:
                 printed_files.extend(self.print_lines_from_files(sys.stdin))
             else:
                 if standard_input := sys.stdin.readlines():
@@ -115,14 +107,21 @@ class Track(CLIProgram):
         else:
             self.print_lines_from_input()
 
-        if self.args.follow and printed_files:  # --follow
+        if self.args.follow and printed_files:
             # Start threads and wait for them to terminate.
             for thread in self.start_following_threads(printed_files, print_file_name_on_update=len(printed_files) > 1):
                 thread.join()
 
+    @override
+    def normalize_options(self) -> None:
+        """Apply derived defaults and adjust option values for consistent internal use."""
+        # Set --no-file-name to True if there are no files and --stdin-files=False.
+        if not self.args.files and not self.args.stdin_files:
+            self.args.no_file_name = True
+
     def print_file_header(self, file_name: str) -> None:
         """Print the file name (or "(standard input)" if empty), followed by a colon, unless ``args.no_file_name`` is set."""
-        if not self.args.no_file_name:  # --no-file-name
+        if not self.args.no_file_name:
             file_header = os.path.relpath(file_name) if file_name else "(standard input)"
 
             if self.print_color:
@@ -134,12 +133,11 @@ class Track(CLIProgram):
 
     def print_lines(self, lines: Sequence[str]) -> None:
         """Print lines to standard output."""
-        max_lines = self.args.lines  # --lines
-        skip_to_line = len(lines) - max_lines
+        skip_to_line = len(lines) - self.args.lines
 
         # Print all but the first 'N' lines.
-        if max_lines < 0:
-            skip_to_line = abs(max_lines)
+        if self.args.lines < 0:
+            skip_to_line = abs(self.args.lines)
 
         for index, line in enumerate(io.normalize_input_lines(lines), start=1):
             if index > skip_to_line:

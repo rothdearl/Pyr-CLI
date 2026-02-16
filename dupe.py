@@ -9,7 +9,7 @@ import sys
 from collections.abc import Iterable
 from typing import Final, override
 
-from cli import CLIProgram, ansi, io, terminal, text
+from cli import TextProgram, ansi, io, terminal, text
 
 
 class Colors:
@@ -19,7 +19,7 @@ class Colors:
     GROUP_COUNT: Final[str] = ansi.Colors.BRIGHT_GREEN
 
 
-class Dupe(CLIProgram):
+class Dupe(TextProgram):
     """A program that filters duplicate or unique lines from files."""
 
     def __init__(self) -> None:
@@ -69,54 +69,35 @@ class Dupe(CLIProgram):
 
     def can_group_key(self, key: str) -> bool:
         """Return whether the key should participate in grouping (optionally ignoring blank keys)."""
-        return not self.args.ignore_blank or key.strip()  # --ignore-blank
+        return not self.args.ignore_blank or key.strip()
 
     @override
-    def check_parsed_arguments(self) -> None:
-        """Enforce option dependencies, validate ranges, normalize defaults, and derive internal state."""
-        # Option dependencies:
+    def check_option_dependencies(self) -> None:
+        """Enforce relationships and mutual constraints between command-line options."""
         # --field-separator is only meaningful with --skip-fields.
-        if self.args.field_separator and self.args.skip_fields is None:
+        if self.args.field_separator is not None and self.args.skip_fields is None:
             self.print_error_and_exit("--field-separator is only used with --skip-fields")
-
-        # Ranges:
-        if self.args.count_width < 1:
-            self.print_error_and_exit("--count-width must be >= 1")
-
-        if self.args.max_chars is not None and self.args.max_chars < 1:
-            self.print_error_and_exit("--max-chars must be >= 1")
-
-        if self.args.skip_chars is not None and self.args.skip_chars < 0:
-            self.print_error_and_exit("--skip-chars must be >= 0")
-
-        if self.args.skip_fields is not None and self.args.skip_fields < 1:
-            self.print_error_and_exit("--skip-fields must be >= 1")
-
-        # Defaults:
-        # Set --no-file-name to True if there are no files and --stdin-files=False.
-        if not self.args.files and not self.args.stdin_files:
-            self.args.no_file_name = True
 
     def get_compare_key(self, line: str) -> str:
         """Return a normalized comparison key derived from the line, applying rules according to command-line options."""
         compare_key = line
 
-        if self.args.skip_whitespace:  # --skip-whitespace
+        if self.args.skip_whitespace:
             compare_key = compare_key.strip()
 
-        if self.args.skip_fields:  # --skip-fields
-            separator = self.args.field_separator or " "  # --field-separator
+        if self.args.skip_fields:
+            separator = self.args.field_separator or " "
 
             compare_key = text.split_csv(compare_key, separator=separator, on_error=self.print_error_and_exit)
             compare_key = separator.join(compare_key[self.args.skip_fields:])
 
-        if self.args.max_chars or self.args.skip_chars:  # --max-chars or --skip-chars
+        if self.args.max_chars or self.args.skip_chars:
             start_index = self.args.skip_chars or 0
             end_index = start_index + self.args.max_chars if self.args.max_chars else len(line)
 
             compare_key = compare_key[start_index:end_index]
 
-        if self.args.ignore_case:  # --ignore-case
+        if self.args.ignore_case:
             compare_key = compare_key.casefold()
 
         return compare_key
@@ -145,7 +126,7 @@ class Dupe(CLIProgram):
         file_header_printed = False
 
         # Group matches.
-        if self.args.adjacent:  # --adjacent
+        if self.args.adjacent:
             groups = self.group_adjacent_matching_lines(lines)
         else:
             groups = self.group_lines_by_key(lines).values()
@@ -156,14 +137,14 @@ class Dupe(CLIProgram):
         for group in groups:
             group_count = len(group)
 
-            if self.args.group and printed_group_count:  # --group
+            if self.args.group and printed_group_count:
                 print()
 
             for line_index, line in enumerate(group):
                 can_print = True
                 group_count_str = ""
 
-                if self.args.count:  # --count
+                if self.args.count:
                     # Only print the group count for the first line.
                     if line_index == 0:
                         if self.print_color:
@@ -175,9 +156,9 @@ class Dupe(CLIProgram):
 
                         group_count_str = f"{empty_space:>{self.args.count_width}} "
 
-                if self.args.all_repeated or self.args.repeated:  # --all-repeated or --repeated
+                if self.args.all_repeated or self.args.repeated:
                     can_print = group_count > 1
-                elif self.args.unique:  # --unique
+                elif self.args.unique:
                     can_print = group_count == 1
 
                 if can_print:
@@ -188,7 +169,7 @@ class Dupe(CLIProgram):
                     print(f"{group_count_str}{line}")
                     printed_group_count += 1
 
-                    if not (self.args.all_repeated or self.args.group):  # --all-repeated or --group
+                    if not (self.args.all_repeated or self.args.group):
                         break
 
     def group_and_print_lines_from_files(self, files: Iterable[str]) -> None:
@@ -224,7 +205,7 @@ class Dupe(CLIProgram):
     def main(self) -> None:
         """Run the program."""
         if terminal.stdin_is_redirected():
-            if self.args.stdin_files:  # --stdin-files
+            if self.args.stdin_files:
                 self.group_and_print_lines_from_files(sys.stdin)
             else:
                 if standard_input := sys.stdin.readlines():
@@ -237,9 +218,16 @@ class Dupe(CLIProgram):
         else:
             self.group_and_print_lines_from_input()
 
+    @override
+    def normalize_options(self) -> None:
+        """Apply derived defaults and adjust option values for consistent internal use."""
+        # Set --no-file-name to True if there are no files and --stdin-files=False.
+        if not self.args.files and not self.args.stdin_files:
+            self.args.no_file_name = True
+
     def print_file_header(self, file_name: str) -> None:
         """Print the file name (or "(standard input)" if empty), followed by a colon, unless ``args.no_file_name`` is set."""
-        if not self.args.no_file_name:  # --no-file-name
+        if not self.args.no_file_name:
             file_header = os.path.relpath(file_name) if file_name else "(standard input)"
 
             if self.print_color:
@@ -248,6 +236,21 @@ class Dupe(CLIProgram):
                 file_header = f"{file_header}:"
 
             print(file_header)
+
+    @override
+    def validate_option_ranges(self) -> None:
+        """Validate that option values fall within their allowed numeric or logical ranges."""
+        if self.args.count_width < 1:
+            self.print_error_and_exit("--count-width must be >= 1")
+
+        if self.args.max_chars is not None and self.args.max_chars < 1:
+            self.print_error_and_exit("--max-chars must be >= 1")
+
+        if self.args.skip_chars is not None and self.args.skip_chars < 0:
+            self.print_error_and_exit("--skip-chars must be >= 0")
+
+        if self.args.skip_fields is not None and self.args.skip_fields < 1:
+            self.print_error_and_exit("--skip-fields must be >= 1")
 
 
 if __name__ == "__main__":
