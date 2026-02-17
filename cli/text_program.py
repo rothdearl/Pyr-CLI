@@ -42,7 +42,7 @@ class TextProgram(CLIProgram, ABC):
     @final
     def process_text_files(self, files: Iterable[str]) -> list[str]:
         """
-        Process each file path, delegating stream handling to ``handle_text_stream``.
+        Process each file path and delegate handling of its text stream to ``handle_text_stream``
 
         :param files: Iterable of file names to process.
         :return: A list of file names processed successfully.
