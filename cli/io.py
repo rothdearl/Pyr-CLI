@@ -38,18 +38,17 @@ def read_text_files(files: Iterable[str], encoding: str, *, on_error: ErrorRepor
 
         try:
             if os.path.isdir(file_name):
-                on_error(f"{file_name}: is a directory")
+                on_error(f"{file_name!r}: is a directory")
                 continue
 
             with open(file_name, mode="rt", encoding=encoding) as text_stream:
                 yield FileInfo(file_name, text_stream)
         except FileNotFoundError:
-            visible_name = file_name or "(empty)"  # Use a visible placeholder for empty file names in messages.
-            on_error(f"{visible_name}: no such file or directory")
+            on_error(f"{file_name!r}: no such file or directory")
         except PermissionError:
-            on_error(f"{file_name}: permission denied")
+            on_error(f"{file_name!r}: permission denied")
         except OSError:
-            on_error(f"{file_name}: unable to read file")
+            on_error(f"{file_name!r}: unable to read")
 
 
 def remove_trailing_newline(string: str) -> str:
@@ -71,13 +70,13 @@ def write_text_to_file(file_name: str, text: Iterable[str], encoding: str, *, on
             for line in text:
                 f.write(remove_trailing_newline(line) + "\n")
     except LookupError:
-        on_error(f"{file_name}: unknown encoding {encoding}")
+        on_error(f"{file_name!r}: unknown encoding {encoding!r}")
     except PermissionError:
-        on_error(f"{file_name}: permission denied")
+        on_error(f"{file_name!r}: permission denied")
     except UnicodeEncodeError:
-        on_error(f"{file_name}: unable to write with {encoding}")
+        on_error(f"{file_name!r}: unable to write with {encoding!r}")
     except OSError:
-        on_error(f"{file_name}: unable to write file")
+        on_error(f"{file_name!r}: unable to write")
 
 
 __all__ = [

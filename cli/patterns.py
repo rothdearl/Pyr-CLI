@@ -86,7 +86,7 @@ def compile_patterns(patterns: Iterable[str], *, ignore_case: bool, on_error: Er
         try:
             compiled.append(re.compile(pattern, flags=flags))
         except re.error:  # re.PatternError was introduced in Python 3.13; use re.error for Python < 3.13.
-            on_error(f"invalid pattern: {pattern}")
+            on_error(f"invalid pattern: {pattern!r}")
 
     return compiled
 

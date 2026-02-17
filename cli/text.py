@@ -19,8 +19,7 @@ def split_csv(text: str, *, separator: str = " ", on_error: ErrorReporter) -> li
         if len(separator) == 1 and separator not in ('"', "\n", "\r"):
             return next(csv.reader([text], delimiter=separator))
     except (UnicodeDecodeError, ValueError, csv.Error):
-        visible_name = repr(separator) if separator else "(empty)"
-        on_error(f"invalid separator: {visible_name}")
+        on_error(f"invalid separator: {separator!r}")
         return text.split()
 
     return text.split(separator)
@@ -33,7 +32,7 @@ def split_regex(text: str, *, pattern: str, ignore_case: bool = False, on_error:
     try:
         return re.split(pattern=pattern, string=text, flags=flags)
     except re.error:  # re.PatternError was introduced in Python 3.13; use re.error for Python < 3.13.
-        on_error(f"invalid pattern: {pattern}")
+        on_error(f"invalid pattern: {pattern!r}")
 
     return text.split()
 
