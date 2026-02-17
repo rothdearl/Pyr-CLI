@@ -11,11 +11,9 @@ class FileInfo(NamedTuple):
     """
     Immutable container for information about a file being read.
 
-    :ivar file_index: Position of the file name in the original input sequence.
     :ivar file_name: Normalized file name.
     :ivar text_stream: Open text stream for the file, valid only until the next yield.
     """
-    file_index: int
     file_name: str
     text_stream: TextIO
 
@@ -44,7 +42,7 @@ def read_text_files(files: Iterable[str], encoding: str, *, on_error: ErrorRepor
                 continue
 
             with open(file_name, mode="rt", encoding=encoding) as text_stream:
-                yield FileInfo(file_index, file_name, text_stream)
+                yield FileInfo(file_name, text_stream)
         except FileNotFoundError:
             visible_name = file_name or "(empty)"  # Use a visible placeholder for empty file names in messages.
             on_error(f"{visible_name}: no such file or directory")
