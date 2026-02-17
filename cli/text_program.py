@@ -1,4 +1,4 @@
-"""Provides an abstract base class (ABC) for command-line programs that process text streams."""
+"""Provides an abstract base class (ABC) for command-line programs that process text files."""
 
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
@@ -10,7 +10,7 @@ from .io import FileInfo, read_text_files
 
 class TextProgram(CLIProgram, ABC):
     """
-    Abstract base class (ABC) for command-line programs that process text streams.
+    Abstract base class (ABC) for command-line programs that process text files.
 
     :ivar encoding: Encoding for reading and writing to files (default: ``"utf-8"``).
     """
@@ -29,7 +29,7 @@ class TextProgram(CLIProgram, ABC):
 
     @abstractmethod
     def handle_text_stream(self, file_info: FileInfo) -> None:
-        """Process a single text stream contained in a ``FileInfo`` instance."""
+        """Process the text stream in ``FileInfo``."""
         ...
 
     @override
@@ -42,7 +42,7 @@ class TextProgram(CLIProgram, ABC):
     @final
     def process_text_files(self, files: Iterable[str]) -> list[str]:
         """
-         Process each file path, delegating stream handling to ``handle_text_stream``.
+        Process each file path, delegating stream handling to ``handle_text_stream``.
 
         :param files: Iterable of file names to process.
         :return: A list of file names processed successfully.

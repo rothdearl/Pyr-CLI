@@ -84,7 +84,7 @@ class Scan(TextProgram):
 
     @override
     def handle_text_stream(self, file_info: io.FileInfo) -> None:
-        """Process a single text stream contained in a ``FileInfo`` instance."""
+        """Process the text stream in ``FileInfo``."""
         self.print_matches(file_info.text_stream, origin_file=file_info.file_name)
 
     def is_printing_counts(self) -> bool:

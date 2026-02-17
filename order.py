@@ -183,7 +183,7 @@ class Order(TextProgram):
 
     @override
     def handle_text_stream(self, file_info: io.FileInfo) -> None:
-        """Process a single text stream contained in a ``FileInfo`` instance."""
+        """Process the text stream in ``FileInfo``."""
         self.print_file_header(file_info.file_name)
         self.sort_and_print_lines(file_info.text_stream.readlines())
 

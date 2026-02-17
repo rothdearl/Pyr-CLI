@@ -28,12 +28,12 @@ def read_text_files(files: Iterable[str], encoding: str, *, on_error: ErrorRepor
     """
     Open files for reading in text mode and yield ``FileInfo`` objects.
 
-    :param files: Iterable of file names or a text stream yielding file names.
+    :param files: Iterable of file names (including lines from standard input).
     :param encoding: Text encoding.
     :param on_error: Callback invoked with an error message for file-related errors.
     :return: Iterator yielding ``FileInfo`` objects, where the text stream is only valid until the next yield.
     """
-    for file_index, raw_name in enumerate(files):
+    for raw_name in files:
         file_name = remove_trailing_newline(raw_name)  # Normalize file name.
 
         try:
