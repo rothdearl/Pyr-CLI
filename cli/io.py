@@ -45,6 +45,8 @@ def read_text_files(files: Iterable[str], encoding: str, *, on_error: ErrorRepor
                 yield FileInfo(file_name, text_stream)
         except FileNotFoundError:
             on_error(f"{file_name!r}: no such file or directory")
+        except LookupError:
+            on_error(f"{file_name!r}: unknown encoding {encoding!r}")
         except PermissionError:
             on_error(f"{file_name!r}: permission denied")
         except OSError:

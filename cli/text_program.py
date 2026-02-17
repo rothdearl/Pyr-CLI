@@ -15,7 +15,6 @@ class TextProgram(CLIProgram, ABC):
     :ivar encoding: Encoding for reading and writing to files (default: ``"utf-8"``).
     """
 
-    @override
     def __init__(self, *, name: str, version: str, error_exit_code: int = 1) -> None:
         """
         Initialize a new ``TextProgram`` instance.
@@ -42,15 +41,18 @@ class TextProgram(CLIProgram, ABC):
 
     @final
     def process_text_files(self, files: Iterable[str]) -> list[str]:
-        """Process each file path, delegating stream handling to ``handle_text_stream``, and return the names of files processed successfully."""
+        """
+         Process each file path, delegating stream handling to ``handle_text_stream``.
+
+        :param files: Iterable of file names to process.
+        :return: A list of file names processed successfully.
+        """
         processed_files = []
 
         for file_info in read_text_files(files, self.encoding, on_error=self.print_error):
             try:
                 self.handle_text_stream(file_info)
                 processed_files.append(file_info.file_name)
-            except LookupError:
-                self.print_error(f"{file_info.file_name!r}: unknown encoding {self.encoding!r}")
             except UnicodeDecodeError:
                 self.print_error(f"{file_info.file_name!r}: unable to read with {self.encoding!r}")
 
