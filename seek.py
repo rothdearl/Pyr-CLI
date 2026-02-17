@@ -146,7 +146,7 @@ class Seek(CLIProgram):
                     matches_all_filters = difference > last_modified
         except PermissionError:
             matches_all_filters = False
-            self.print_error(f"{path}: permission denied")
+            self.print_error(f"{path!r}: permission denied")
 
         return matches_all_filters
 
@@ -219,10 +219,9 @@ class Seek(CLIProgram):
 
                         self.print_path(path)
                 except PermissionError as error:
-                    self.print_error(f"{error.filename}: permission denied")
+                    self.print_error(f"{error.filename!r}: permission denied")
             else:
-                visible_name = directory or "(empty)"  # Use a visible placeholder for empty file names in messages.
-                self.print_error(f"{visible_name}: no such file or directory")
+                self.print_error(f"{directory!r}: no such file or directory")
 
     @override
     def validate_option_ranges(self) -> None:

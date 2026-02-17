@@ -83,9 +83,9 @@ class Track(TextProgram):
 
                 time.sleep(polling_interval)
         except FileNotFoundError:
-            self.print_error(f"{file_name} has been deleted")
+            self.print_error(f"{file_name!r} has been deleted")
         except (UnicodeDecodeError, OSError):
-            self.print_error(f"{file_name} is no longer accessible")
+            self.print_error(f"{file_name!r} is no longer accessible")
 
     @override
     def handle_text_stream(self, file_info: io.FileInfo) -> None:
