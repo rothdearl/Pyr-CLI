@@ -139,11 +139,12 @@ class Scan(TextProgram):
 
                 matches.append((line_number, line))
 
-        # Print matches.
-        file_name = ""
-
+        # Return early if not printing counts for files without matches.
         if self.args.count_nonzero and not matches:
             return
+
+        # Determine file name and print either the counts or matches.
+        file_name = ""
 
         if not self.args.no_file_name:
             file_name = os.path.relpath(origin_file) if origin_file else "(standard input)"
