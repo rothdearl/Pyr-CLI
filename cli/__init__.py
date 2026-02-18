@@ -34,6 +34,7 @@ from .ini import (
 
 from .io import (
     FileInfo,
+    filter_empty_file_names,
     normalize_input_lines,
     read_text_files,
     remove_trailing_newline,

@@ -3,12 +3,12 @@
 import os
 import sys
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, Iterator
+from collections.abc import Iterable
 from typing import final, override
 
 from .ansi import RESET
 from .cli_program import CLIProgram
-from .io import FileInfo, normalize_input_lines, read_text_files
+from .io import FileInfo, filter_empty_file_names, read_text_files
 
 
 class TextProgram(CLIProgram, ABC):
@@ -29,15 +29,6 @@ class TextProgram(CLIProgram, ABC):
         super().__init__(name=name, version=version, error_exit_code=error_exit_code)
 
         self.encoding: str = "utf-8"
-
-    @staticmethod
-    def _filter_empty_file_names(stdin_files: Iterable[str]) -> Iterator[str]:
-        """Yield file names, excluding lines that are empty after removing one trailing newline."""
-        for file_name in normalize_input_lines(stdin_files):
-            if not file_name:
-                continue
-
-            yield file_name
 
     @abstractmethod
     def handle_text_stream(self, file_info: FileInfo) -> None:
@@ -73,7 +64,7 @@ class TextProgram(CLIProgram, ABC):
     @final
     def process_text_files_from_stdin(self) -> list[str]:
         """Process file names read from standard input."""
-        return self.process_text_files(self._filter_empty_file_names(sys.stdin))
+        return self.process_text_files(filter_empty_file_names(sys.stdin))
 
     @final
     def render_file_header(self, file_name: str, *, file_name_color: str, colon_color: str) -> str:
