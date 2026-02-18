@@ -18,15 +18,6 @@ class FileInfo(NamedTuple):
     text_stream: TextIO
 
 
-def filter_empty_file_names(stdin_files: Iterable[str]) -> Iterator[str]:
-    """Yield file names, excluding lines that are empty after removing one trailing newline."""
-    for file_names in normalize_input_lines(stdin_files):
-        if not file_names:
-            continue
-
-        yield file_names
-
-
 def normalize_input_lines(lines: Iterable[str]) -> Iterator[str]:
     """Yield lines with a single trailing newline removed, if present."""
     for line in lines:
