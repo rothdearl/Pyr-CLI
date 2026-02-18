@@ -21,10 +21,8 @@ class FileInfo(NamedTuple):
 def iter_nonempty_file_names(stdin_files: Iterable[str]) -> Iterator[str]:
     """Yield non-empty file names from normalized input lines."""
     for file_name in normalize_input_lines(stdin_files):
-        if not file_name:
-            continue
-
-        yield file_name
+        if file_name:
+            yield file_name
 
 
 def normalize_input_lines(lines: Iterable[str]) -> Iterator[str]:
