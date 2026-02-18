@@ -4,7 +4,6 @@
 """A program that prints the last part of files, optionally following new lines."""
 
 import argparse
-import os
 import sys
 import time
 from collections.abc import Iterable, Sequence
@@ -25,7 +24,7 @@ class Track(TextProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Track`` instance."""
-        super().__init__(name="track", version="1.4.1")
+        super().__init__(name="track", version="1.4.2")
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
@@ -126,16 +125,8 @@ class Track(TextProgram):
             self.args.no_file_name = True
 
     def print_file_header(self, file_name: str) -> None:
-        """Print the file name (or "(standard input)" if empty), followed by a colon, unless ``args.no_file_name`` is set."""
-        if not self.args.no_file_name:
-            file_header = os.path.relpath(file_name) if file_name else "(standard input)"
-
-            if self.print_color:
-                file_header = f"{Colors.FILE_NAME}{file_header}{Colors.COLON}:{ansi.RESET}"
-            else:
-                file_header = f"{file_header}:"
-
-            print(file_header)
+        """Print the rendered file header for ``file_name``."""
+        print(self.render_file_header(file_name, file_name_color=Colors.FILE_NAME, colon_color=Colors.COLON))
 
     def print_lines(self, lines: Sequence[str]) -> None:
         """Print lines to standard output."""

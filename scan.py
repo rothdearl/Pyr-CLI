@@ -4,7 +4,6 @@
 """A program that prints lines matching patterns in files."""
 
 import argparse
-import os
 import sys
 from collections.abc import Iterable, Sequence
 from typing import Final, NamedTuple, override
@@ -39,7 +38,7 @@ class Scan(TextProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Scan`` instance."""
-        super().__init__(name="scan", version="1.4.1", error_exit_code=2)
+        super().__init__(name="scan", version="1.4.2", error_exit_code=2)
 
         self.found_any_match: bool = False
         self.patterns: CompiledPatterns = []
@@ -144,15 +143,7 @@ class Scan(TextProgram):
 
     def print_match_results(self, matches: Sequence[Match], *, origin_file: str) -> None:
         """Print match counts or matched lines according to command-line options."""
-        file_name = ""
-
-        if not self.args.no_file_name:
-            file_name = os.path.relpath(origin_file) if origin_file else "(standard input)"
-
-            if self.print_color:
-                file_name = f"{Colors.FILE_NAME}{file_name}{Colors.COLON}:{ansi.RESET}"
-            else:
-                file_name = f"{file_name}:"
+        file_name = self.render_file_header(origin_file, file_name_color=Colors.FILE_NAME, colon_color=Colors.COLON)
 
         if self.is_printing_counts():
             print(f"{file_name}{len(matches)}")

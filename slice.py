@@ -4,7 +4,6 @@
 """A program that splits lines in files into fields."""
 
 import argparse
-import os
 import sys
 from collections.abc import Iterable
 from typing import Final, override
@@ -27,7 +26,7 @@ class Slice(TextProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Slice`` instance."""
-        super().__init__(name="slice", version="1.4.1")
+        super().__init__(name="slice", version="1.4.2")
 
         self.selected_fields: list[int] = []
 
@@ -135,16 +134,8 @@ class Slice(TextProgram):
             self.args.no_file_name = True
 
     def print_file_header(self, file_name: str) -> None:
-        """Print the file name (or "(standard input)" if empty), followed by a colon, unless ``args.no_file_name`` is set."""
-        if not self.args.no_file_name:
-            file_header = os.path.relpath(file_name) if file_name else "(standard input)"
-
-            if self.print_color:
-                file_header = f"{Colors.FILE_NAME}{file_header}{Colors.COLON}:{ansi.RESET}"
-            else:
-                file_header = f"{file_header}:"
-
-            print(file_header)
+        """Print the rendered file header for ``file_name``."""
+        print(self.render_file_header(file_name, file_name_color=Colors.FILE_NAME, colon_color=Colors.COLON))
 
     def split_and_print_lines(self, lines: Iterable[str]) -> None:
         """Split lines into fields and print them."""
