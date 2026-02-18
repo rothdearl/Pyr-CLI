@@ -75,7 +75,7 @@ class Glue(TextProgram):
         """Run the program."""
         if terminal.stdin_is_redirected():
             if self.args.stdin_files:
-                self.process_text_files(sys.stdin)
+                self.process_text_files_from_stdin()
             else:
                 self.print_lines(sys.stdin)
 

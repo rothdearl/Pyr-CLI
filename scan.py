@@ -123,7 +123,7 @@ class Scan(TextProgram):
 
         if terminal.stdin_is_redirected():
             if self.args.stdin_files:
-                self.process_text_files(sys.stdin)
+                self.process_text_files_from_stdin()
             elif standard_input := sys.stdin.readlines():
                 self.print_matches(standard_input, origin_file="")
 

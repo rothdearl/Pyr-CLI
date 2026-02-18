@@ -128,7 +128,7 @@ class Tally(TextProgram):
         """Run the program."""
         if terminal.stdin_is_redirected():
             if self.args.stdin_files:
-                self.process_text_files(sys.stdin)
+                self.process_text_files_from_stdin()
             else:
                 if standard_input := sys.stdin.readlines():
                     counts = self.calculate_counts(standard_input)
