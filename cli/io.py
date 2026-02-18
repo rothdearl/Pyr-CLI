@@ -11,7 +11,7 @@ class FileInfo(NamedTuple):
     """
     Immutable container for information about a file being read.
 
-    :ivar file_name: File name with a single trailing newline removed.
+    :ivar file_name: File name with a single trailing newline removed, if present.
     :ivar text_stream: Open text stream for the file, valid only until the next yield.
     """
     file_name: str
@@ -28,14 +28,12 @@ def read_text_files(files: Iterable[str], encoding: str, *, on_error: ErrorRepor
     """
     Open files for reading in text mode and yield ``FileInfo`` objects.
 
-    :param files: Iterable of file names (including lines from standard input).
+    :param files: Iterable of file names (e.g., command-line arguments or lines read from standard input).
     :param encoding: Text encoding.
     :param on_error: Callback invoked with an error message for file-related errors.
     :return: Iterator yielding ``FileInfo`` objects, where the text stream is only valid until the next yield.
     """
-    for raw_name in files:
-        file_name = remove_trailing_newline(raw_name)
-
+    for file_name in normalize_input_lines(files):
         try:
             if os.path.isdir(file_name):
                 on_error(f"{file_name!r}: is a directory")
