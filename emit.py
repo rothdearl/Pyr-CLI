@@ -24,7 +24,7 @@ class Emit(CLIProgram):
         parser = argparse.ArgumentParser(allow_abbrev=False, description="write arguments to standard output",
                                          prog=self.name)
 
-        parser.add_argument("strings", help="arguments to write", metavar="STRING", nargs="*")
+        parser.add_argument("strings", help="arguments to write", metavar="STRINGS", nargs="*")
         parser.add_argument("-n", "--no-newline", action="store_true", help="do not output trailing newline")
         parser.add_argument("-e", "--escape-sequences", action="store_true",
                             help="interpret backslash escape sequences")
