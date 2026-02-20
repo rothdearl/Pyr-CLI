@@ -39,10 +39,10 @@ class Num(TextProgram):
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
         parser = argparse.ArgumentParser(allow_abbrev=False, description="number lines in FILES",
-                                         epilog="read standard input when no FILES are specified", prog=self.name)
+                                         epilog="read from standard input when no FILES are specified", prog=self.name)
         blank_group = parser.add_mutually_exclusive_group()
 
-        parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
+        parser.add_argument("files", help="read from FILES", metavar="FILES", nargs="*")
         parser.add_argument("-b", "--number-nonblank", action="store_true", help="number nonblank lines")
         parser.add_argument("--number-start", default=1, help="start numbering at N (default: 1; N >= 0)", metavar="N",
                             type=int)
@@ -58,8 +58,7 @@ class Num(TextProgram):
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names and line numbers (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
-        parser.add_argument("--stdin-files", action="store_true",
-                            help="treat standard input as a list of FILES (one per line)")
+        parser.add_argument("--stdin-files", action="store_true", help="read FILES from standard input (one per line)")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")
 
         return parser

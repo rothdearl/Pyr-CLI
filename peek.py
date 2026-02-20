@@ -29,9 +29,9 @@ class Peek(TextProgram):
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
         parser = argparse.ArgumentParser(allow_abbrev=False, description="print the first part of FILES",
-                                         epilog="read standard input when no FILES are specified", prog=self.name)
+                                         epilog="read from standard input when no FILES are specified", prog=self.name)
 
-        parser.add_argument("files", help="read input from FILES", metavar="FILES", nargs="*")
+        parser.add_argument("files", help="read from FILES", metavar="FILES", nargs="*")
         parser.add_argument("-n", "--lines", default=10,
                             help="print the first N lines, or all but the last N if N < 0 (default: 10)", metavar="N",
                             type=int)
@@ -39,8 +39,7 @@ class Peek(TextProgram):
         parser.add_argument("--color", choices=("on", "off"), default="on",
                             help="use color for file names (default: on)")
         parser.add_argument("--latin1", action="store_true", help="read FILES as latin-1 (default: utf-8)")
-        parser.add_argument("--stdin-files", action="store_true",
-                            help="treat standard input as a list of FILES (one per line)")
+        parser.add_argument("--stdin-files", action="store_true", help="read FILES from standard input (one per line)")
         parser.add_argument("--version", action="version", version=f"%(prog)s {self.version}")
 
         return parser
