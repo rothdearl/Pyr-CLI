@@ -53,7 +53,7 @@ class Emit(CLIProgram):
         """Run the program."""
         strings = self.args.strings
 
-        # Stream stdin (when enabled) ahead of positional strings to preserve ordering and avoid buffering.
+        # Stream stdin (when enabled) with positional strings to avoid buffering.
         if terminal.stdin_is_redirected() and self.args.stdin:
             if self.args.stdin_after:
                 strings = chain(strings, sys.stdin)
