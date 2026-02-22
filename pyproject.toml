@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyforge"
+version = "1.0.0"
+description = "A CLI toolkit of small, composable programs designed for deterministic pipelines."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [{ name = "Roth Earl" }]
+keywords = ["cli", "coreutils", "toolkit", "utilities"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Environment :: Console",
+    "Operating System :: OS Independent",
+    "Topic :: Utilities",
+]
+
+dependencies = [
+    "colorama",
+    "python-dateutil",
+    "requests",
+]
+
+[project.scripts]
+dupe = "pyforge.commands.dupe:main"
+emit = "pyforge.commands.emit:main"
+glue = "pyforge.commands.glue:main"
+num = "pyforge.commands.num:main"
+order = "pyforge.commands.order:main"
+peek = "pyforge.commands.peek:main"
+scan = "pyforge.commands.scan:main"
+seek = "pyforge.commands.seek:main"
+show = "pyforge.commands.show:main"
+slice = "pyforge.commands.slice:main"
+subs = "pyforge.commands.subs:main"
+tally = "pyforge.commands.tally:main"
+track = "pyforge.commands.track:main"
+when = "pyforge.commands.when:main"
+where = "pyforge.commands.where:main"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pyforge*"]
