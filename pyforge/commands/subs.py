@@ -24,7 +24,7 @@ class Subs(TextProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Subs`` instance."""
-        super().__init__(name="subs", version="1.0.0")
+        super().__init__(name="subs")
 
         self.pattern: re.Pattern[str] | None = None
 

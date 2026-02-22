@@ -171,7 +171,7 @@ def read_options(path: str, *, clear_previous: bool = True, on_error: ErrorRepor
     return True
 
 
-__all__ = [
+__all__: list[str] = [
     "get_bool_option",
     "get_float_option",
     "get_int_option",

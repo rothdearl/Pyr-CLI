@@ -14,7 +14,7 @@ class Emit(CLIProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Emit`` instance."""
-        super().__init__(name="emit", version="1.0.0")
+        super().__init__(name="emit")
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:

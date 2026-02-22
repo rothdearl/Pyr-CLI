@@ -10,7 +10,7 @@ OS_IS_MAC: Final[bool] = sys.platform == "darwin"
 OS_IS_POSIX: Final[bool] = os.name == "posix"
 OS_IS_WINDOWS: Final[bool] = sys.platform == "win32"
 
-__all__ = [
+__all__: list[str] = [
     "OS_IS_LINUX",
     "OS_IS_MAC",
     "OS_IS_POSIX",

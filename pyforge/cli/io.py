@@ -75,7 +75,7 @@ def write_text_to_file(file_name: str, lines: Iterable[str], encoding: str, *, o
         on_error(f"{file_name!r}: unable to write")
 
 
-__all__ = [
+__all__: list[str] = [
     "FileInfo",
     "iter_stdin_file_names",
     "read_text_files",

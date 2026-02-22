@@ -49,7 +49,7 @@ def matches_all_patterns(text: str, patterns: Iterable[re.Pattern[str]]) -> bool
     return all(group.search(text) for group in patterns)
 
 
-__all__ = [
+__all__: list[str] = [
     "compile_combined_patterns",
     "compile_patterns",
     "matches_all_patterns",

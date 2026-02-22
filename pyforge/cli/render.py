@@ -57,7 +57,7 @@ def reverse_video(text: str) -> str:
     return f"{TextAttributes.REVERSE}{text}{RESET}"
 
 
-__all__ = [
+__all__: list[str] = [
     "color_pattern_matches",
     "reverse_video",
 ]

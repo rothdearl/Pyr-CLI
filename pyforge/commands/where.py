@@ -19,7 +19,7 @@ class Where(CLIProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Where`` instance."""
-        super().__init__(name="where", version="1.0.0")
+        super().__init__(name="where")
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:

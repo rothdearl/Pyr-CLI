@@ -31,7 +31,7 @@ class Show(TextProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Show`` instance."""
-        super().__init__(name="show", version="1.0.0")
+        super().__init__(name="show")
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:

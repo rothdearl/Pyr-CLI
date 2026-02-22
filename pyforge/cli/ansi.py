@@ -68,7 +68,7 @@ class TextAttributes:
     STRIKETHROUGH: Final[str] = f"{_CSI}9m"
 
 
-__all__ = [
+__all__: list[str] = [
     "BG_COLORS_256",
     "BgColors",
     "COLORS_256",

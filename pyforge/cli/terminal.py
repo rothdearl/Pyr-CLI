@@ -23,7 +23,7 @@ def stdout_is_terminal() -> bool:
     return sys.stdout.isatty()
 
 
-__all__ = [
+__all__: list[str] = [
     "stdin_is_redirected",
     "stdin_is_terminal",
     "stdout_is_redirected",

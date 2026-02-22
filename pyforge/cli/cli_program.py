@@ -5,6 +5,7 @@ import sys
 from abc import ABC, abstractmethod
 from typing import final
 
+from pyforge import __version__
 from .constants import OS_IS_WINDOWS
 from .terminal import stdout_is_terminal
 
@@ -21,12 +22,11 @@ class CLIProgram(ABC):
     :ivar version: Program version.
     """
 
-    def __init__(self, *, name: str, version: str, error_exit_code: int = 1) -> None:
+    def __init__(self, *, name: str, error_exit_code: int = 1) -> None:
         """
         Initialize a new ``CLIProgram`` instance.
 
         :param name: Name of the program.
-        :param version: Program version.
         :param error_exit_code: Exit code when an error occurs (default: ``1``).
         """
         self.args: argparse.Namespace | None = None
@@ -34,7 +34,7 @@ class CLIProgram(ABC):
         self.has_errors: bool = False
         self.name: str = name
         self.print_color: bool = False
-        self.version: str = version
+        self.version: str = __version__
 
     @abstractmethod
     def build_arguments(self) -> argparse.ArgumentParser:
@@ -138,4 +138,4 @@ class CLIProgram(ABC):
         pass
 
 
-__all__ = ["CLIProgram"]
+__all__: list[str] = ["CLIProgram"]

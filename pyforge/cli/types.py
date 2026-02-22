@@ -13,7 +13,7 @@ type ErrorReporter = Callable[[str], None]
 type JsonObject = dict[str, Any]
 """A decoded JSON object represented as a dictionary."""
 
-__all__ = [
+__all__: list[str] = [
     "CompiledPatterns",
     "ErrorReporter",
     "JsonObject",

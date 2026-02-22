@@ -17,15 +17,14 @@ class TextProgram(CLIProgram, ABC):
     :ivar encoding: Encoding for reading and writing to files (default: ``"utf-8"``).
     """
 
-    def __init__(self, *, name: str, version: str, error_exit_code: int = 1) -> None:
+    def __init__(self, *, name: str, error_exit_code: int = 1) -> None:
         """
         Initialize a new ``TextProgram`` instance.
 
         :param name: Name of the program.
-        :param version: Program version.
         :param error_exit_code: Exit code when an error occurs (default: ``1``).
         """
-        super().__init__(name=name, version=version, error_exit_code=error_exit_code)
+        super().__init__(name=name, error_exit_code=error_exit_code)
 
         self.encoding: str = "utf-8"
 
@@ -81,4 +80,4 @@ class TextProgram(CLIProgram, ABC):
         return not getattr(self.args, "no_file_name", False)
 
 
-__all__ = ["TextProgram"]
+__all__: list[str] = ["TextProgram"]
