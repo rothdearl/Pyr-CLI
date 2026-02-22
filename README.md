@@ -1,10 +1,11 @@
-# PyTools
+# PyForge
 
 ## Overview
 
-PyTools provides a set of single-purpose command-line programs that share a common invocation model and output contract.
-Each command performs one well-defined operation and favors explicit behavior over implicit defaults. Commands are
-designed to be composable in shell pipelines and deterministic unless interacting with external state.
+PyForge is a CLI toolkit of small, composable programs designed for deterministic pipelines. It provides single-purpose
+commands that share a common invocation model and stable output contract. Each tool performs one well-defined operation,
+favors explicit behavior over implicit defaults, and composes predictably in shell pipelines unless interacting with
+external state.
 
 The project is intentionally **pedantic but practical**: behavior is specified precisely where it affects correct usage,
 and kept simple where it does not.
@@ -13,7 +14,7 @@ and kept simple where it does not.
 
 ## Design Philosophy
 
-PyTools follows a small set of operational rules:
+PyForge follows a small set of operational rules:
 
 - **Single responsibility** --- each program performs one operation on a text stream or structured input.
 - **Pipeline first** --- all tools read from `stdin` when no input file is provided and write results to `stdout`.
@@ -45,7 +46,7 @@ pip3 install requests
 
 ## Command Model
 
-All PyTools commands follow the same execution model:
+All PyForge commands follow the same execution model:
 
 1. **Input resolution**
     - Read from `stdin` if no path is provided
@@ -66,7 +67,7 @@ Unless otherwise stated, tools are **stream-safe** and do not buffer the entire 
 
 ## Architecture
 
-PyTools is layered to separate pure logic from side effects:
+PyForge is layered to separate pure logic from side effects:
 
     Programs → CLI framework → Text/Pattern primitives → Rendering → I/O boundary
 
