@@ -30,7 +30,7 @@ class CLIProgram(ABC):
         :param error_exit_code: Exit code when an error occurs (default: ``1``).
         """
         self.args: argparse.Namespace | None = None
-        self.error_exit_code: int = error_exit_code
+        self.error_exit_code: Final[int] = error_exit_code
         self.has_errors: bool = False
         self.name: Final[str] = name
         self.print_color: bool = False
