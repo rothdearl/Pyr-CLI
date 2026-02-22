@@ -47,7 +47,7 @@ These dependencies must be available in the active Python environment before run
 
 PyForge is installed using `pip`.
 
-### Development install (editable)
+### Development Install (Editable)
 
 Create and activate a virtual environment, then install PyForge in editable mode:
 
@@ -59,7 +59,7 @@ python3 -m pip install -e .
 
 This registers all PyForge commands as console scripts in the active environment.
 
-### User install
+### User Install
 
 To install PyForge as a user-level CLI toolkit:
 
@@ -272,12 +272,11 @@ class MyProgram(CLIProgram):  # or TextProgram
 All programs **must** call `super().__init__` with:
 
 - program name
-- version string
 - error exit code (optional; defaults to 1)
 
 ``` python
 def __init__(self) -> None:
-    super().__init__(name="myprog", version="1.0.0")
+    super().__init__(name="myprog")
 ```
 
 ------------------------------------------------------------------------
@@ -457,7 +456,7 @@ The `run_program()` method guarantees:
 ### For all programs
 
 - Inherit from CLIProgram or TextProgram
-- Call `super().__init__(name=..., version=...)`
+- Call `super().__init__(name=...)`
 - Implement `build_arguments`
 - Implement `main`
 - Use validation hooks appropriately
@@ -504,7 +503,7 @@ class Emit(CLIProgram):
 
     def __init__(self) -> None:
         """Initialize a new ``Emit`` instance."""
-        super().__init__(name="emit", version="1.0.0")
+        super().__init__(name="emit")
 
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
