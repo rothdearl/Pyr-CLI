@@ -1,4 +1,4 @@
-"""Initialization file for the command-line interface package."""
+"""CLI framework for the PyForge toolkit."""
 
 from .ansi import (
     BG_COLORS_256,
