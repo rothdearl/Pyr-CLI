@@ -543,7 +543,7 @@ class Demo(TextProgram):
     @override
     def build_arguments(self) -> argparse.ArgumentParser:
         """Build and return an argument parser."""
-        parser = argparse.ArgumentParser(allow_abbrev=False, description="print the first part of FILES",
+        parser = argparse.ArgumentParser(allow_abbrev=False, description="print FILES to standard output",
                                          epilog="read from standard input when no FILES are specified", prog=self.name)
 
         parser.add_argument("files", help="read from FILES", metavar="FILES", nargs="*")
