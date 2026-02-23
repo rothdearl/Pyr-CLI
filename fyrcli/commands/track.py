@@ -7,7 +7,7 @@ from collections.abc import Iterable, Sequence
 from threading import Thread
 from typing import Final, override
 
-from pyforge.cli import TextProgram, ansi, io, terminal, text
+from fyrcli.cli import TextProgram, ansi, io, terminal, text
 
 
 class Colors:

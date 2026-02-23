@@ -1,4 +1,4 @@
-"""CLI framework for the PyForge toolkit."""
+"""Framework for the Fyr-cli toolkit."""
 
 from .ansi import (
     BG_COLORS_256,

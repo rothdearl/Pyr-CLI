@@ -1,7 +1,7 @@
 import unittest
 from typing import final
 
-from pyforge.cli import ansi
+from fyrcli.cli import ansi
 
 
 @final

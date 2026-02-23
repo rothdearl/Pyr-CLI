@@ -6,7 +6,7 @@ import sys
 from collections.abc import Iterable, Iterator
 from typing import Final, override
 
-from pyforge.cli import TextProgram, ansi, io, patterns, terminal, text
+from fyrcli.cli import TextProgram, ansi, io, patterns, terminal, text
 
 
 class Colors:

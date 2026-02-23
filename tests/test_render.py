@@ -1,7 +1,7 @@
 import re
 import unittest
 
-from pyforge.cli import ansi, render
+from fyrcli.cli import ansi, render
 
 
 class TestRender(unittest.TestCase):

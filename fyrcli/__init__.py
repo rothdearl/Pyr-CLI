@@ -1,4 +1,4 @@
-"""Top-level namespace for the PyForge CLI toolkit."""
+"""Top-level namespace for the Fyr-cli toolkit."""
 
 from typing import Final
 

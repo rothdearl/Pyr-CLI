@@ -1,8 +1,8 @@
-# PyForge
+# Fyr-cli
 
 ## Overview
 
-PyForge is a CLI toolkit of small, composable programs designed for deterministic pipelines. It provides single-purpose
+Fyr-cli is a toolkit of small, composable CLI programs designed for deterministic pipelines. It provides single-purpose
 commands that share a common invocation model and stable output contract. Each tool performs one well-defined operation,
 favors explicit behavior over implicit defaults, and composes predictably in shell pipelines unless interacting with
 external state.
@@ -10,13 +10,13 @@ external state.
 The project is intentionally **pedantic but practical**: behavior is specified precisely where it affects correct usage,
 and kept simple where it does not.
 
-All PyForge commands report a single, project-wide version sourced from `pyproject.toml`.
+All Fyr-cli commands report a single, project-wide version sourced from `pyproject.toml`.
 
 ------------------------------------------------------------------------
 
 ## Design Philosophy
 
-PyForge follows a small set of operational rules:
+Fyr-cli follows a small set of operational rules:
 
 - **Single responsibility** --- each program performs one operation on a text stream or structured input.
 - **Pipeline first** --- all tools read from `stdin` when no input file is provided and write results to `stdout`.
@@ -33,7 +33,7 @@ These constraints make the tools predictable, scriptable, and safe for compositi
 
 ## Dependencies
 
-PyForge targets Python ≥ 3.12.
+Fyr-cli targets Python ≥ 3.12.
 
 The following third-party packages are required at runtime:
 
@@ -41,17 +41,17 @@ The following third-party packages are required at runtime:
 - python-dateutil
 - requests
 
-These dependencies must be available in the active Python environment before running any PyForge commands.
+These dependencies must be available in the active Python environment before running any Fyr-cli commands.
 
 ------------------------------------------------------------------------
 
 ## Installation
 
-PyForge is installed using `pip`.
+Fyr-cli is installed using `pip`.
 
 ### Development Install (Editable)
 
-Create and activate a virtual environment, then install PyForge in editable mode:
+Create and activate a virtual environment, then install Fyr-cli in editable mode:
 
 ```bash
 python3 -m venv .venv
@@ -59,11 +59,11 @@ source .venv/bin/activate
 python3 -m pip install -e .
 ```
 
-This registers all PyForge commands as console scripts in the active environment.
+This registers all Fyr-cli commands as console scripts in the active environment.
 
 ### User Install
 
-To install PyForge as a user-level CLI toolkit:
+To install Fyr-cli as a user-level CLI toolkit:
 
 ```bash
 python3 -m pip install --user .
@@ -75,7 +75,7 @@ Ensure the user script directory is on your `PATH`.
 
 ## Command Model
 
-All PyForge commands follow the same execution model:
+All Fyr-cli commands follow the same execution model:
 
 1. **Input resolution**
     - Read from `stdin` if no path is provided
@@ -96,7 +96,7 @@ Unless otherwise stated, tools are **stream-safe** and do not buffer the entire 
 
 ## Architecture
 
-PyForge is layered to separate pure logic from side effects:
+Fyr-cli is layered to separate pure logic from side effects:
 
     Programs → CLI framework → Text/Pattern primitives → Rendering → I/O boundary
 
@@ -388,11 +388,11 @@ Examples:
 
 Prepare internal state derived from options.
 
-Handled automatically in CLIProgram:
+Handled automatically in `CLIProgram`:
 
 - color enablement (disabled when stdout is redirected)
 
-Handled additionally in TextProgram:
+Handled additionally in `TextProgram`:
 
 - text encoding (`utf-8` or `iso-8859-1` via `--latin1`)
 
@@ -457,7 +457,7 @@ The `run_program()` method guarantees:
 
 ### For all programs
 
-- Inherit from CLIProgram or TextProgram
+- Inherit from `CLIProgram` or `TextProgram`
 - Call `super().__init__(name=...)`
 - Implement `build_arguments`
 - Implement `main`
@@ -467,7 +467,7 @@ The `run_program()` method guarantees:
 
 ### For text programs
 
-- Inherit from TextProgram
+- Inherit from `TextProgram`
 - Implement `handle_text_stream`
 - Use `process_text_files` for file input
 - Use `process_text_files_from_stdin` for file-name input from standard input
@@ -486,12 +486,12 @@ The `run_program()` method guarantees:
 
 ## Versioning (Project-Wide)
 
-PyForge uses a **single, project-wide version number**. Individual command-line programs **must not** define or hardcode
+Fyr-cli uses a **single, project-wide version number**. Individual command-line programs **must not** define or hardcode
 their own version values.
 
 ### Source of Truth
 
-- The canonical version is stored in `pyforge.__about__.__version__`.
+- The canonical version is stored in `fyrcli.__about__.__version__`.
 - The base class (`CLIProgram`) assigns this value to `self.version` during initialization.
 - Command implementations **must treat** `self.version` as **read-only**.
 
@@ -499,7 +499,7 @@ their own version values.
 
 - Do not import `__version__` in individual program modules.
 - Use the `self.version` attribute provided by the base class.
-- This ensures all commands report a consistent PyForge version and eliminates per-program version duplication.
+- This ensures all commands report a consistent Fyr-cli version and eliminates per-program version duplication.
 - Programs that expose a `--version` flag must implement it using `version=f"%(prog)s {self.version}`".
 
 ### Rationale
@@ -508,7 +508,7 @@ This design provides:
 
 - A single source of truth for versioning
 - Zero boilerplate in command implementations
-- Consistent CLI behavior across all PyForge programs
+- Consistent CLI behavior across all Fyr-cli programs
 
 ------------------------------------------------------------------------
 
@@ -525,7 +525,7 @@ from collections.abc import Iterable
 from itertools import chain
 from typing import override
 
-from pyforge.cli import CLIProgram, terminal, text
+from fyrcli.cli import CLIProgram, terminal, text
 
 
 class Emit(CLIProgram):

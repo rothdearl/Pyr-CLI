@@ -2,7 +2,7 @@ import os
 import unittest
 from typing import final
 
-from pyforge.cli import io
+from fyrcli.cli import io
 
 
 @final

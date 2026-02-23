@@ -5,7 +5,7 @@ import sys
 from collections.abc import Sequence
 from typing import Final, override
 
-from pyforge.cli import TextProgram, ansi, io, terminal, text
+from fyrcli.cli import TextProgram, ansi, io, terminal, text
 
 
 class Colors:

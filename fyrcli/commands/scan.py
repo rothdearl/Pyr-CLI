@@ -5,7 +5,7 @@ import sys
 from collections.abc import Iterable, Sequence
 from typing import Final, NamedTuple, override
 
-from pyforge.cli import CompiledPatterns, TextProgram, ansi, io, patterns, render, terminal, text
+from fyrcli.cli import CompiledPatterns, TextProgram, ansi, io, patterns, render, terminal, text
 
 
 class Colors:

@@ -6,7 +6,7 @@ from collections.abc import Iterable
 from itertools import chain
 from typing import override
 
-from pyforge.cli import CLIProgram, terminal, text
+from fyrcli.cli import CLIProgram, terminal, text
 
 
 class Emit(CLIProgram):
