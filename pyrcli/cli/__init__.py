@@ -67,6 +67,9 @@ from .types import (
     CompiledPatterns,
     ErrorReporter,
     JsonObject,
+    KeyValuePairs,
+    MultipartFiles,
+    QueryParameters,
 )
 
 __all__: Final[tuple[str, ...]] = (
@@ -137,4 +140,7 @@ __all__: Final[tuple[str, ...]] = (
     "CompiledPatterns",
     "ErrorReporter",
     "JsonObject",
+    "KeyValuePairs",
+    "MultipartFiles",
+    "QueryParameters",
 )
