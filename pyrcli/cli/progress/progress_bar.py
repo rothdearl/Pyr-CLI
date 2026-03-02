@@ -22,7 +22,7 @@ class ProgressBarLayout:
     :ivar show_percent: Whether to append a percentage suffix (value + ``%``).
     :ivar percent_style: ANSI SGR prefix applied to the percent value (empty disables styling).
     :ivar percent_symbol_style: ANSI SGR prefix applied to the percent symbol (empty disables styling).
-    :ivar percent_reset: ANSI reset sequence appended after styled percent segments; empty disables automatic reset.
+    :ivar percent_reset: ANSI reset sequence appended after the percent suffix; empty disables automatic reset.
     """
     _DEFAULT_WIDTH: ClassVar[int] = 20
 
@@ -49,8 +49,7 @@ class ProgressBar(_ProgressIndicator):
 
     - Displays a horizontal progress bar for work with a known total.
     - Updates the rendered bar when progress advances.
-    - Clamps progress to ``[0, total]`` when total > 0; otherwise clamps to ``[0, ∞]`` while rendering as permanently 100%.
-    - Treats non-positive totals as permanently 100%.
+    - Clamps progress to ``[0, total]`` when ``total > 0``; otherwise renders as permanently 100%.
     - Finalizes by either retaining or clearing the bar according to ``clear_on_finish``.
     - Writes a final message followed by a newline when a message is provided, even when the indicator is not visible.
     - Treats empty messages as no message.
