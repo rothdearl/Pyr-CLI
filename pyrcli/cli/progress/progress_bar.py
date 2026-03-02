@@ -3,6 +3,7 @@
 from dataclasses import dataclass, field
 from typing import ClassVar, Final, final
 
+from pyrcli.cli import ansi
 from ._base import _ProgressIndicator
 from .types import ProgressMessage
 
@@ -18,7 +19,10 @@ class ProgressBarLayout:
     :ivar empty: Glyph used to represent remaining progress.
     :ivar left: Left delimiter placed before the bar body.
     :ivar right: Right delimiter placed after the bar body.
-    :ivar show_percent: Whether to append a percentage suffix.
+    :ivar show_percent: Whether to append a percentage suffix (value + ``%``).
+    :ivar percent_style: ANSI SGR prefix applied to the percent value (empty disables styling).
+    :ivar percent_symbol_style: ANSI SGR prefix applied to the percent symbol (empty disables styling).
+    :ivar percent_reset: ANSI reset sequence appended after styled percent segments; empty disables automatic reset.
     """
     _DEFAULT_WIDTH: ClassVar[int] = 20
 
@@ -28,6 +32,9 @@ class ProgressBarLayout:
     left: str = "["
     right: str = "]"
     show_percent: bool = True
+    percent_style: str = ""
+    percent_symbol_style: str = ""
+    percent_reset: str = ansi.RESET
 
     def __post_init__(self) -> None:
         """Initialize and normalize configuration."""
@@ -74,7 +81,7 @@ class ProgressBar(_ProgressIndicator):
         if not self.layout.show_percent:
             return bar
 
-        return f"{bar} {int(fraction * 100):3d}%"
+        return f"{bar} {self._render_percent(int(fraction * 100))}"
 
     def _render_final(self, message: ProgressMessage) -> None:
         """Render the final indicator state and terminate the line when appropriate."""
@@ -86,6 +93,15 @@ class ProgressBar(_ProgressIndicator):
 
         self._writer.write_composed(indicator=bar, message=message, position=self.message_position)
         self._writer.newline()
+
+    def _render_percent(self, percent: int) -> str:
+        """Return a percent suffix (e.g., ``100%``), applying layout SGR styles when configured."""
+        return (
+            f"{self.layout.percent_style}"
+            f"{percent:3d}"
+            f"{self.layout.percent_symbol_style}%"
+            f"{self.layout.percent_reset}"
+        )
 
     def advance(self, step: int = 1, *, message: ProgressMessage = None) -> None:
         """Increment progress by ``step`` units and redraw the bar."""
