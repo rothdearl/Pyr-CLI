@@ -69,8 +69,12 @@ class Track(TextProgram):
             for thread in self.start_following_threads(printed_files, print_file_name_on_update=len(printed_files) > 1):
                 thread.join()
 
-    def follow_file(self, file_name: str, print_file_name_on_update) -> None:
-        """Follow the file for new lines."""
+    def follow_file(self, file_name: str, print_file_name_on_update: bool) -> None:
+        """
+        Continuously poll ``file_name`` and print lines appended since the previous read.
+
+        - The entire file is re-read on each poll; only newly appended lines are printed.
+        """
         polling_interval: float = .5
 
         try:
