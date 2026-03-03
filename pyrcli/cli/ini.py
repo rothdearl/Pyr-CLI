@@ -18,11 +18,11 @@ _truthy_values: Final[frozenset[str]] = frozenset({"1", "on", "true", "y", "yes"
 
 def get_bool_option(section: str, option: str) -> bool | None:
     """
-    Return a boolean value parsed from the option, using ``False`` if the option is missing or empty.
+    Return a boolean value parsed from the option.
 
-    :param section: Section name.
-    :param option: Option name.
-    :return: Boolean value, or ``None`` if the value is neither truthy nor falsy.
+    - Uses ``"false"`` if the option is missing or empty.
+    - Returns ``True`` or ``False`` for recognized truthy or falsy values.
+    - Returns ``None`` if the value is neither truthy nor falsy.
     """
     value = get_str_option_with_fallback(section, option, fallback="false").lower()
 
@@ -37,11 +37,11 @@ def get_bool_option(section: str, option: str) -> bool | None:
 
 def get_float_option(section: str, option: str) -> float | None:
     """
-    Return a floating-point value parsed from the option, using ``0.0`` if the option is missing or empty.
+    Return a floating-point value parsed from the option.
 
-    :param section: Section name.
-    :param option: Option name.
-    :return: Floating-point value, or ``None`` if the value cannot be parsed.
+    - Uses ``"0.0"`` if the option is missing or empty.
+    - Returns the parsed floating-point value when conversion succeeds.
+    - Returns ``None`` if the value cannot be parsed.
     """
     value = get_str_option_with_fallback(section, option, fallback="0.0")
 
@@ -53,11 +53,11 @@ def get_float_option(section: str, option: str) -> float | None:
 
 def get_int_option(section: str, option: str) -> int | None:
     """
-    Return an integer value parsed from the option, using ``0`` if the option is missing or empty.
+    Return an integer value parsed from the option.
 
-    :param section: Section name.
-    :param option: Option name.
-    :return: Integer value, or ``None`` if the value cannot be parsed.
+    - Uses ``"0"`` if the option is missing or empty.
+    - Returns the parsed integer value when conversion succeeds.
+    - Returns ``None`` if the value cannot be parsed.
     """
     value = get_str_option_with_fallback(section, option, fallback="0")
 
@@ -69,11 +69,11 @@ def get_int_option(section: str, option: str) -> int | None:
 
 def get_json_option(section: str, option: str) -> JsonObject | None:
     """
-    Return a JSON object parsed from the option, using ``{}`` if the option is missing or empty.
+    Return a JSON object parsed from the option.
 
-    :param section: Section name.
-    :param option: Option name.
-    :return: JSON object, or ``None`` if decoding fails or the decoded value is not a JSON object.
+    - Uses ``"{}"`` if the option is missing or empty.
+    - Returns the decoded JSON object when parsing succeeds.
+    - Returns ``None`` if decoding fails or the value is not a JSON object.
     """
     value = get_str_option_with_fallback(section, option, fallback="{}")
 
@@ -89,37 +89,17 @@ def get_json_option(section: str, option: str) -> JsonObject | None:
 
 
 def get_str_option(section: str, option: str) -> str:
-    """
-    Return a string value, using ``""`` if the option is missing or empty.
-
-    :param section: Section name.
-    :param option: Option name.
-    :return: String value.
-    """
+    """Return a string value, using ``""`` if the option is missing or empty."""
     return get_str_option_with_fallback(section, option, fallback="")
 
 
 def get_str_option_with_fallback(section: str, option: str, *, fallback: str) -> str:
-    """
-    Return a string value, using a fallback if the option is missing or empty.
-
-    :param section: Section name.
-    :param option: Option name.
-    :param fallback: Fallback value if the option is missing or empty.
-    :return: String value.
-    """
+    """Return a string value, using a fallback if the option is missing or empty."""
     return _config.get(section, option, fallback=fallback) or fallback
 
 
 def get_str_options(section: str, option: str, *, separator: str = ",") -> list[str]:
-    """
-    Return string values split on a separator, ignoring empty entries.
-
-    :param section: Section name.
-    :param option: Option name.
-    :param separator: Value separator (default: ``","``).
-    :return: List of string values.
-    """
+    """Return string values split on a separator, ignoring empty entries."""
     value = get_str_option_with_fallback(section, option, fallback="")
 
     return [s for sub in value.split(separator) if (s := sub.strip())]
@@ -142,12 +122,12 @@ def is_empty() -> bool:
 
 def read_options(path: str, *, clear_previous: bool = True, on_error: ErrorReporter) -> bool:
     """
-    Read options from a configuration file and return whether the operation succeeded.
+    Read options from a configuration file.
 
-    :param path: Path to the configuration file.
-    :param clear_previous: Whether to clear previously read options (default: ``True``).
-    :param on_error: Callback invoked with an error message if the file cannot be read or parsed.
-    :return: ``True`` if the process was successful.
+    - Clears previously loaded options when ``clear_previous`` is ``True``.
+    - Invokes ``on_error(message)`` if the file cannot be read or parsed.
+    - Returns ``True`` on success, otherwise ``False``.
+    - Errors reported: missing file, permission denied, invalid configuration file, other OS read errors.
     """
     try:
         with open(path, mode="rt", encoding="utf-8") as f:

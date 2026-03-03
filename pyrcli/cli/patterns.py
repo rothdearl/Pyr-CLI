@@ -9,11 +9,10 @@ from .types import CompiledPatterns, ErrorReporter
 
 def compile_combined_patterns(compiled_patterns: Iterable[re.Pattern[str]], *, ignore_case: bool) -> re.Pattern[str]:
     """
-    Combine patterns into a single compiled OR-pattern.
+    Return a compiled OR-pattern that matches any of the patterns.
 
-    :param compiled_patterns: Patterns to combine.
-    :param ignore_case: Whether to ignore case.
-    :return: Compiled regular expression matching any pattern.
+    - Wraps each pattern as a non-capturing group before combining.
+    - Case-insensitive when ``ignore_case`` is ``True``.
     """
     flags = re.IGNORECASE if ignore_case else re.NOFLAG
     sources = [f"(?:{pattern.pattern})" for pattern in compiled_patterns]
@@ -23,12 +22,12 @@ def compile_combined_patterns(compiled_patterns: Iterable[re.Pattern[str]], *, i
 
 def compile_patterns(patterns: Iterable[str], *, ignore_case: bool, on_error: ErrorReporter) -> CompiledPatterns:
     """
-    Compile a sequence of regular expression patterns suitable for AND-style matching (e.g., ``matches_all_patterns``).
+    Return compiled regular expression patterns suitable for AND-style matching.
 
-    :param patterns: Patterns to compile.
-    :param ignore_case: Whether to ignore case.
-    :param on_error: Callback invoked with an error message for pattern-related errors.
-    :return: List of compiled regular expression patterns.
+    - Skips empty patterns.
+    - Case-insensitive when ``ignore_case`` is ``True``.
+    - Invokes ``on_error(message)`` for invalid patterns and continues.
+    - Returns only successfully compiled patterns.
     """
     compiled = []
     flags = re.IGNORECASE if ignore_case else re.NOFLAG
