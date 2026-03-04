@@ -12,7 +12,7 @@ from .io import FileInfo, iter_stdin_file_names, read_text_files
 
 class TextProgram(CLIProgram, ABC):
     """
-    Abstract base class (ABC) for command-line programs that process text files.
+    Base class for command-line programs that process text files.
 
     :ivar encoding: Encoding for reading and writing to files (default: ``"utf-8"``).
     """
@@ -38,10 +38,10 @@ class TextProgram(CLIProgram, ABC):
     @final
     def process_text_files(self, files: Iterable[str]) -> list[str]:
         """
-        Process each file path and delegate handling of its text stream to ``handle_text_stream``.
+        Process each text file.
 
-        :param files: Iterable of file names to process.
-        :return: A list of file names processed successfully.
+        - Delegate stream handling to ``handle_text_stream``.
+        - Return a list of file names processed successfully.
         """
         processed_files = []
 

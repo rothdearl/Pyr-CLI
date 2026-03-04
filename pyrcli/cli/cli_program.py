@@ -12,7 +12,7 @@ from .terminal import stdout_is_terminal
 
 class CLIProgram(ABC):
     """
-    Abstract base class (ABC) for command-line programs, defining a standard program lifecycle.
+    Base class for command-line programs, defining a standard program lifecycle.
 
     :ivar args: Parsed command-line arguments.
     :ivar error_exit_code: Exit code when an error occurs (default: ``1``).
@@ -47,7 +47,14 @@ class CLIProgram(ABC):
 
     @final
     def check_parsed_arguments(self) -> None:
-        """Check option dependencies, validate ranges, normalize options, and initialize runtime state."""
+        """
+        Validate, normalize, and initialize from parsed options.
+
+        - Check option dependencies.
+        - Validate ranges.
+        - Normalize options.
+        - Initialize runtime state.
+        """
         self.check_option_dependencies()
         self.validate_option_ranges()
         self.normalize_options()
