@@ -1,4 +1,4 @@
-"""Provides utilities for reading values from INI configuration files using a single instance shared across the module."""
+"""INI configuration reader with a module-level shared parser."""
 
 import configparser
 import json
@@ -6,7 +6,7 @@ from typing import Final
 
 from .types import ErrorReporter, JsonObject
 
-# Configuration parser for an INI options file (intentional single global ConfigParser instance).
+# Intentional module-level shared ConfigParser instance.
 _config: configparser.ConfigParser = configparser.ConfigParser()
 
 # Set of string values that are considered falsy.

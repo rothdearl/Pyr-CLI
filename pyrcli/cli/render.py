@@ -29,8 +29,7 @@ def style(text: str, *, ansi_style: str) -> str:
 
 def style_pattern_matches(text: str, *, patterns: Iterable[re.Pattern[str]], ansi_style: str) -> str:
     """Return the text with all pattern matches wrapped in ANSI SGR escape codes."""
-    # Return early if no patterns are provided.
-    if not patterns:
+    if not patterns:  # Return early if no patterns are provided.
         return text
 
     # Get ranges for each match.

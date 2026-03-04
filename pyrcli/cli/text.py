@@ -10,7 +10,7 @@ from .types import ErrorReporter
 
 
 def decode_python_escape_sequences(line: str) -> str:
-    """Decode Python-style backslash escape sequences in ``line`` (may raise ``UnicodeDecodeError``)."""
+    """Decode Python-style backslash escape sequences in ``line``."""
     return line.encode("utf-8").decode("unicode_escape")
 
 
@@ -35,7 +35,7 @@ def split_csv(text: str, *, separator: str = " ", on_error: ErrorReporter) -> li
         if not decoded_separator:
             raise ValueError()
 
-        # CSV requires a single non-quote, non-newline delimiter after escape decoding.
+        # CSV requires a single non-quote, non-newline delimiter.
         if len(decoded_separator) == 1 and decoded_separator not in ('"', "\n", "\r"):
             return next(csv.reader([text], delimiter=decoded_separator))
     except (UnicodeDecodeError, ValueError, csv.Error):

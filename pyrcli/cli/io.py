@@ -14,14 +14,14 @@ class FileInfo(NamedTuple):
     """
     Immutable container for information about a file being read.
 
-    :ivar file_name: File name with one trailing newline removed, if present.
+    :ivar file_name: File name (normalized by the caller).
     :ivar text_stream: Open text stream for the file, valid only until the next yield.
     """
     file_name: str
     text_stream: TextIO
 
 
-def iter_paths(root: pathlib.Path, max_depth: int = sys.maxsize) -> Iterable[pathlib.Path]:
+def iter_descendant_paths(root: pathlib.Path, max_depth: int = sys.maxsize) -> Iterable[pathlib.Path]:
     """
     Yield descendant paths under ``root`` whose depth is less than or equal to ``max_depth``.
 
@@ -82,7 +82,7 @@ def write_text_to_file(file_name: str, *, lines: Iterable[str], encoding: str, o
     """
     Write text lines to a file, ensuring exactly one trailing newline is written for each input line.
 
-    - ``on_error(message)`` is invoked for file-related errors; iteration continues.
+    - ``on_error(message)`` is invoked for file-related errors.
     - Errors reported: unknown encoding, permission denied, encoding failures, other OS write errors.
     """
     try:

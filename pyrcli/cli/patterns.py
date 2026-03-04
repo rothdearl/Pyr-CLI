@@ -9,7 +9,7 @@ from .types import CompiledPatterns, ErrorReporter
 
 def compile_combined_patterns(compiled_patterns: Iterable[re.Pattern[str]], *, ignore_case: bool) -> re.Pattern[str]:
     """
-    Return a compiled OR-pattern that matches any of the patterns.
+    Return a compiled pattern that matches any of the provided patterns.
 
     - Wraps each pattern as a non-capturing group before combining.
     - Case-insensitive when ``ignore_case`` is ``True``.

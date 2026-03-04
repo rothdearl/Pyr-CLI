@@ -211,7 +211,7 @@ class Seek(CLIProgram):
                 self.print_path(root)
 
                 try:
-                    for path in io.iter_paths(root, max_depth=self.args.max_depth):
+                    for path in io.iter_descendant_paths(root, max_depth=self.args.max_depth):
                         self.print_path(path)
                 except PermissionError as error:
                     self.print_error(f"{error.filename!r}: permission denied")
