@@ -46,7 +46,7 @@ class CLIProgram(ABC):
             raise SystemExit(self.error_exit_code)
 
     @final
-    def check_parsed_arguments(self) -> None:
+    def check_parsed_options(self) -> None:
         """
         Validate, normalize, and initialize from parsed options.
 
@@ -121,7 +121,7 @@ class CLIProgram(ABC):
                 signal(SIGPIPE, SIG_DFL)
 
             self.parse_arguments()
-            self.check_parsed_arguments()
+            self.check_parsed_options()
             self.execute()
             self.exit_if_errors()
         except BrokenPipeError:
