@@ -12,7 +12,7 @@ and kept simple where it does not.
 
 All Pyr-CLI commands report a single, project-wide version sourced from `pyproject.toml`.
 
-------------------------------------------------------------------------
+---
 
 ## Design Philosophy
 
@@ -29,7 +29,7 @@ Pyr-CLI follows a small set of operational rules:
 
 These constraints make the tools predictable, scriptable, and safe for composition.
 
-------------------------------------------------------------------------
+---
 
 ## Dependencies
 
@@ -43,7 +43,7 @@ The following third-party packages are required at runtime:
 
 These dependencies must be available in the active Python environment before running any Pyr-CLI commands.
 
-------------------------------------------------------------------------
+---
 
 ## Installation
 
@@ -71,7 +71,7 @@ python3 -m pip install --user .
 
 Ensure the user script directory is on your `PATH`.
 
-------------------------------------------------------------------------
+---
 
 ## Command Model
 
@@ -92,7 +92,7 @@ All Pyr-CLI commands follow the same execution model:
 
 Unless otherwise stated, tools are **stream-safe** and do not buffer the entire input unnecessarily.
 
-------------------------------------------------------------------------
+---
 
 ## Architecture
 
@@ -121,7 +121,7 @@ ANSI and formatting utilities. Rendering is applied only when writing to a TTY.
 
 All filesystem and terminal interaction is isolated here. This makes core logic testable and deterministic.
 
-------------------------------------------------------------------------
+---
 
 ## Output Conventions
 
@@ -133,7 +133,7 @@ All filesystem and terminal interaction is isolated here. This makes core logic 
 
 Unless a tool explicitly documents ordering semantics, output preserves the input order.
 
-------------------------------------------------------------------------
+---
 
 ## Tools
 
@@ -201,7 +201,7 @@ A minimal command for displaying current IP-based location information.
 
 > Each command documents its own flags and output shape via `--help`.
 
-------------------------------------------------------------------------
+---
 
 ## Error Handling Contract
 
@@ -209,7 +209,7 @@ A minimal command for displaying current IP-based location information.
 - Internal errors are not silently suppressed.
 - Partial output is not emitted after a fatal error unless explicitly documented.
 
-------------------------------------------------------------------------
+---
 
 ## Development Notes
 
@@ -223,7 +223,7 @@ The codebase targets modern Python and follows these principles:
 
 Contributions should preserve the single-responsibility design and the pipeline-safe execution model.
 
-------------------------------------------------------------------------
+---
 
 ## License
 
@@ -233,7 +233,7 @@ You may redistribute and/or modify this software under the terms of the GPL-3.0.
 A copy of the license is included in the `LICENSE` file and is also available
 at: https://www.gnu.org/licenses/gpl-3.0.en.html
 
-------------------------------------------------------------------------
+---
 
 ## Writing a New Command-Line Program
 
@@ -245,7 +245,7 @@ all command-line tools:
 
 All new programs **must inherit from one of these classes**.
 
-------------------------------------------------------------------------
+---
 
 ## Choosing a Base Class
 
@@ -259,7 +259,7 @@ All new programs **must inherit from one of these classes**.
 - The program reads from files, standard input, or text streams
 - The program needs consistent handling of encodings, file iteration, and UnicodeDecodeError reporting
 
-------------------------------------------------------------------------
+---
 
 ## Required Structure
 
@@ -281,7 +281,7 @@ def __init__(self) -> None:
     super().__init__(name="myprog")
 ```
 
-------------------------------------------------------------------------
+---
 
 ## Required Methods
 
@@ -298,7 +298,7 @@ Define all command-line options.
 Implement the program's core behavior.
 This method is called **after** arguments are parsed, validated, normalized, and runtime state is initialized.
 
-------------------------------------------------------------------------
+---
 
 ### From TextProgram
 
@@ -314,7 +314,7 @@ Process a single text stream.
 
 Do **not** open files manually; use the provided stream.
 
-------------------------------------------------------------------------
+---
 
 ## Reading Text Files
 
@@ -331,7 +331,7 @@ This function:
 - Handles UnicodeDecodeError uniformly
 - Returns a list of successfully processed file names
 
-------------------------------------------------------------------------
+---
 
 ## Reading File Names from Standard Input
 
@@ -350,7 +350,7 @@ This function:
 
 This ensures that piped file lists and argument-based file lists follow identical processing semantics.
 
-------------------------------------------------------------------------
+---
 
 ## Option Validation Lifecycle
 
@@ -396,7 +396,7 @@ Handled additionally in `TextProgram`:
 
 - text encoding (`utf-8` or `iso-8859-1` via `--latin1`)
 
-------------------------------------------------------------------------
+---
 
 ## Optional Method
 
@@ -406,7 +406,7 @@ Override **only if** the program needs additional end-of-run validation.
 
 The default behavior exits if any errors were recorded via `print_error`.
 
-------------------------------------------------------------------------
+---
 
 ## Error Reporting
 
@@ -425,7 +425,7 @@ Programs **must use** the provided helpers:
 
 Do **not** print raw error messages.
 
-------------------------------------------------------------------------
+---
 
 ## Program Entry Point
 
@@ -451,7 +451,7 @@ The `run_program()` method guarantees:
 6. Program execution
 7. Consistent error handling and exit codes
 
-------------------------------------------------------------------------
+---
 
 ## Implementation Checklist
 
@@ -473,7 +473,7 @@ The `run_program()` method guarantees:
 - Use `process_text_files_from_stdin` for file-name input from standard input
 - Do not manually open text files
 
-------------------------------------------------------------------------
+---
 
 ## Design Principles
 
@@ -482,7 +482,7 @@ The `run_program()` method guarantees:
 - Comments should explain intent, not mechanics
 - Functions should read clearly, behave predictably, and have documentation that matches reality
 
-------------------------------------------------------------------------
+---
 
 ## Versioning (Project-Wide)
 
@@ -510,7 +510,7 @@ This design provides:
 - Zero boilerplate in command implementations
 - Consistent CLI behavior across all Pyr-CLI programs
 
-------------------------------------------------------------------------
+---
 
 ## Minimal Examples
 
@@ -599,7 +599,7 @@ if __name__ == "__main__":
     raise SystemExit(main())
 ```
 
-------------------------------------------------------------------------
+---
 
 ### Text-processing program
 
