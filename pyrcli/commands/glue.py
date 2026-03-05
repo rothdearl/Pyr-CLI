@@ -9,10 +9,10 @@ from pyrcli.cli import TextProgram, ansi, io, terminal, text
 
 
 class Styles:
-    """Namespace for terminal styling constants."""
-    END_MARKER: Final[str] = ansi.Colors.BRIGHT_BLUE
-    NUMBER: Final[str] = ansi.Colors.BRIGHT_GREEN
-    TAB_MARKER: Final[str] = ansi.Colors.BRIGHT_CYAN
+    """Namespace for ANSI styling constants."""
+    END_MARKER: Final[str] = ansi.ForegroundColors.BRIGHT_BLUE
+    NUMBER: Final[str] = ansi.ForegroundColors.BRIGHT_GREEN
+    TAB_MARKER: Final[str] = ansi.ForegroundColors.BRIGHT_CYAN
 
 
 class Whitespace:
@@ -155,7 +155,7 @@ class Glue(TextProgram):
         return rendered
 
     def should_suppress_blank_line(self, blank_line_count: int) -> bool:
-        """Return whether a blank line should be suppressed."""
+        """Return ``True`` if a blank line should be suppressed."""
         if self.args.no_blank:
             return True
 

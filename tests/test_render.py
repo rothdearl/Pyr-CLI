@@ -84,6 +84,6 @@ class TestRender(unittest.TestCase):
 
     def test_style(self):
         text = "word"
-        result = render.style(text, ansi_style=ansi.Colors.BLUE)
+        result = render.style(text, ansi_style=ansi.ForegroundColors.BLUE)
 
-        self.assertEqual(result, f"{ansi.Colors.BLUE}word{ansi.RESET}")
+        self.assertEqual(result, f"{ansi.ForegroundColors.BLUE}word{ansi.RESET}")

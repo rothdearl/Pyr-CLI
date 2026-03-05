@@ -10,9 +10,9 @@ class TestANSI(unittest.TestCase):
 
     def test_16_color_palette(self) -> None:
         # Verify lengths.
-        bg_colors = [name for name, value in ansi.BgColors.__dict__.items() if
+        bg_colors = [name for name, value in ansi.BackgroundColors.__dict__.items() if
                      not name.startswith("__") and isinstance(value, str)]
-        colors = [name for name, value in ansi.Colors.__dict__.items() if
+        colors = [name for name, value in ansi.ForegroundColors.__dict__.items() if
                   not name.startswith("__") and isinstance(value, str)]
         test_attr = [name for name, value in ansi.TextAttributes.__dict__.items() if
                      not name.startswith("__") and isinstance(value, str)]
@@ -33,7 +33,7 @@ class TestANSI(unittest.TestCase):
         # Print the foreground colors.
         print(f"Foreground color constants for the standard 16-color ANSI palette.")
 
-        for name, color in ansi.Colors.__dict__.items():
+        for name, color in ansi.ForegroundColors.__dict__.items():
             if not name.startswith("__"):
                 print(f"[{name:<14}]: {color}The quick brown fox jumps over the lazy dog{ansi.RESET}")
 
@@ -42,7 +42,7 @@ class TestANSI(unittest.TestCase):
         # Print the background colors.
         print(f"Background color constants for the standard 16-color ANSI palette.")
 
-        for name, color in ansi.BgColors.__dict__.items():
+        for name, color in ansi.BackgroundColors.__dict__.items():
             if not name.startswith("__"):
                 print(f"[{name:<17}]: {color}The quick brown fox jumps over the lazy dog{ansi.RESET}")
 
@@ -50,12 +50,12 @@ class TestANSI(unittest.TestCase):
 
     def test_256_color_palette(self) -> None:
         # Verify lengths.
-        self.assertEqual(len(ansi.BG_COLORS_256), 256)
-        self.assertEqual(len(ansi.COLORS_256), 256)
+        self.assertEqual(len(ansi.BACKGROUND_COLORS_256), 256)
+        self.assertEqual(len(ansi.FOREGROUND_COLORS_256), 256)
 
         # Print the ANSI 256-colors.
         print("ANSI 256-color palette (xterm-compatible)")
 
-        for index, (fg_color, bg_color) in enumerate(zip(ansi.COLORS_256, ansi.BG_COLORS_256)):
+        for index, (fg_color, bg_color) in enumerate(zip(ansi.FOREGROUND_COLORS_256, ansi.BACKGROUND_COLORS_256)):
             print(
                 f"[{index:>3}]: {fg_color}The quick brown fox jumps{ansi.RESET} {bg_color}over the lazy dog{ansi.RESET}")

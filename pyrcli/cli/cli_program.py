@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Final, final
 
 from pyrcli import __version__
-from .constants import OS_IS_WINDOWS
+from .os_info import IS_WINDOWS
 from .terminal import stdout_is_terminal
 
 
@@ -109,7 +109,7 @@ class CLIProgram(ABC):
         sigpipe_exit_code = 141
 
         try:
-            if OS_IS_WINDOWS:  # Enable ANSI color support on Windows (via colorama).
+            if IS_WINDOWS:  # Enable ANSI color support on Windows (via colorama).
                 from colorama import just_fix_windows_console
 
                 just_fix_windows_console()
@@ -123,13 +123,13 @@ class CLIProgram(ABC):
             self.execute()
             self.exit_if_errors()
         except BrokenPipeError:
-            raise SystemExit(self.error_exit_code if OS_IS_WINDOWS else sigpipe_exit_code)
+            raise SystemExit(self.error_exit_code if IS_WINDOWS else sigpipe_exit_code)
         except KeyboardInterrupt:
             # Add a newline after Ctrl-C if standard output is attached to a terminal.
             if stdout_is_terminal():
                 print()
 
-            raise SystemExit(self.error_exit_code if OS_IS_WINDOWS else keyboard_interrupt_error_code)
+            raise SystemExit(self.error_exit_code if IS_WINDOWS else keyboard_interrupt_error_code)
         except OSError as error:
             # Normalize unexpected OS errors to a clean exit code.
             raise SystemExit(self.error_exit_code) from error

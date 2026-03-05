@@ -3,20 +3,14 @@
 from typing import Final
 
 from .ansi import (
-    BG_COLORS_256,
-    BgColors,
-    COLORS_256,
-    Colors,
+    BACKGROUND_COLORS_256,
+    BackgroundColors,
+    FOREGROUND_COLORS_256,
+    ForegroundColors,
     RESET,
     TextAttributes,
 )
 from .cli_program import CLIProgram
-from .constants import (
-    OS_IS_LINUX,
-    OS_IS_MAC,
-    OS_IS_POSIX,
-    OS_IS_WINDOWS,
-)
 from .ini import (
     get_bool_option,
     get_float_option,
@@ -35,6 +29,12 @@ from .io import (
     iter_stdin_file_names,
     read_text_files,
     write_text_to_file,
+)
+from .os_info import (
+    IS_LINUX,
+    IS_MAC,
+    IS_POSIX,
+    IS_WINDOWS,
 )
 from .patterns import (
     compile_combined_patterns,
@@ -77,22 +77,16 @@ from .types import (
 
 __all__: Final[tuple[str, ...]] = (
     # ansi
-    "BG_COLORS_256",
-    "BgColors",
-    "COLORS_256",
-    "Colors",
+    "BACKGROUND_COLORS_256",
+    "BackgroundColors",
+    "FOREGROUND_COLORS_256",
+    "ForegroundColors",
     "RESET",
     "TextAttributes",
 
     # base classes
     "CLIProgram",
     "TextProgram",
-
-    # constants
-    "OS_IS_LINUX",
-    "OS_IS_MAC",
-    "OS_IS_POSIX",
-    "OS_IS_WINDOWS",
 
     # ini
     "get_bool_option",
@@ -112,6 +106,12 @@ __all__: Final[tuple[str, ...]] = (
     "iter_stdin_file_names",
     "read_text_files",
     "write_text_to_file",
+
+    # os_info
+    "IS_LINUX",
+    "IS_MAC",
+    "IS_POSIX",
+    "IS_WINDOWS",
 
     # patterns
     "compile_combined_patterns",

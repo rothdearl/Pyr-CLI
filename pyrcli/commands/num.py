@@ -9,10 +9,10 @@ from pyrcli.cli import TextProgram, ansi, io, terminal, text
 
 
 class Styles:
-    """Namespace for terminal styling constants."""
-    COLON: Final[str] = ansi.Colors.BRIGHT_CYAN
-    FILE_NAME: Final[str] = ansi.Colors.BRIGHT_MAGENTA
-    LINE_NUMBER: Final[str] = ansi.Colors.BRIGHT_GREEN
+    """Namespace for ANSI styling constants."""
+    COLON: Final[str] = ansi.ForegroundColors.BRIGHT_CYAN
+    FILE_NAME: Final[str] = ansi.ForegroundColors.BRIGHT_MAGENTA
+    LINE_NUMBER: Final[str] = ansi.ForegroundColors.BRIGHT_GREEN
 
 
 class Num(TextProgram):
@@ -144,7 +144,7 @@ class Num(TextProgram):
         )
 
     def should_suppress_blank_line(self, blank_line_count: int) -> bool:
-        """Return whether a blank line should be suppressed."""
+        """Return ``True`` if a blank line should be suppressed."""
         if self.args.no_blank:
             return True
 

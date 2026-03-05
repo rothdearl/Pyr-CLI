@@ -15,11 +15,11 @@ class Match(NamedTuple):
 
 
 class Styles:
-    """Namespace for terminal styling constants."""
-    COLON: Final[str] = ansi.Colors.BRIGHT_CYAN
-    FILE_NAME: Final[str] = ansi.Colors.BRIGHT_MAGENTA
-    LINE_NUMBER: Final[str] = ansi.Colors.BRIGHT_GREEN
-    MATCH: Final[str] = ansi.Colors.BRIGHT_RED
+    """Namespace for ANSI styling constants."""
+    COLON: Final[str] = ansi.ForegroundColors.BRIGHT_CYAN
+    FILE_NAME: Final[str] = ansi.ForegroundColors.BRIGHT_MAGENTA
+    LINE_NUMBER: Final[str] = ansi.ForegroundColors.BRIGHT_GREEN
+    MATCH: Final[str] = ansi.ForegroundColors.BRIGHT_RED
 
 
 class Scan(TextProgram):
@@ -134,7 +134,7 @@ class Scan(TextProgram):
         self.compile_patterns()
 
     def is_printing_counts(self) -> bool:
-        """Return whether ``args.count`` or ``args.count_nonzero`` is set."""
+        """Return ``True`` if ``args.count`` or ``args.count_nonzero`` is set."""
         return self.args.count or self.args.count_nonzero
 
     @override

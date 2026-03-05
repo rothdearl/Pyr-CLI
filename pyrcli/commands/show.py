@@ -9,13 +9,13 @@ from pyrcli.cli import TextProgram, ansi, io, terminal, text
 
 
 class Styles:
-    """Namespace for terminal styling constants."""
-    COLON: Final[str] = ansi.Colors.BRIGHT_CYAN
-    END_MARKER: Final[str] = ansi.Colors.BRIGHT_BLUE
-    FILE_NAME: Final[str] = ansi.Colors.BRIGHT_MAGENTA
-    LINE_NUMBER: Final[str] = ansi.Colors.BRIGHT_GREEN
-    SPACE_MARKER: Final[str] = ansi.Colors.BRIGHT_CYAN
-    TAB_MARKER: Final[str] = ansi.Colors.BRIGHT_CYAN
+    """Namespace for ANSI styling constants."""
+    COLON: Final[str] = ansi.ForegroundColors.BRIGHT_CYAN
+    END_MARKER: Final[str] = ansi.ForegroundColors.BRIGHT_BLUE
+    FILE_NAME: Final[str] = ansi.ForegroundColors.BRIGHT_MAGENTA
+    LINE_NUMBER: Final[str] = ansi.ForegroundColors.BRIGHT_GREEN
+    SPACE_MARKER: Final[str] = ansi.ForegroundColors.BRIGHT_CYAN
+    TAB_MARKER: Final[str] = ansi.ForegroundColors.BRIGHT_CYAN
 
 
 class Whitespace:

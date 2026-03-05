@@ -18,10 +18,10 @@ class Counts(NamedTuple):
 
 
 class Styles:
-    """Namespace for terminal styling constants."""
-    COUNT: Final[str] = ansi.Colors.BRIGHT_CYAN
-    COUNT_TOTAL: Final[str] = ansi.Colors.BRIGHT_YELLOW
-    FILE_NAME: Final[str] = ansi.Colors.BRIGHT_MAGENTA
+    """Namespace for ANSI styling constants."""
+    COUNT: Final[str] = ansi.ForegroundColors.BRIGHT_CYAN
+    COUNT_TOTAL: Final[str] = ansi.ForegroundColors.BRIGHT_YELLOW
+    FILE_NAME: Final[str] = ansi.ForegroundColors.BRIGHT_MAGENTA
 
 
 class Tally(TextProgram):

@@ -9,10 +9,10 @@ from pyrcli.cli import TextProgram, ansi, io, terminal, text
 
 
 class Styles:
-    """Namespace for terminal styling constants."""
-    COLON: Final[str] = ansi.Colors.BRIGHT_CYAN
-    FILE_NAME: Final[str] = ansi.Colors.BRIGHT_MAGENTA
-    GROUP_COUNT: Final[str] = ansi.Colors.BRIGHT_GREEN
+    """Namespace for ANSI styling constants."""
+    COLON: Final[str] = ansi.ForegroundColors.BRIGHT_CYAN
+    FILE_NAME: Final[str] = ansi.ForegroundColors.BRIGHT_MAGENTA
+    GROUP_COUNT: Final[str] = ansi.ForegroundColors.BRIGHT_GREEN
 
 
 class Dupe(TextProgram):
@@ -63,7 +63,7 @@ class Dupe(TextProgram):
         return parser
 
     def can_group_key(self, key: str) -> bool:
-        """Return whether the key should participate in grouping (optionally ignoring blank keys)."""
+        """Return ``True`` if the key should participate in grouping (optionally ignoring blank keys)."""
         return not self.args.ignore_blank or key.strip()
 
     @override

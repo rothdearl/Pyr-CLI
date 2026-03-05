@@ -106,17 +106,17 @@ def get_str_options(section: str, option: str, *, separator: str = ",") -> list[
 
 
 def has_defaults() -> bool:
-    """Return whether the DEFAULT section contains any options."""
+    """Return ``True`` if the DEFAULT section contains any options."""
     return bool(_config.defaults())
 
 
 def has_sections() -> bool:
-    """Return whether any non-default sections exist."""
+    """Return ``True`` if any non-default sections exist."""
     return bool(_config.sections())
 
 
 def is_empty() -> bool:
-    """Return whether the configuration is empty."""
+    """Return ``True`` if the configuration is empty."""
     return not has_defaults() and not has_sections()
 
 
@@ -126,7 +126,7 @@ def read_options(path: str, *, clear_previous: bool = True, on_error: ErrorRepor
 
     - Clears previously loaded options when ``clear_previous`` is ``True``.
     - Invokes ``on_error(message)`` if the file cannot be read or parsed.
-    - Returns ``True`` on success, otherwise ``False``.
+    - Returns ``True`` on success.
     - Errors reported: missing file, permission denied, invalid configuration file, other OS read errors.
     """
     try:

@@ -2,7 +2,7 @@
 
 import re
 from collections.abc import Callable, Mapping
-from typing import Any, Final, IO
+from typing import Any, BinaryIO, Final
 
 #: List of compiled regular expression patterns.
 type CompiledPatterns = list[re.Pattern[str]]
@@ -16,8 +16,8 @@ type JsonObject = dict[str, Any]
 #: String-to-string mappings used for HTTP headers or form payload fields.
 type KeyValuePairs = dict[str, str]
 
-#: Mapping of form field names to file-like objects for multipart uploads.
-type MultipartFiles = Mapping[str, IO[Any]]
+#: Mapping of form field names to binary file-like objects for multipart uploads.
+type MultipartFiles = Mapping[str, BinaryIO]
 
 #: String-to-string mappings encoded into the URL query string.
 type QueryParameters = dict[str, str]

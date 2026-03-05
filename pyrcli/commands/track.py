@@ -11,9 +11,9 @@ from pyrcli.cli import TextProgram, ansi, io, terminal, text
 
 
 class Styles:
-    """Namespace for terminal styling constants."""
-    COLON: Final[str] = ansi.Colors.BRIGHT_CYAN
-    FILE_NAME: Final[str] = ansi.Colors.BRIGHT_MAGENTA
+    """Namespace for ANSI styling constants."""
+    COLON: Final[str] = ansi.ForegroundColors.BRIGHT_CYAN
+    FILE_NAME: Final[str] = ansi.ForegroundColors.BRIGHT_MAGENTA
 
 
 class Track(TextProgram):

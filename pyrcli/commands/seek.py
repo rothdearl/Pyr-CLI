@@ -12,8 +12,8 @@ from pyrcli.cli import CLIProgram, CompiledPatterns, ansi, io, patterns, render,
 
 
 class Styles:
-    """Namespace for terminal styling constants."""
-    MATCH: Final[str] = ansi.Colors.BRIGHT_RED
+    """Namespace for ANSI styling constants."""
+    MATCH: Final[str] = ansi.ForegroundColors.BRIGHT_RED
 
 
 class Seek(CLIProgram):
@@ -114,7 +114,7 @@ class Seek(CLIProgram):
         self.compile_patterns()
 
     def path_matches_filters(self, path: pathlib.Path) -> bool:
-        """Return whether the path matches all enabled filters."""
+        """Return ``True`` if the path matches all enabled filters."""
         try:
             if self.args.type:
                 is_dir = path.is_dir()
@@ -153,7 +153,7 @@ class Seek(CLIProgram):
         return True
 
     def path_matches_patterns(self, name_part: str, path_part: str) -> bool:
-        """Return whether the ``name_part`` and ``path_part`` match all provided pattern groups."""
+        """Return ``True`` if the ``name_part`` and ``path_part`` match all provided pattern groups."""
         if not patterns.matches_all_patterns(name_part, compiled_patterns=self.name_patterns):
             return False
 

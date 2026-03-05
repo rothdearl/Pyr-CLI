@@ -5,7 +5,7 @@ import calendar
 import datetime
 from typing import Final, NamedTuple, NoReturn, override
 
-from pyrcli.cli import CLIProgram, constants, render
+from pyrcli.cli import CLIProgram, os_info, render
 
 
 class CalendarQuarterColumnBounds(NamedTuple):
@@ -21,7 +21,7 @@ class When(CLIProgram):
     :cvar DEFAULT_DATETIME_FORMAT: Default format for printing the date and time.
     """
 
-    DEFAULT_DATETIME_FORMAT: Final[str] = "%a %b %-d %-I:%M%p" if constants.OS_IS_POSIX else "%a %b %d %I:%M%p"
+    DEFAULT_DATETIME_FORMAT: Final[str] = "%a %b %-d %-I:%M%p" if os_info.IS_POSIX else "%a %b %d %I:%M%p"
 
     def __init__(self) -> None:
         """Initialize the instance."""

@@ -5,37 +5,37 @@ from typing import Final, TextIO
 
 
 def _is_terminal(stream: TextIO) -> bool:
-    """Return whether the stream is attached to a terminal."""
+    """Return ``True`` if the stream is attached to a terminal."""
     return stream.isatty()
 
 
 def stderr_is_redirected() -> bool:
-    """Return whether standard error is not attached to a terminal."""
+    """Return ``True`` if standard error is not attached to a terminal."""
     return not _is_terminal(sys.stderr)
 
 
 def stderr_is_terminal() -> bool:
-    """Return whether standard error is attached to a terminal."""
+    """Return ``True`` if standard error is attached to a terminal."""
     return _is_terminal(sys.stderr)
 
 
 def stdin_is_redirected() -> bool:
-    """Return whether standard input is not attached to a terminal."""
+    """Return ``True`` if standard input is not attached to a terminal."""
     return not _is_terminal(sys.stdin)
 
 
 def stdin_is_terminal() -> bool:
-    """Return whether standard input is attached to a terminal."""
+    """Return ``True`` if standard input is attached to a terminal."""
     return _is_terminal(sys.stdin)
 
 
 def stdout_is_redirected() -> bool:
-    """Return whether standard output is not attached to a terminal."""
+    """Return ``True`` if standard output is not attached to a terminal."""
     return not _is_terminal(sys.stdout)
 
 
 def stdout_is_terminal() -> bool:
-    """Return whether standard output is attached to a terminal."""
+    """Return ``True`` if standard output is attached to a terminal."""
     return _is_terminal(sys.stdout)
 
 
