@@ -165,7 +165,7 @@ class Dupe(TextProgram):
 
     @override
     def handle_text_stream(self, file_info: io.FileInfo) -> None:
-        """Process the text stream contained in ``FileInfo``."""
+        """Process the text stream in ``file_info``."""
         self.group_and_print_lines(file_info.text_stream, origin_file=file_info.file_name)
 
     @override

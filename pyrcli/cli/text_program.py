@@ -1,4 +1,4 @@
-"""Provides an abstract base class (ABC) for command-line programs that process text files."""
+"""Abstract base class (ABC) for command-line programs that process text files."""
 
 import os
 from abc import ABC, abstractmethod
@@ -25,7 +25,7 @@ class TextProgram(CLIProgram, ABC):
 
     @abstractmethod
     def handle_text_stream(self, file_info: FileInfo) -> None:
-        """Process the text stream in ``FileInfo``."""
+        """Process the text stream in ``file_info``."""
         ...
 
     @override
@@ -40,8 +40,8 @@ class TextProgram(CLIProgram, ABC):
         """
         Process each text file.
 
-        - Delegate stream handling to ``handle_text_stream``.
-        - Return a list of file names processed successfully.
+        - Delegates stream handling to ``handle_text_stream``.
+        - Returns the names of files successfully processed.
         """
         processed_files = []
 

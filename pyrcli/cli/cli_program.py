@@ -1,4 +1,4 @@
-"""Provides an abstract base class (ABC) for command-line programs, defining a standard program lifecycle."""
+"""Abstract base class (ABC) for command-line programs, defining a standard program lifecycle."""
 
 import argparse
 import sys
@@ -79,7 +79,7 @@ class CLIProgram(ABC):
 
     @final
     def print_error(self, error_message: str) -> None:
-        """Set the error flag and print the message to standard error unless ``args.no_messages`` is present and set."""
+        """Set the error flag and print to standard error unless ``args.no_messages`` is enabled."""
         self.has_errors = True
 
         # --no-messages is a Unix convention to suppress per-file diagnostics but still set the error flag.
@@ -105,7 +105,7 @@ class CLIProgram(ABC):
         :return: ``0`` on success.
         :raises SystemExit: With an exit code on failure.
         """
-        keyboard_interrupt_error_code = 130
+        keyboard_interrupt_exit_code = 130
         sigpipe_exit_code = 141
 
         try:
@@ -129,7 +129,7 @@ class CLIProgram(ABC):
             if stdout_is_terminal():
                 print()
 
-            raise SystemExit(self.error_exit_code if IS_WINDOWS else keyboard_interrupt_error_code)
+            raise SystemExit(self.error_exit_code if IS_WINDOWS else keyboard_interrupt_exit_code)
         except OSError as error:
             # Normalize unexpected OS errors to a clean exit code.
             raise SystemExit(self.error_exit_code) from error

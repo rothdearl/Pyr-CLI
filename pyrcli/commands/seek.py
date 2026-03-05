@@ -168,7 +168,7 @@ class Seek(CLIProgram):
         name_part = path.name or os.curdir  # The current directory has no name component.
         path_part = str(path.parent) if len(path.parts) > 1 else ""  # Do not include '.' in the path part.
 
-        if is_current_directory and not self.args.dot_prefix:  # Skip the current directory unless --dot-prefix is set.
+        if is_current_directory and not self.args.dot_prefix:  # Skip the current directory unless --dot-prefix is enabled.
             return
 
         # Check if the path matches the search criteria and whether to invert the result.

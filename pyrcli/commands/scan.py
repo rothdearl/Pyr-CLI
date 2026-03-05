@@ -119,7 +119,7 @@ class Scan(TextProgram):
 
     @override
     def handle_text_stream(self, file_info: io.FileInfo) -> None:
-        """Process the text stream contained in ``FileInfo``."""
+        """Process the text stream in ``file_info``."""
         self.print_matches(file_info.text_stream, origin_file=file_info.file_name)
 
     @override
@@ -134,7 +134,7 @@ class Scan(TextProgram):
         self.compile_patterns()
 
     def is_printing_counts(self) -> bool:
-        """Return ``True`` if ``args.count`` or ``args.count_nonzero`` is set."""
+        """Return ``True`` if either ``args.count`` or ``args.count_nonzero`` is enabled."""
         return self.args.count or self.args.count_nonzero
 
     @override

@@ -86,7 +86,7 @@ class Subs(TextProgram):
 
     @override
     def handle_text_stream(self, file_info: io.FileInfo) -> None:
-        """Process the text stream contained in ``FileInfo``."""
+        """Process the text stream in ``file_info``."""
         if self.args.in_place:
             io.write_text_to_file(file_info.file_name,
                                   lines=self.iter_replaced_lines(file_info.text_stream.readlines()),
