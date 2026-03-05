@@ -1,4 +1,4 @@
-"""INI configuration reader with a module-level shared parser."""
+"""INI configuration reader using a shared module-level parser."""
 
 import configparser
 import json
@@ -78,14 +78,14 @@ def get_json_option(section: str, option: str) -> JsonObject | None:
     value = get_str_option_with_fallback(section, option, fallback="{}")
 
     try:
-        decoded_json = json.loads(value)
+        parsed_json = json.loads(value)
     except json.JSONDecodeError:
         return None
 
-    if not isinstance(decoded_json, dict):
+    if not isinstance(parsed_json, dict):
         return None
 
-    return decoded_json
+    return parsed_json
 
 
 def get_str_option(section: str, option: str) -> str:

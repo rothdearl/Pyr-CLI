@@ -1,4 +1,4 @@
-"""Provides utilities for reading and writing text files and streams."""
+"""Utilities for reading and writing text files and streams."""
 
 import os
 import pathlib

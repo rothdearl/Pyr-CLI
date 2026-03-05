@@ -115,6 +115,8 @@ class TestINI(unittest.TestCase):
     def test_values_strings(self) -> None:
         # Valid.
         self.assertEqual(ini.get_str_options("string_list_options", "comma_separated"), ["a", "b", "c"])
+        self.assertEqual(ini.get_str_options("string_list_options", "tab_separated", separator="\t"),
+                         ["a", "b", "c", "d"])
         self.assertEqual(ini.get_str_options("string_list_options", "comma_with_spaces"), ["a", "b", "c"])
         self.assertEqual(ini.get_str_options("string_list_options", "leading_trailing"), ["a", "b"])
         self.assertEqual(ini.get_str_options("string_list_options", "only_separators"), [])
