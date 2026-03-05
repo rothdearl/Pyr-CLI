@@ -1,42 +1,37 @@
 """Predicates describing whether the standard streams are attached to a terminal."""
 
 import sys
-from typing import Final, TextIO
-
-
-def _is_terminal(stream: TextIO) -> bool:
-    """Return ``True`` if the stream is attached to a terminal."""
-    return stream.isatty()
+from typing import Final
 
 
 def stderr_is_redirected() -> bool:
     """Return ``True`` if standard error is not attached to a terminal."""
-    return not _is_terminal(sys.stderr)
+    return not sys.stderr.isatty()
 
 
 def stderr_is_terminal() -> bool:
     """Return ``True`` if standard error is attached to a terminal."""
-    return _is_terminal(sys.stderr)
+    return sys.stderr.isatty()
 
 
 def stdin_is_redirected() -> bool:
     """Return ``True`` if standard input is not attached to a terminal."""
-    return not _is_terminal(sys.stdin)
+    return not sys.stdin.isatty()
 
 
 def stdin_is_terminal() -> bool:
     """Return ``True`` if standard input is attached to a terminal."""
-    return _is_terminal(sys.stdin)
+    return sys.stdin.isatty()
 
 
 def stdout_is_redirected() -> bool:
     """Return ``True`` if standard output is not attached to a terminal."""
-    return not _is_terminal(sys.stdout)
+    return not sys.stdout.isatty()
 
 
 def stdout_is_terminal() -> bool:
     """Return ``True`` if standard output is attached to a terminal."""
-    return _is_terminal(sys.stdout)
+    return sys.stdout.isatty()
 
 
 __all__: Final[tuple[str, ...]] = (
