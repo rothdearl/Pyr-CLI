@@ -7,7 +7,7 @@ from typing import Final
 from .types import CompiledPatterns, ErrorReporter
 
 
-def compile_combined_patterns(compiled_patterns: Iterable[re.Pattern[str]], *, ignore_case: bool) -> re.Pattern[str]:
+def compile_combined_patterns(source_patterns: Iterable[re.Pattern[str]], *, ignore_case: bool) -> re.Pattern[str]:
     """
     Return a compiled pattern that matches any provided pattern.
 
@@ -15,7 +15,7 @@ def compile_combined_patterns(compiled_patterns: Iterable[re.Pattern[str]], *, i
     - Case-insensitive when ``ignore_case`` is ``True``.
     """
     flags = re.IGNORECASE if ignore_case else re.NOFLAG
-    sources = [f"(?:{pattern.pattern})" for pattern in compiled_patterns]
+    sources = [f"(?:{pattern.pattern})" for pattern in source_patterns]
 
     return re.compile("|".join(sources), flags=flags)
 
@@ -33,7 +33,7 @@ def compile_patterns(patterns: Iterable[str], *, ignore_case: bool, on_error: Er
     flags = re.IGNORECASE if ignore_case else re.NOFLAG
 
     for pattern in patterns:
-        if not pattern:  # Skip empty patterns.
+        if not pattern:
             continue
 
         try:

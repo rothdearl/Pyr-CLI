@@ -1,45 +1,44 @@
 """Utilities for styling text with ANSI escape sequences."""
 
 import re
-from collections.abc import Iterable
+from collections.abc import Collection
 from typing import Final
 
 from .ansi import RESET, TextAttributes
 
 
 def bold(text: str) -> str:
-    """Return ``text`` wrapped with bold ANSI SGR escape codes."""
+    """Return ``text`` rendered in bold."""
     return style(text, ansi_style=TextAttributes.BOLD)
 
 
 def dim(text: str) -> str:
-    """Return ``text`` wrapped with dim ANSI SGR escape codes."""
+    """Return ``text`` rendered in dim."""
     return style(text, ansi_style=TextAttributes.DIM)
 
 
 def reverse_video(text: str) -> str:
-    """Return ``text`` wrapped with reverse-video ANSI SGR escape codes."""
+    """Return ``text`` rendered with reversed foreground and background colors."""
     return style(text, ansi_style=TextAttributes.REVERSE)
 
 
 def style(text: str, *, ansi_style: str) -> str:
-    """Return ``text`` wrapped with ANSI SGR escape codes."""
+    """Return ``text`` rendered with the given ANSI style, reset afterward."""
     return f"{ansi_style}{text}{RESET}"
 
 
-def style_pattern_matches(text: str, *, patterns: Iterable[re.Pattern[str]], ansi_style: str) -> str:
-    """Return ``text`` with all pattern matches wrapped in ANSI SGR escape codes."""
-    if not patterns:  # Return early if no patterns are provided.
+def style_pattern_matches(text: str, *, patterns: Collection[re.Pattern[str]], ansi_style: str) -> str:
+    """Return ``text`` rendered with the given ANSI style, reset afterward."""
+    if not patterns:
         return text
 
-    # Get ranges for each match.
+    # Collect, merge overlapping, and style match ranges.
     ranges = []
 
     for pattern in patterns:
         for match in pattern.finditer(text):
             ranges.append((match.start(), match.end()))
 
-    # Merge overlapping ranges.
     merged_ranges = []
 
     for start, end in sorted(ranges):
@@ -48,7 +47,6 @@ def style_pattern_matches(text: str, *, patterns: Iterable[re.Pattern[str]], ans
         else:
             merged_ranges.append((start, end))
 
-    # Style ranges.
     styled_text = []
     prev_end = 0
 

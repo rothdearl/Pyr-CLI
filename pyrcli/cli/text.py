@@ -15,7 +15,7 @@ def decode_python_escape_sequences(line: str) -> str:
 
 
 def iter_nonempty_lines(lines: Iterable[str]) -> Iterator[str]:
-    """Yield normalized, non-empty lines."""
+    """Yield lines with one trailing newline removed, skipping empty lines."""
     for line in iter_normalized_lines(lines):
         if line:
             yield line
@@ -61,13 +61,11 @@ def split_shell_style(text: str, *, literal_quotes: bool = False) -> list[str]:
     """Split ``text`` using shell-style parsing."""
     lexer = shlex.shlex(text, posix=True, punctuation_chars=False)
 
-    # Configure the lexer.
     lexer.whitespace_split = True  # Treat whitespace as the token separator.
 
     if literal_quotes:
         lexer.quotes = ""  # Treat quotes as ordinary characters.
 
-    # Parse the fields.
     try:
         return list(lexer)
     except ValueError:
