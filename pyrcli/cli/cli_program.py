@@ -94,13 +94,12 @@ class CLIProgram(ABC):
         """
         Run the full program lifecycle and normalize process termination.
 
-        - Configure the environment.
-        - Parse arguments and prepare runtime state.
-        - Execute the command.
-        - Handle errors.
-
-        :return: ``0`` on success.
-        :raises SystemExit: With an exit code on failure.
+        - Configures the environment.
+        - Parses arguments and prepare runtime state.
+        - Executes the command.
+        - Handles errors.
+        - Returns ``0`` on success.
+        - Raises ``SystemExit`` with a non-zero code on failure.
         """
         try:
             if IS_WINDOWS:  # Enable ANSI color support on Windows (via colorama).
