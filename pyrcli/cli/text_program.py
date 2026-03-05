@@ -23,6 +23,11 @@ class TextProgram(CLIProgram, ABC):
 
         self.encoding: str = "utf-8"
 
+    @final
+    def can_print_file_header(self) -> bool:
+        """Return ``True`` if file headers should be printed."""
+        return not getattr(self.args, "no_file_name", False)
+
     @abstractmethod
     def handle_text_stream(self, file_info: FileInfo) -> None:
         """Process the text stream for a single file."""
@@ -36,7 +41,7 @@ class TextProgram(CLIProgram, ABC):
         self.encoding = "iso-8859-1" if getattr(self.args, "latin1", False) else "utf-8"
 
     @final
-    def process_text_files(self, files: Iterable[str]) -> list[str]:
+    def process_text_files(self, file_names: Iterable[str]) -> list[str]:
         """
         Process each text file.
 
@@ -45,7 +50,7 @@ class TextProgram(CLIProgram, ABC):
         """
         processed_files = []
 
-        for file_info in read_text_files(files, encoding=self.encoding, on_error=self.print_error):
+        for file_info in read_text_files(file_names, encoding=self.encoding, on_error=self.print_error):
             try:
                 self.handle_text_stream(file_info)
                 processed_files.append(file_info.file_name)
@@ -61,7 +66,7 @@ class TextProgram(CLIProgram, ABC):
 
     @final
     def render_file_header(self, file_name: str, *, file_name_style: str, colon_style: str) -> str:
-        """Return a ``file_name:`` header (or ``"(standard input):"``), styled when enabled."""
+        """Return a styled ``file_name:`` header, or ``"(standard input):"`` when ``file_name`` is empty."""
         display_name = os.path.relpath(file_name) if file_name else "(standard input)"
 
         if self.print_color:
@@ -73,11 +78,6 @@ class TextProgram(CLIProgram, ABC):
             )
 
         return f"{display_name}:"
-
-    @final
-    def should_print_file_header(self) -> bool:
-        """Return ``True`` if file headers should be printed."""
-        return not getattr(self.args, "no_file_name", False)
 
 
 __all__: Final[tuple[str, ...]] = ("TextProgram",)

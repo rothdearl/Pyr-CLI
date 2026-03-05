@@ -92,7 +92,7 @@ class Show(TextProgram):
 
     def print_file_header(self, file_name: str) -> None:
         """Print the rendered file header for ``file_name``."""
-        if self.should_print_file_header():
+        if self.can_print_file_header():
             print(self.render_file_header(file_name, file_name_style=Styles.FILE_NAME, colon_style=Styles.COLON))
 
     def print_lines(self, lines: Sequence[str]) -> None:
