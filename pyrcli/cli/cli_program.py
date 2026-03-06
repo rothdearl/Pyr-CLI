@@ -18,12 +18,13 @@ class CLIProgram(ABC):
     """
     Base class for command-line programs, defining a standard program lifecycle.
 
-    :ivar args: Parsed command-line arguments.
-    :ivar error_exit_code: Exit code when an error occurs (default: ``1``).
-    :ivar has_errors: Whether the program has encountered errors.
-    :ivar name: Name of the program.
-    :ivar print_color: Whether color output is enabled.
-    :ivar version: Program version.
+    Attributes:
+        args: Parsed command-line arguments.
+        error_exit_code: Exit code when an error occurs (default: ``1``).
+        has_errors: Whether the program has encountered errors.
+        name: Name of the program.
+        print_color: Whether color output is enabled.
+        version: Program version.
     """
 
     def __init__(self, *, name: str, error_exit_code: int = 1) -> None:

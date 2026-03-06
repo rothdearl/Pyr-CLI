@@ -28,10 +28,11 @@ class Tally(TextProgram):
     """
     Program for counting lines, words, and characters in files.
 
-    :cvar WORD_PATTERN: Matches a whole word token.
-    :ivar files_counted: Number of files counted.
-    :ivar flags: Flags for determining if a count attribute will be printed.
-    :ivar totals: Total counts across all files.
+    Attributes:
+        WORD_PATTERN: Matches a whole word token.
+        files_counted: Number of files counted.
+        flags: Flags for determining if a count attribute will be printed.
+        totals: Total counts across all files.
     """
 
     WORD_PATTERN: Final[re.Pattern[str]] = re.compile(r"\b\w+\b")

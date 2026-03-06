@@ -14,15 +14,16 @@ class ProgressBarLayout:
     """
     Configuration for rendering a terminal progress bar.
 
-    :ivar width: Number of character cells used for the bar body.
-    :ivar fill: Glyph used to represent completed progress.
-    :ivar empty: Glyph used to represent remaining progress.
-    :ivar left: Left delimiter placed before the bar body.
-    :ivar right: Right delimiter placed after the bar body.
-    :ivar show_percent: Whether to append a percentage suffix (value + ``%``).
-    :ivar percent_style: ANSI SGR prefix applied to the percent value (empty disables styling).
-    :ivar percent_symbol_style: ANSI SGR prefix applied to the percent symbol (empty disables styling).
-    :ivar percent_reset: ANSI reset sequence appended after the percent suffix; empty disables automatic reset.
+    Attributes:
+        width: Number of character cells used for the bar body.
+        fill: Glyph used to represent completed progress.
+        empty: Glyph used to represent remaining progress.
+        left: Left delimiter placed before the bar body.
+        right: Right delimiter placed after the bar body.
+        show_percent: Whether to append a percentage suffix (value + ``%``).
+        percent_style: ANSI SGR prefix applied to the percent value (empty disables styling).
+        percent_symbol_style: ANSI SGR prefix applied to the percent symbol (empty disables styling).
+        percent_reset: ANSI reset sequence appended after the percent suffix; empty disables automatic reset.
     """
     _DEFAULT_WIDTH: ClassVar[int] = 20
 
@@ -56,9 +57,10 @@ class ProgressBar(_ProgressIndicator):
         - Writes a non-empty final message followed by a newline (even when not visible).
     - Treats empty messages as no message.
 
-    :ivar total: Total number of units representing 100% completion (non-positive values render as permanently 100%).
-    :ivar layout: Rendering layout for the progress bar.
-    :ivar clear_on_finish: Whether to clear the progress bar on finalization (message behavior is unchanged).
+    Attributes:
+        total: Total number of units representing 100% completion (non-positive values render as permanently 100%).
+        layout: Rendering layout for the progress bar.
+        clear_on_finish: Whether to clear the progress bar on finalization (message behavior is unchanged).
     """
 
     total: int

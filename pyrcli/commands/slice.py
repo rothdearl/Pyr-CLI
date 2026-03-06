@@ -18,7 +18,8 @@ class Slice(TextProgram):
     """
     Program for splitting lines in files into fields.
 
-    :ivar selected_fields: Selected fields to print.
+    Attributes:
+        selected_fields: Selected fields to print.
     """
 
     def __init__(self) -> None:

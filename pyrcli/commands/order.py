@@ -22,9 +22,10 @@ class Order(TextProgram):
     """
     Program for sorting files and prints them to standard output.
 
-    :cvar CURRENCY_SANITIZE_REGEX: Matches one or more consecutive characters that are not digits, commas, or periods.
-    :cvar DIGIT_TOKEN_REGEX: Matches (and captures) one or more decimal digits.
-    :cvar NON_WORD_OR_WHITESPACE_REGEX: Matches one or more consecutive characters that are not Unicode word characters or whitespace.
+    Attributes:
+        CURRENCY_SANITIZE_REGEX: Matches one or more consecutive characters that are not digits, commas, or periods.
+        DIGIT_TOKEN_REGEX: Matches (and captures) one or more decimal digits.
+        NON_WORD_OR_WHITESPACE_REGEX: Matches one or more consecutive characters that are not Unicode word characters or whitespace.
     """
 
     CURRENCY_SANITIZE_REGEX: Final[str] = r"[^0-9,.]+"

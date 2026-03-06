@@ -19,7 +19,8 @@ class Num(TextProgram):
     """
     Program for numbering lines from files and prints them to standard output.
 
-    :cvar FORMAT_PREFIXES: Mapping of short format keys to format-spec prefixes used when formatting line numbers.
+    Attributes:
+        FORMAT_PREFIXES: Mapping of short format keys to format-spec prefixes used when formatting line numbers.
     """
 
     FORMAT_PREFIXES: Final[dict[str, str]] = {

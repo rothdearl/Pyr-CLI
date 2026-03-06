@@ -14,7 +14,8 @@ class TextProgram(CLIProgram, ABC):
     """
     Base class for text-file processing programs, extending ``CLIProgram`` with stream handling and encoding support.
 
-    :ivar encoding: Encoding for reading and writing to files (default: ``"utf-8"``).
+    Attributes:
+        encoding: Encoding for reading and writing to files (default: ``"utf-8"``).
     """
 
     def __init__(self, *, name: str, error_exit_code: int = 1) -> None:

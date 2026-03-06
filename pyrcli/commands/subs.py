@@ -19,7 +19,8 @@ class Subs(TextProgram):
     """
     Program for replacing matching text in files.
 
-    :ivar pattern: Compiled pattern to match.
+    Attributes:
+        pattern: Compiled pattern to match.
     """
 
     def __init__(self) -> None:

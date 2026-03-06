@@ -25,7 +25,8 @@ class Glue(TextProgram):
     """
     Program for concatenating files and standard input to standard output.
 
-    :ivar line_number: Line number to be printed with output lines.
+    Attributes:
+        line_number: Line number to be printed with output lines.
     """
 
     def __init__(self) -> None:

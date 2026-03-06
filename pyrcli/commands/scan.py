@@ -26,9 +26,10 @@ class Scan(TextProgram):
     """
     Program for printing lines matching patterns in files.
 
-    :cvar NO_MATCHES_EXIT_CODE: Exit code when no matches are found.
-    :ivar found_any_match: Whether any match was found.
-    :ivar patterns: Compiled patterns to match.
+    Attributes:
+        NO_MATCHES_EXIT_CODE: Exit code when no matches are found.
+        found_any_match: Whether any match was found.
+        patterns: Compiled patterns to match.
     """
 
     NO_MATCHES_EXIT_CODE: Final[int] = 1

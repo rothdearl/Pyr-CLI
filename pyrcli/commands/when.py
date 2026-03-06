@@ -18,7 +18,8 @@ class When(CLIProgram):
     """
     Program for displaying the current calendar, with optional date and time.
 
-    :cvar DEFAULT_DATETIME_FORMAT: Default format for printing the date and time.
+    Attributes:
+        DEFAULT_DATETIME_FORMAT: Default format for printing the date and time.
     """
 
     DEFAULT_DATETIME_FORMAT: Final[str] = "%a %b %-d %-I:%M%p" if os_info.IS_POSIX else "%a %b %d %I:%M%p"

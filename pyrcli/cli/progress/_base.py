@@ -14,10 +14,11 @@ class _ProgressIndicator(ABC):
     """
     Base class for terminal progress indicators that update a single line in place and emit an optional final message.
 
-    :ivar text_stream: Text stream where output is written.
-    :ivar visible: Whether dynamic progress output is rendered.
-    :ivar final_message: Optional message written on finalization (empty strings are treated as no message).
-    :ivar message_position: Whether the message appears to the left or right of the indicator (default: ``right``).
+    Attributes:
+        text_stream: Text stream where output is written.
+        visible: Whether dynamic progress output is rendered.
+        final_message: Optional message written on finalization (empty strings are treated as no message).
+        message_position: Whether the message appears to the left or right of the indicator (default: ``right``).
     """
 
     text_stream: Final[TextIO]

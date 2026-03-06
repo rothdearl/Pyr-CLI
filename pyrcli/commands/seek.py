@@ -20,10 +20,11 @@ class Seek(CLIProgram):
     """
     Program for searching for files in a directory hierarchy.
 
-    :cvar NO_MATCHES_EXIT_CODE: Exit code when no matches are found.
-    :ivar found_any_match: Whether any match was found.
-    :ivar name_patterns: Compiled name patterns to match.
-    :ivar path_patterns: Compiled path patterns to match.
+    Attributes:
+        NO_MATCHES_EXIT_CODE: Exit code when no matches are found.
+        found_any_match: Whether any match was found.
+        name_patterns: Compiled name patterns to match.
+        path_patterns: Compiled path patterns to match.
     """
 
     NO_MATCHES_EXIT_CODE: Final[int] = 1

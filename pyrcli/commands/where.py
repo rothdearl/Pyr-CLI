@@ -12,7 +12,8 @@ class Where(CLIProgram):
     """
     Program for displaying current IP-based location information.
 
-    :cvar IPINFO_URL: Endpoint returning public IP geolocation data in JSON.
+    Attributes:
+        IPINFO_URL: Endpoint returning public IP geolocation data in JSON.
     """
 
     IPINFO_URL: Final[str] = "https://ipinfo.io/json"

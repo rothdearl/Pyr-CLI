@@ -22,7 +22,8 @@ class Spinner(_ProgressIndicator):
     - Writes a final message followed by a newline when a message is provided, even when the indicator is not visible.
     - Treats empty messages as no message.
 
-    :ivar frames: Spinner glyph sequence cycled on each call to ``advance``.
+    Attributes:
+        frames: Spinner glyph sequence cycled on each call to ``advance``.
     """
 
     frames: tuple[str, ...] = _DEFAULT_SPINNER_FRAMES
