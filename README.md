@@ -517,7 +517,7 @@ This design provides:
 ### Non-text program
 
 ``` python
-"""A program that demos using progress indicators."""
+"""Implements a program that demos using progress indicators."""
 
 import argparse
 import sys
@@ -530,7 +530,7 @@ from pyrcli.cli.progress import ProgressBar, Spinner
 
 class CLIProgramDemo(CLIProgram):
     def __init__(self) -> None:
-        """Initialize the instance."""
+        """Initialize a new instance."""
         super().__init__(name="demo")
 
     @override
@@ -604,27 +604,27 @@ if __name__ == "__main__":
 ### Text-processing program
 
 ``` python
-"""A program that prints files to standard output."""
+"""Implements a program that prints files to standard output."""
 
 import argparse
 import sys
 from collections.abc import Iterable
-from typing import Final, override
+from typing import Final, NoReturn, override
 
 from pyrcli.cli import TextProgram, ansi, io, terminal, text
 
 
-class Colors:
-    """Namespace for terminal color constants."""
-    COLON: Final[str] = ansi.Colors.BRIGHT_CYAN
-    FILE_NAME: Final[str] = ansi.Colors.BRIGHT_MAGENTA
+class Styles:
+    """Namespace for ANSI styling constants."""
+    COLON: Final[str] = ansi.ForegroundColors.BRIGHT_CYAN
+    FILE_NAME: Final[str] = ansi.ForegroundColors.BRIGHT_MAGENTA
 
 
 class TextProgramDemo(TextProgram):
-    """A program that prints files to standard output."""
+    """Prints files to standard output."""
 
     def __init__(self) -> None:
-        """Initialize the instance."""
+        """Initialize a new instance."""
         super().__init__(name="demo")
 
     @override
@@ -663,7 +663,7 @@ class TextProgramDemo(TextProgram):
 
     @override
     def handle_text_stream(self, file_info: io.FileInfo) -> None:
-        """Process the text stream contained in ``FileInfo``."""
+        """Process the text stream for a single file."""
         self.print_file_header(file_info.file_name)
         self.print_lines(file_info.text_stream)
 
@@ -676,8 +676,8 @@ class TextProgramDemo(TextProgram):
 
     def print_file_header(self, file_name: str) -> None:
         """Print the rendered file header for ``file_name``."""
-        if self.should_print_file_header():
-            print(self.render_file_header(file_name, file_name_color=Colors.FILE_NAME, colon_color=Colors.COLON))
+        if self.can_print_file_header():
+            print(self.render_file_header(file_name, file_name_style=Styles.FILE_NAME, colon_style=Styles.COLON))
 
     @staticmethod
     def print_lines(lines: Iterable[str]) -> None:
