@@ -19,7 +19,6 @@ class Dupe(TextProgram):
     """Program for filtering duplicate or unique lines from files."""
 
     def __init__(self) -> None:
-        """Initialize the ``Dupe``."""
         super().__init__(name="dupe")
 
     @override

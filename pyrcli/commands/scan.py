@@ -35,7 +35,6 @@ class Scan(TextProgram):
     NO_MATCHES_EXIT_CODE: Final[int] = 1
 
     def __init__(self) -> None:
-        """Initialize the ``Scan``."""
         super().__init__(name="scan", error_exit_code=2)
 
         self.found_any_match: bool = False

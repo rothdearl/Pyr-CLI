@@ -33,7 +33,6 @@ class Order(TextProgram):
     NON_WORD_OR_WHITESPACE_REGEX: Final[str] = r"[^\w\s]+"
 
     def __init__(self) -> None:
-        """Initialize the ``Order``."""
         super().__init__(name="order")
 
     @override

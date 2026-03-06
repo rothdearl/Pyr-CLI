@@ -25,7 +25,6 @@ class When(CLIProgram):
     DEFAULT_DATETIME_FORMAT: Final[str] = "%a %b %-d %-I:%M%p" if os_info.IS_POSIX else "%a %b %d %I:%M%p"
 
     def __init__(self) -> None:
-        """Initialize the ``When``."""
         super().__init__(name="when")
 
     @override

@@ -19,7 +19,6 @@ class Peek(TextProgram):
     """Program for printing the first part of files."""
 
     def __init__(self) -> None:
-        """Initialize the ``Peek``."""
         super().__init__(name="peek")
 
     @override

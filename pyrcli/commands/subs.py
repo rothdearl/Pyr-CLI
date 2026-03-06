@@ -24,7 +24,6 @@ class Subs(TextProgram):
     """
 
     def __init__(self) -> None:
-        """Initialize the ``Subs``."""
         super().__init__(name="subs")
 
         self.pattern: re.Pattern[str] | None = None

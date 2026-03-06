@@ -20,7 +20,6 @@ class Track(TextProgram):
     """Program for printing the last part of files, optionally following new lines."""
 
     def __init__(self) -> None:
-        """Initialize the ``Track``."""
         super().__init__(name="track")
 
     @override
