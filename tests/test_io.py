@@ -40,8 +40,8 @@ class TestIO(unittest.TestCase):
         self.assertEqual(len(errors), 1)
         self.assertEqual(errors[0], "'__pycache__': is a directory")
 
-    def test_write_text_to_file(self) -> None:
-        """Tests the write_text_to_file function."""
+    def test_write_text_file(self) -> None:
+        """Tests the write_text_file function."""
         errors = []
         test_file_path = os.path.join("test_data", "io-test-file.txt")
 
@@ -50,16 +50,16 @@ class TestIO(unittest.TestCase):
             errors.append(error_message)
 
         # 1) Valid file.
-        io.write_text_to_file(test_file_path, lines=["Unit testing."], encoding="utf-8", on_error=on_error)
+        io.write_text_file(test_file_path, lines=["Unit testing."], encoding="utf-8", on_error=on_error)
         self.assertEqual(errors, [])
 
         # 2) Empty file name.
-        io.write_text_to_file("", lines=[], encoding="utf-8", on_error=on_error)
+        io.write_text_file("", lines=[], encoding="utf-8", on_error=on_error)
         self.assertEqual(len(errors), 1)
         errors.clear()
 
         # 3) Invalid encoding.
-        io.write_text_to_file(test_file_path, lines=["Unit testing."], encoding="invalid", on_error=on_error)
+        io.write_text_file(test_file_path, lines=["Unit testing."], encoding="invalid", on_error=on_error)
         self.assertEqual(len(errors), 1)
         self.assertEqual(errors[0], f"'{test_file_path}': unknown encoding 'invalid'")
         errors.clear()
