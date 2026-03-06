@@ -27,7 +27,11 @@ def _strip_ansi(text: str) -> str:
 
 
 def _visible_width(message: str) -> int:
-    """Return the visible width of the message after removing ANSI CSI escape sequences (not Unicode cell-width aware)."""
+    """
+    Return the visible character width of ``message``, excluding ANSI CSI escape sequences.
+
+    - Does not account for Unicode double-width characters.
+    """
     return len(_strip_ansi(message))
 
 
@@ -40,7 +44,7 @@ class _LineWriter:
     _last_visible_width: int = field(default=0, init=False, repr=False)
 
     def clear(self) -> None:
-        """Clear the current line and return the cursor to column 0, if enabled."""
+        """Clear the current line, if enabled."""
         if not self.enabled:
             return
 
@@ -49,7 +53,7 @@ class _LineWriter:
         self._last_visible_width = 0
 
     def newline(self) -> None:
-        """Print a terminating newline, leaving the current line content as-is, if enabled."""
+        """Write a terminating newline, leaving the current line content as-is, if enabled."""
         if not self.enabled:
             return
 

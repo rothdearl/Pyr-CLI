@@ -6,7 +6,7 @@ from typing import Final, final
 from ._base import _ProgressIndicator
 from .types import ProgressMessage
 
-# Default glyphs when no custom sequence is provided (cycled in order).
+# Default glyph sequence, cycled on each advance.
 _DEFAULT_SPINNER_FRAMES: Final[tuple[str, ...]] = ("-", "\\", "|", "/")
 
 
@@ -16,8 +16,7 @@ class Spinner(_ProgressIndicator):
     """
     Terminal spinner for tracking work with an unknown total.
 
-    - Displays a spinner by cycling through configured glyphs for work with an unknown total.
-    - Advances by cycling through configured glyphs.
+    - Cycles through configured glyphs on each call to ``advance``
     - Clears the rendered frame on finalization.
     - Writes a final message followed by a newline when a message is provided, even when the indicator is not visible.
     - Treats empty messages as no message.

@@ -121,7 +121,7 @@ class ProgressBar(_ProgressIndicator):
         self.update(0, message=message)
 
     def update(self, completed: int, *, message: ProgressMessage = None) -> None:
-        """Redraw the progress bar for the completed units."""
+        """Set progress to ``completed`` units and redraw the bar."""
         if self._finished:
             return
 
