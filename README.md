@@ -130,6 +130,29 @@ All filesystem and terminal interaction is isolated here. This makes core logic 
 
 ---
 
+## Optional Packages
+
+The CLI framework provides two optional sub-packages for commands that need them.
+
+### `pyrcli.cli.http`
+
+Provides HTTP request helpers for DELETE, GET, POST, and PUT operations,
+built on ``requests``. Includes utilities for parsing and validating HTTP
+response bodies.
+
+- ``client`` — HTTP request helpers with configurable timeout and optional status validation.
+- ``responses`` — Utilities for parsing and validating HTTP response bodies.
+- ``upload`` — Multipart file upload helpers.
+
+### `pyrcli.cli.progress`
+
+Provides terminal progress indicators for commands that perform long-running operations.
+
+- ``ProgressBar`` — For work with a known total.
+- ``Spinner`` — For work with an unknown total.
+
+---
+
 ## Output Conventions
 
 - **stdout** — primary program output
