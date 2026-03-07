@@ -1,5 +1,6 @@
 import os
 import unittest
+from pathlib import Path
 from typing import final
 
 from pyrcli.cli import io
@@ -8,6 +9,14 @@ from pyrcli.cli import io
 @final
 class TestIO(unittest.TestCase):
     """Tests the io module."""
+
+    def test_iter_descendant_paths(self) -> None:
+        """Tests the iter_descendant_paths function."""
+        for path in io.iter_descendant_paths(Path(os.curdir)):
+            self.assertIsInstance(path, Path)
+
+        for path in io.iter_descendant_paths(Path("/"), max_depth=1):
+            self.assertIsInstance(path, Path)
 
     def test_read_text_files(self) -> None:
         """Tests the read_text_files function."""
