@@ -7,6 +7,26 @@ from typing import Final
 from .ansi import RESET, TextAttributes
 
 
+def _collect_merged_match_ranges(text: str, *, patterns: Collection[re.Pattern[str]]) -> list[tuple[int, int]]:
+    """Return merged, non-overlapping match ranges for all patterns in ``text``."""
+    ranges = []
+
+    for pattern in patterns:
+        for match in pattern.finditer(text):
+            ranges.append((match.start(), match.end()))
+
+    # Merge overlapping ranges to prevent nested ANSI codes from corrupting the output.
+    merged = []
+
+    for start, end in sorted(ranges):
+        if merged and start <= merged[-1][1]:
+            merged[-1] = (merged[-1][0], max(merged[-1][1], end))
+        else:
+            merged.append((start, end))
+
+    return merged
+
+
 def bold(text: str) -> str:
     """Return ``text`` rendered in bold."""
     return style(text, ansi_style=TextAttributes.BOLD)
@@ -29,30 +49,14 @@ def style(text: str, *, ansi_style: str) -> str:
 
 def style_pattern_matches(text: str, *, patterns: Collection[re.Pattern[str]], ansi_style: str) -> str:
     """Return ``text`` rendered with the given ANSI style, reset afterward."""
-    # Avoid allocation and iteration for the common empty case.
+    # Avoid allocation and iteration for the empty case.
     if not patterns:
         return text
 
-    match_ranges = []
-
-    for pattern in patterns:
-        for match in pattern.finditer(text):
-            match_ranges.append((match.start(), match.end()))
-
-    # Merge overlapping match ranges to prevent nested ANSI codes from corrupting the output.
-    merged_match_ranges = []
-
-    for start, end in sorted(match_ranges):
-        if merged_match_ranges and start <= merged_match_ranges[-1][1]:
-            merged_match_ranges[-1] = (merged_match_ranges[-1][0], max(merged_match_ranges[-1][1], end))
-        else:
-            merged_match_ranges.append((start, end))
-
-    # Style match ranges.
     styled_text = []
     prev_end = 0
 
-    for start, end in merged_match_ranges:
+    for start, end in _collect_merged_match_ranges(text, patterns=patterns):
         if prev_end < start:
             styled_text.append(text[prev_end:start])
 
