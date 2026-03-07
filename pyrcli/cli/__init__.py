@@ -73,6 +73,7 @@ from .text_program import TextProgram
 from .types import (
     CompiledPatterns,
     ErrorReporter,
+    JsonArray,
     JsonObject,
     KeyValuePairs,
     MultipartFiles,
@@ -153,6 +154,7 @@ __all__: Final[tuple[str, ...]] = (
     # types
     "CompiledPatterns",
     "ErrorReporter",
+    "JsonArray",
     "JsonObject",
     "KeyValuePairs",
     "MultipartFiles",

@@ -10,6 +10,9 @@ type CompiledPatterns = Sequence[re.Pattern[str]]
 #: Callback for reporting error messages.
 type ErrorReporter = Callable[[str], None]
 
+#: A decoded JSON array represented as a list.
+type JsonArray = list[Any]
+
 #: A decoded JSON object represented as a dictionary.
 type JsonObject = dict[str, Any]
 
@@ -25,6 +28,7 @@ type QueryParameters = Mapping[str, str]
 __all__: Final[tuple[str, ...]] = (
     "CompiledPatterns",
     "ErrorReporter",
+    "JsonArray",
     "JsonObject",
     "KeyValuePairs",
     "MultipartFiles",
